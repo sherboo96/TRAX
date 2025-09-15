@@ -1,0 +1,438 @@
+/* Add Course Component Styles */
+/* Modern step-by-step form design with enhanced UX */
+
+/* Custom focus styles for better accessibility */
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+}
+
+/* Custom scrollbar for better UX */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Smooth transitions for interactive elements */
+button,
+input,
+select,
+textarea {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Custom animation for loading spinner */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Form validation styles */
+.form-error {
+  border-color: #ef4444;
+}
+
+.form-error:focus {
+  border-color: #ef4444;
+  ring-color: #ef4444;
+}
+
+/* Custom range slider styling */
+.slider {
+  -webkit-appearance: none;
+  appearance: none;
+  background: #e5e7eb;
+  outline: none;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.slider::-webkit-slider-track {
+  background: #e5e7eb;
+  height: 8px;
+  border-radius: 4px;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #3b82f6;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.slider::-webkit-slider-thumb:hover {
+  background: #2563eb;
+  transform: scale(1.1);
+}
+
+.slider::-moz-range-track {
+  background: #e5e7eb;
+  height: 8px;
+  border-radius: 4px;
+  border: none;
+}
+
+.slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #3b82f6;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.slider::-moz-range-thumb:hover {
+  background: #2563eb;
+  transform: scale(1.1);
+}
+
+/* Progress step animations */
+.progress-step {
+  transition: all 0.3s ease;
+}
+
+.progress-step:hover {
+  transform: scale(1.05);
+}
+
+.progress-step.active {
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.progress-step.completed {
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+/* Form section transitions */
+.form-section {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Button hover effects */
+.btn-primary {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.btn-primary::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.5s;
+}
+
+.btn-primary:hover::before {
+  left: 100%;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.btn-secondary {
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
+}
+
+/* Card hover effects */
+.form-card {
+  transition: all 0.3s ease;
+}
+
+.form-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Input focus animations */
+.input-focus {
+  position: relative;
+}
+
+.input-focus::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: #3b82f6;
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
+}
+
+.input-focus:focus-within::after {
+  width: 100%;
+}
+
+/* Loading states */
+.loading-overlay {
+  position: relative;
+}
+
+.loading-overlay::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .grid-cols-1.md\:grid-cols-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .md\:col-span-2 {
+    grid-column: span 1;
+  }
+
+  .progress-steps {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .progress-step {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .bg-gradient-to-br {
+    background: linear-gradient(to bottom right, #1e293b, #0f172a, #1e1b4b);
+  }
+
+  .bg-white {
+    background-color: #1f2937;
+  }
+
+  .text-gray-900 {
+    color: #f9fafb;
+  }
+
+  .text-gray-600 {
+    color: #d1d5db;
+  }
+
+  .border-gray-200 {
+    border-color: #374151;
+  }
+
+  .bg-gray-50 {
+    background-color: #1f2937;
+  }
+
+  .text-gray-700 {
+    color: #d1d5db;
+  }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .border-2 {
+    border-width: 3px;
+  }
+
+  .text-blue-600 {
+    color: #0000ff;
+  }
+
+  .bg-blue-100 {
+    background-color: #e6f3ff;
+  }
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  .form-container {
+    box-shadow: none;
+    border: 1px solid #000;
+  }
+
+  .btn,
+  .navigation {
+    display: none !important;
+  }
+}
+
+/* Custom styles for the redesigned add course component */
+
+/* Form input focus effects */
+.form-input:focus {
+  transform: scale(1.02);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Category and language button enhancements */
+.category-btn,
+.language-btn {
+  transition: all 0.3s ease;
+}
+
+.category-btn:hover,
+.language-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.category-btn.selected,
+.language-btn.selected {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.2);
+}
+
+/* Level and status button enhancements */
+.level-btn,
+.status-btn {
+  transition: all 0.3s ease;
+}
+
+.level-btn:hover,
+.status-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.level-btn.selected,
+.status-btn.selected {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* Section header enhancements */
+.section-header {
+  position: relative;
+}
+
+.section-header::after {
+  content: "";
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+  border-radius: 2px;
+}
+
+/* Loading spinner enhancements */
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Form validation error animations */
+.error-message {
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  75% {
+    transform: translateX(5px);
+  }
+}
+
+/* Accessibility improvements */
+.form-input:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+.btn:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}

@@ -1,0 +1,147 @@
+/* Course Details Component Styles */
+
+/* Custom scrollbar for course content */
+.course-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.course-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.course-content::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.course-content::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Smooth transitions for tab content */
+.tab-content {
+  transition: opacity 0.3s ease-in-out;
+}
+
+/* Hover effects for resource items */
+.resource-item:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Sticky sidebar adjustments */
+.sticky-sidebar {
+  position: sticky;
+  top: 2rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .sticky-sidebar {
+    position: static;
+  }
+}
+
+/* Loading animation */
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Course badge animations */
+.course-badge {
+  transition: all 0.2s ease-in-out;
+}
+
+.course-badge:hover {
+  transform: scale(1.05);
+}
+
+/* Module expansion animation */
+.module-content {
+  transition: max-height 0.3s ease-in-out;
+  overflow: hidden;
+}
+
+/* Resource completion animation */
+.resource-complete {
+  animation: completePulse 0.6s ease-in-out;
+}
+
+@keyframes completePulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Tab indicator animation */
+.tab-indicator {
+  transition: all 0.3s ease-in-out;
+}
+
+/* Course card shadow on hover */
+.course-card:hover {
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Progress bar animation */
+.progress-bar {
+  transition: width 0.6s ease-in-out;
+}
+
+/* Button hover effects */
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.btn-secondary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive text sizing */
+@media (max-width: 768px) {
+  .course-title {
+    font-size: 1.5rem;
+  }
+
+  .course-description {
+    font-size: 0.875rem;
+  }
+}
+
+/* Accessibility improvements */
+.focus-visible:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Print styles */
+@media print {
+  .course-card,
+  .action-buttons {
+    display: none;
+  }
+
+  .course-content {
+    width: 100%;
+  }
+}

@@ -1,0 +1,54 @@
+/* Resource Details Component Styles */
+
+/* Custom scrollbar for better UX */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Smooth transitions for interactive elements */
+.transition-all {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Hover effects for buttons */
+button:hover {
+  transform: translateY(-1px);
+}
+
+/* Loading animation */
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .text-3xl {
+    font-size: 1.875rem;
+  }
+
+  .text-lg {
+    font-size: 1.125rem;
+  }
+}

@@ -1,0 +1,13 @@
+/* Admin Institutions specific styles */
+.institution-item {
+  transition: background-color 0.2s ease-in-out;
+}
+.institution-item:hover {
+  background-color: #f9fafb;
+}
+.action-button {
+  transition: all 0.2s ease-in-out;
+}
+.action-button:hover {
+  transform: translateY(-1px);
+}

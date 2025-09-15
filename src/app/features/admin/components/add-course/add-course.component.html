@@ -1,0 +1,1006 @@
+<div
+  class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50"
+>
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header Section -->
+    <div class="mb-8">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+          <div class="p-3 bg-blue-100 rounded-xl">
+            <svg
+              class="w-8 h-8 text-blue-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+              ></path>
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-3xl font-bold text-gray-900">Create New Course</h1>
+            <p class="text-gray-600 mt-1">
+              Design and configure your course with our comprehensive form
+            </p>
+          </div>
+        </div>
+        <button
+          (click)="onCancel()"
+          class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
+        >
+          <svg
+            class="w-4 h-4 mr-2"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M10 19l-7-7m0 0l7-7m-7 7h18"
+            ></path>
+          </svg>
+          Back to Courses
+        </button>
+      </div>
+    </div>
+
+    <!-- Progress Indicator -->
+    <div class="mb-8">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+          <div
+            *ngFor="let section of formSections; let i = index"
+            class="flex items-center"
+          >
+            <div class="flex items-center">
+              <button
+                (click)="goToSection(section.id)"
+                [class]="
+                  currentSection === section.id
+                    ? 'bg-blue-600 text-white border-blue-600 shadow-lg'
+                    : section.completed
+                    ? 'bg-green-500 text-white border-green-500'
+                    : 'bg-white text-gray-400 border-gray-300 hover:border-gray-400'
+                "
+                class="flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-200 hover:scale-105"
+              >
+                <span *ngIf="section.completed" class="text-sm font-bold"
+                  >✓</span
+                >
+                <span *ngIf="!section.completed" class="text-sm">{{
+                  section.icon
+                }}</span>
+              </button>
+              <div class="ml-3">
+                <p
+                  [class]="
+                    currentSection === section.id
+                      ? 'text-blue-600 font-semibold'
+                      : 'text-gray-500'
+                  "
+                  class="text-sm font-medium"
+                >
+                  {{ section.title }}
+                </p>
+              </div>
+            </div>
+            <div
+              *ngIf="i < formSections.length - 1"
+              class="ml-4 w-6 h-0.5 bg-gray-300"
+            ></div>
+          </div>
+        </div>
+        <div class="text-sm text-gray-500">
+          Step {{ getCurrentStepIndex() + 1 }} of {{ formSections.length }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Form Container -->
+    <form
+      [formGroup]="courseForm"
+      (ngSubmit)="onSubmit()"
+      class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden"
+    >
+      <!-- Basic Information Section -->
+      <div *ngIf="currentSection === 'basic'" class="p-8">
+        <div class="mb-8">
+          <div class="flex items-center space-x-3 mb-4">
+            <div class="p-2 bg-blue-100 rounded-lg">
+              <span class="text-2xl">📋</span>
+            </div>
+            <div>
+              <h2 class="text-2xl font-bold text-gray-900">
+                Basic Information
+              </h2>
+              <p class="text-gray-600">
+                Start by providing the essential details about your course
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-6">
+          <!-- Title -->
+          <div>
+            <label
+              for="title"
+              class="block text-sm font-semibold text-gray-700 mb-3"
+              >Course Title *</label
+            >
+            <input
+              type="text"
+              id="title"
+              formControlName="title"
+              placeholder="Enter a compelling course title"
+              class="w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+              [class.border-red-300]="isFieldInvalid('title')"
+            />
+            <div
+              *ngIf="isFieldInvalid('title')"
+              class="mt-2 text-sm text-red-600"
+            >
+              {{ getFieldError("title") }}
+            </div>
+          </div>
+
+          <!-- Category and Language Row -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Category -->
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-3"
+                >Category *</label
+              >
+              <div class="grid grid-cols-2 gap-3">
+                <button
+                  *ngFor="let category of categories"
+                  type="button"
+                  (click)="courseForm.patchValue({ category: category.id })"
+                  [class]="
+                    courseForm.get('category')?.value === category.id
+                      ? 'bg-blue-100 border-blue-500 text-blue-700 shadow-md'
+                      : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100'
+                  "
+                  class="flex items-center p-4 border-2 rounded-lg transition-all duration-200"
+                >
+                  <span class="text-xl mr-3">{{ category.icon }}</span>
+                  <span class="font-medium text-sm">{{ category.name }}</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Language -->
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-3"
+                >Language *</label
+              >
+              <div class="grid grid-cols-2 gap-3">
+                <button
+                  *ngFor="let lang of languages"
+                  type="button"
+                  (click)="courseForm.patchValue({ language: lang.code })"
+                  [class]="
+                    courseForm.get('language')?.value === lang.code
+                      ? 'bg-blue-100 border-blue-500 text-blue-700 shadow-md'
+                      : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100'
+                  "
+                  class="flex items-center p-4 border-2 rounded-lg transition-all duration-200"
+                >
+                  <span class="text-lg mr-3">{{ lang.flag }}</span>
+                  <span class="font-medium text-sm">{{ lang.name }}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div>
+            <label
+              for="description"
+              class="block text-sm font-semibold text-gray-700 mb-3"
+              >Description *</label
+            >
+            <textarea
+              id="description"
+              formControlName="description"
+              rows="4"
+              placeholder="Provide a detailed description of your course..."
+              class="w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 resize-none"
+              [class.border-red-300]="isFieldInvalid('description')"
+            ></textarea>
+            <div
+              *ngIf="isFieldInvalid('description')"
+              class="mt-2 text-sm text-red-600"
+            >
+              {{ getFieldError("description") }}
+            </div>
+          </div>
+
+          <!-- Location -->
+          <div>
+            <label
+              for="location"
+              class="block text-sm font-semibold text-gray-700 mb-3"
+              >Location *</label
+            >
+            <input
+              type="text"
+              id="location"
+              formControlName="location"
+              placeholder="e.g., Main Campus, Online, Room 101"
+              class="w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+              [class.border-red-300]="isFieldInvalid('location')"
+            />
+            <div
+              *ngIf="isFieldInvalid('location')"
+              class="mt-2 text-sm text-red-600"
+            >
+              {{ getFieldError("location") }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Schedule Section -->
+      <div *ngIf="currentSection === 'schedule'" class="p-8">
+        <div class="mb-8">
+          <div class="flex items-center space-x-3 mb-4">
+            <div class="p-2 bg-green-100 rounded-lg">
+              <span class="text-2xl">📅</span>
+            </div>
+            <div>
+              <h2 class="text-2xl font-bold text-gray-900">
+                Schedule & Duration
+              </h2>
+              <p class="text-gray-600">
+                Set the timing and duration for your course
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Start Date -->
+          <div>
+            <label
+              for="startDate"
+              class="block text-sm font-semibold text-gray-700 mb-3"
+              >Start Date *</label
+            >
+            <input
+              type="date"
+              id="startDate"
+              formControlName="startDate"
+              class="w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+              [class.border-red-300]="isFieldInvalid('startDate')"
+            />
+            <div
+              *ngIf="isFieldInvalid('startDate')"
+              class="mt-2 text-sm text-red-600"
+            >
+              {{ getFieldError("startDate") }}
+            </div>
+          </div>
+
+          <!-- End Date -->
+          <div>
+            <label
+              for="endDate"
+              class="block text-sm font-semibold text-gray-700 mb-3"
+              >End Date *</label
+            >
+            <input
+              type="date"
+              id="endDate"
+              formControlName="endDate"
+              class="w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+              [class.border-red-300]="isFieldInvalid('endDate')"
+            />
+            <div
+              *ngIf="isFieldInvalid('endDate')"
+              class="mt-2 text-sm text-red-600"
+            >
+              {{ getFieldError("endDate") }}
+            </div>
+          </div>
+
+          <!-- Time From -->
+          <div>
+            <label
+              for="timeFrom"
+              class="block text-sm font-semibold text-gray-700 mb-3"
+              >Start Time *</label
+            >
+            <input
+              type="time"
+              id="timeFrom"
+              formControlName="timeFrom"
+              class="w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+              [class.border-red-300]="isFieldInvalid('timeFrom')"
+            />
+            <div
+              *ngIf="isFieldInvalid('timeFrom')"
+              class="mt-2 text-sm text-red-600"
+            >
+              {{ getFieldError("timeFrom") }}
+            </div>
+          </div>
+
+          <!-- Time To -->
+          <div>
+            <label
+              for="timeTo"
+              class="block text-sm font-semibold text-gray-700 mb-3"
+              >End Time *</label
+            >
+            <input
+              type="time"
+              id="timeTo"
+              formControlName="timeTo"
+              class="w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+              [class.border-red-300]="isFieldInvalid('timeTo')"
+            />
+            <div
+              *ngIf="isFieldInvalid('timeTo')"
+              class="mt-2 text-sm text-red-600"
+            >
+              {{ getFieldError("timeTo") }}
+            </div>
+          </div>
+
+          <!-- Duration -->
+          <div>
+            <label
+              for="duration"
+              class="block text-sm font-semibold text-gray-700 mb-3"
+              >Duration *</label
+            >
+            <input
+              type="text"
+              id="duration"
+              formControlName="duration"
+              placeholder="e.g., 2 hours, 3 days, 1 week"
+              class="w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+              [class.border-red-300]="isFieldInvalid('duration')"
+            />
+            <div
+              *ngIf="isFieldInvalid('duration')"
+              class="mt-2 text-sm text-red-600"
+            >
+              {{ getFieldError("duration") }}
+            </div>
+          </div>
+
+          <!-- Available Seats -->
+          <div>
+            <label
+              for="availableSeats"
+              class="block text-sm font-semibold text-gray-700 mb-3"
+              >Available Seats *</label
+            >
+            <input
+              type="number"
+              id="availableSeats"
+              formControlName="availableSeats"
+              min="1"
+              class="w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+              [class.border-red-300]="isFieldInvalid('availableSeats')"
+            />
+            <div
+              *ngIf="isFieldInvalid('availableSeats')"
+              class="mt-2 text-sm text-red-600"
+            >
+              {{ getFieldError("availableSeats") }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Course Details Section -->
+      <div *ngIf="currentSection === 'details'" class="p-8">
+        <div class="mb-8">
+          <div class="flex items-center space-x-3 mb-4">
+            <div class="p-2 bg-purple-100 rounded-lg">
+              <span class="text-2xl">⚙️</span>
+            </div>
+            <div>
+              <h2 class="text-2xl font-bold text-gray-900">Course Details</h2>
+              <p class="text-gray-600">
+                Configure the course settings and pricing
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Level -->
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-3"
+              >Level *</label
+            >
+            <div class="space-y-3">
+              <button
+                *ngFor="let level of levels"
+                type="button"
+                (click)="courseForm.patchValue({ level: level.id })"
+                [class]="
+                  courseForm.get('level')?.value === level.id
+                    ? 'bg-' +
+                      level.color +
+                      '-100 border-' +
+                      level.color +
+                      '-500 text-' +
+                      level.color +
+                      '-700 shadow-md'
+                    : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100'
+                "
+                class="flex items-center w-full p-4 border-2 rounded-lg transition-all duration-200"
+              >
+                <span class="text-xl mr-3">{{ level.icon }}</span>
+                <span class="font-medium">{{ level.name }}</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Status -->
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-3"
+              >Status *</label
+            >
+            <div class="space-y-3">
+              <button
+                *ngFor="let status of statuses"
+                type="button"
+                (click)="courseForm.patchValue({ status: status.id })"
+                [class]="
+                  courseForm.get('status')?.value === status.id
+                    ? 'bg-' +
+                      status.color +
+                      '-100 border-' +
+                      status.color +
+                      '-500 text-' +
+                      status.color +
+                      '-700 shadow-md'
+                    : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100'
+                "
+                class="flex items-center w-full p-4 border-2 rounded-lg transition-all duration-200"
+              >
+                <span class="text-xl mr-3">{{ status.icon }}</span>
+                <span class="font-medium">{{ status.name }}</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Price -->
+          <div>
+            <label
+              for="price"
+              class="block text-sm font-semibold text-gray-700 mb-3"
+              >Price *</label
+            >
+            <div class="relative">
+              <div
+                class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"
+              >
+                <span class="text-gray-500 text-lg">$</span>
+              </div>
+              <input
+                type="number"
+                id="price"
+                formControlName="price"
+                min="0"
+                step="0.01"
+                placeholder="0.00"
+                class="w-full pl-8 pr-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                [class.border-red-300]="isFieldInvalid('price')"
+              />
+            </div>
+            <div
+              *ngIf="isFieldInvalid('price')"
+              class="mt-2 text-sm text-red-600"
+            >
+              {{ getFieldError("price") }}
+            </div>
+          </div>
+
+          <!-- Progress -->
+          <div>
+            <label
+              for="progress"
+              class="block text-sm font-semibold text-gray-700 mb-3"
+              >Progress (%) *</label
+            >
+            <div class="space-y-3">
+              <input
+                type="range"
+                id="progress"
+                formControlName="progress"
+                min="0"
+                max="100"
+                class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+              />
+              <div class="flex justify-between text-sm text-gray-600">
+                <span>0%</span>
+                <span class="font-semibold text-blue-600"
+                  >{{ courseForm.get("progress")?.value }}%</span
+                >
+                <span>100%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Options -->
+          <div class="md:col-span-2">
+            <div class="bg-gray-50 p-6 rounded-lg">
+              <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                Course Options
+              </h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="onlineRepeated"
+                    formControlName="onlineRepeated"
+                    class="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <label
+                    for="onlineRepeated"
+                    class="ml-3 text-sm font-medium text-gray-700"
+                  >
+                    Online/Repeated Course
+                  </label>
+                </div>
+                <div class="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="certificate"
+                    formControlName="certificate"
+                    class="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <label
+                    for="certificate"
+                    class="ml-3 text-sm font-medium text-gray-700"
+                  >
+                    Certificate Available
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Content & Assignments Section -->
+      <div *ngIf="currentSection === 'content'" class="p-8">
+        <div class="mb-8">
+          <div class="flex items-center space-x-3 mb-4">
+            <div class="p-2 bg-orange-100 rounded-lg">
+              <span class="text-2xl">📚</span>
+            </div>
+            <div>
+              <h2 class="text-2xl font-bold text-gray-900">
+                Content & Assignments
+              </h2>
+              <p class="text-gray-600">
+                Define course content, requirements, and assign instructors and
+                departments
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-8">
+          <!-- Requirements -->
+          <div class="bg-gray-50 p-6 rounded-lg">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-lg font-semibold text-gray-800">
+                Course Requirements
+              </h3>
+              <button
+                type="button"
+                (click)="addRequirement()"
+                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
+              >
+                <svg
+                  class="w-4 h-4 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                  ></path>
+                </svg>
+                Add Requirement
+              </button>
+            </div>
+            <div class="space-y-4">
+              <div
+                *ngFor="let requirement of requirements.controls; let i = index"
+                class="flex items-start space-x-3"
+              >
+                <div class="flex-1">
+                  <input
+                    type="text"
+                    [formControlName]="i"
+                    placeholder="Enter a requirement (e.g., Basic programming knowledge)"
+                    class="w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                    [class.border-red-300]="
+                      requirement.invalid && requirement.touched
+                    "
+                  />
+                  <div
+                    *ngIf="requirement.invalid && requirement.touched"
+                    class="mt-2 text-sm text-red-600"
+                  >
+                    Requirement is required
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  (click)="removeRequirement(i)"
+                  *ngIf="requirements.length > 1"
+                  class="inline-flex items-center p-2 border border-transparent rounded-lg text-red-400 hover:bg-red-100 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200"
+                >
+                  <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M6 18L18 6M6 6l12 12"
+                    ></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Learning Outcomes -->
+          <div class="bg-gray-50 p-6 rounded-lg">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-lg font-semibold text-gray-800">
+                Learning Outcomes
+              </h3>
+              <button
+                type="button"
+                (click)="addLearningOutcome()"
+                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
+              >
+                <svg
+                  class="w-4 h-4 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                  ></path>
+                </svg>
+                Add Learning Outcome
+              </button>
+            </div>
+            <div class="space-y-4">
+              <div
+                *ngFor="let outcome of learningOutcomes.controls; let i = index"
+                class="flex items-start space-x-3"
+              >
+                <div class="flex-1">
+                  <input
+                    type="text"
+                    [formControlName]="i"
+                    placeholder="Enter a learning outcome (e.g., Students will be able to build a web application)"
+                    class="w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                    [class.border-red-300]="outcome.invalid && outcome.touched"
+                  />
+                  <div
+                    *ngIf="outcome.invalid && outcome.touched"
+                    class="mt-2 text-sm text-red-600"
+                  >
+                    Learning outcome is required
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  (click)="removeLearningOutcome(i)"
+                  *ngIf="learningOutcomes.length > 1"
+                  class="inline-flex items-center p-2 border border-transparent rounded-lg text-red-400 hover:bg-red-100 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200"
+                >
+                  <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M6 18L18 6M6 6l12 12"
+                    ></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Instructors -->
+          <div class="bg-gray-50 p-6 rounded-lg">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-lg font-semibold text-gray-800">Instructors</h3>
+              <button
+                type="button"
+                (click)="addInstructor()"
+                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
+              >
+                <svg
+                  class="w-4 h-4 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                  ></path>
+                </svg>
+                Add Instructor
+              </button>
+            </div>
+
+            <div
+              *ngIf="loadingInstructors"
+              class="flex items-center justify-center py-8"
+            >
+              <div
+                class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"
+              ></div>
+              <span class="ml-3 text-gray-600">Loading instructors...</span>
+            </div>
+
+            <div *ngIf="!loadingInstructors" class="space-y-4">
+              <div
+                *ngFor="let instructor of instructorIds.controls; let i = index"
+                class="flex items-start space-x-3"
+              >
+                <div class="flex-1">
+                  <select
+                    [formControlName]="i"
+                    class="w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                    [class.border-red-300]="
+                      instructor.invalid && instructor.touched
+                    "
+                  >
+                    <option value="">Select an instructor</option>
+                    <option *ngFor="let inst of instructors" [value]="inst.id">
+                      {{ inst.fullName }} - {{ inst.specialty }}
+                    </option>
+                  </select>
+                  <div
+                    *ngIf="instructor.invalid && instructor.touched"
+                    class="mt-2 text-sm text-red-600"
+                  >
+                    Instructor is required
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  (click)="removeInstructor(i)"
+                  *ngIf="instructorIds.length > 1"
+                  class="inline-flex items-center p-2 border border-transparent rounded-lg text-red-400 hover:bg-red-100 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200"
+                >
+                  <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M6 18L18 6M6 6l12 12"
+                    ></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Target Departments -->
+          <div class="bg-gray-50 p-6 rounded-lg">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-lg font-semibold text-gray-800">
+                Target Departments
+              </h3>
+              <button
+                type="button"
+                (click)="addDepartment()"
+                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
+              >
+                <svg
+                  class="w-4 h-4 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                  ></path>
+                </svg>
+                Add Department
+              </button>
+            </div>
+
+            <div
+              *ngIf="loadingDepartments"
+              class="flex items-center justify-center py-8"
+            >
+              <div
+                class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"
+              ></div>
+              <span class="ml-3 text-gray-600">Loading departments...</span>
+            </div>
+
+            <div *ngIf="!loadingDepartments" class="space-y-4">
+              <div
+                *ngFor="
+                  let department of targetDepartmentIds.controls;
+                  let i = index
+                "
+                class="flex items-start space-x-3"
+              >
+                <div class="flex-1">
+                  <select
+                    [formControlName]="i"
+                    class="w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                    [class.border-red-300]="
+                      department.invalid && department.touched
+                    "
+                  >
+                    <option value="">Select a department</option>
+                    <option *ngFor="let dept of departments" [value]="dept.id">
+                      {{ dept.nameEn || dept.nameAr }} ({{
+                        (dept.organization && dept.organization.nameEn) ||
+                          dept.organization.nameAr ||
+                          "N/A"
+                      }})
+                    </option>
+                  </select>
+                  <div
+                    *ngIf="department.invalid && department.touched"
+                    class="mt-2 text-sm text-red-600"
+                  >
+                    Department is required
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  (click)="removeDepartment(i)"
+                  *ngIf="targetDepartmentIds.length > 1"
+                  class="inline-flex items-center p-2 border border-transparent rounded-lg text-red-400 hover:bg-red-100 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200"
+                >
+                  <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M6 18L18 6M6 6l12 12"
+                    ></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <div class="bg-gray-50 px-8 py-6 border-t border-gray-200">
+        <div class="flex items-center justify-between">
+          <button
+            type="button"
+            (click)="previousSection()"
+            *ngIf="currentSection !== 'basic'"
+            class="inline-flex items-center px-6 py-3 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
+          >
+            <svg
+              class="w-5 h-5 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M15 19l-7-7 7-7"
+              ></path>
+            </svg>
+            Previous
+          </button>
+          <div class="flex items-center space-x-4">
+            <button
+              type="button"
+              (click)="nextSection()"
+              *ngIf="currentSection !== 'content'"
+              class="inline-flex items-center px-6 py-3 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
+            >
+              Next
+              <svg
+                class="w-5 h-5 ml-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 5l7 7-7 7"
+                ></path>
+              </svg>
+            </button>
+            <button
+              type="submit"
+              *ngIf="currentSection === 'content'"
+              [disabled]="submitting || courseForm.invalid"
+              class="inline-flex items-center px-8 py-3 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+            >
+              <svg
+                *ngIf="submitting"
+                class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                ></circle>
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+              </svg>
+              {{ submitting ? "Creating Course..." : "Create Course" }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- AI Helper -->
+  <app-ai-helper></app-ai-helper>
+</div>

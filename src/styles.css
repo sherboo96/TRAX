@@ -1,0 +1,101 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* You can add global styles to this file, and also import other style files */
+
+/* Apply Poppins as default font */
+body {
+  font-family: "Poppins", sans-serif;
+}
+
+/* Theme CSS Variables */
+:root {
+  --color-primary: #3d5a80;
+  --color-primary-light: #98c1d9;
+  --color-primary-dark: #293241;
+  --color-secondary: #ee6c4d;
+  --color-secondary-light: #e0fbfc;
+  --color-secondary-dark: #293241;
+  --color-accent: #98c1d9;
+  --gradient-primary: linear-gradient(135deg, #3d5a80 0%, #293241 100%);
+  --gradient-secondary: linear-gradient(135deg, #ee6c4d 0%, #98c1d9 100%);
+  --gradient-primary-secondary: linear-gradient(
+    135deg,
+    #3d5a80 0%,
+    #ee6c4d 100%
+  );
+  --gradient-secondary-primary: linear-gradient(
+    135deg,
+    #ee6c4d 0%,
+    #3d5a80 100%
+  );
+}
+
+/* Custom Component Styles */
+@layer components {
+  .btn-primary {
+    @apply bg-primary-500 hover:bg-primary-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 shadow-primary;
+  }
+
+  .btn-secondary {
+    @apply bg-secondary-500 hover:bg-secondary-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 shadow-secondary;
+  }
+
+  .btn-outline-primary {
+    @apply border-2 border-primary-500 text-primary-500 hover:bg-primary-500 hover:text-white font-medium py-2 px-4 rounded-lg transition-all duration-200;
+  }
+
+  .btn-outline-secondary {
+    @apply border-2 border-secondary-500 text-secondary-500 hover:bg-secondary-500 hover:text-white font-medium py-2 px-4 rounded-lg transition-all duration-200;
+  }
+
+  .card-primary {
+    @apply bg-white rounded-xl shadow-primary-lg border border-primary-100;
+  }
+
+  .card-secondary {
+    @apply bg-white rounded-xl shadow-secondary-lg border border-secondary-100;
+  }
+
+  .input-primary {
+    @apply border-primary-200 focus:border-primary-500 focus:ring-primary-500/30;
+  }
+
+  .input-secondary {
+    @apply border-secondary-200 focus:border-secondary-500 focus:ring-secondary-500/30;
+  }
+
+  .text-gradient-primary {
+    @apply bg-gradient-to-r from-primary-500 to-primary-700 bg-clip-text text-transparent;
+  }
+
+  .text-gradient-secondary {
+    @apply bg-gradient-to-r from-accent-500 to-accent-700 bg-clip-text text-transparent;
+  }
+
+  .text-gradient-primary-secondary {
+    @apply bg-gradient-to-r from-primary-500 to-secondary-500 bg-clip-text text-transparent;
+  }
+}
+
+/* Custom Utilities */
+@layer utilities {
+  .bg-gradient-primary {
+    background: var(--gradient-primary);
+  }
+
+  .bg-gradient-secondary {
+    background: var(--gradient-secondary);
+  }
+
+  .bg-gradient-primary-secondary {
+    background: var(--gradient-primary-secondary);
+  }
+
+  .bg-gradient-secondary-primary {
+    background: var(--gradient-secondary-primary);
+  }
+}

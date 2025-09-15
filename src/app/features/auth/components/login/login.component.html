@@ -1,0 +1,298 @@
+<div
+  class="min-h-screen flex items-center justify-center bg-gradient-to-br from-neutral-50 to-neutral-100 p-4 sm:p-6 lg:p-8"
+>
+  <div class="w-full max-w-7xl mx-auto">
+    <div
+      class="flex flex-col lg:flex-row bg-white rounded-2xl shadow-2xl overflow-hidden"
+    >
+      <!-- Left Section - Login Form -->
+      <div
+        class="relative flex-1 flex flex-col items-center justify-center p-6 sm:p-8 lg:p-12"
+      >
+        <!-- MOO Logo -->
+
+        <div class="w-full max-w-md mx-auto">
+          <!-- Logo Section -->
+          <div class="flex flex-col items-center mb-8">
+            <img
+              src="assets/images/logos/logo.jpeg"
+              alt="{{ appConstants.APP_NAME }} Logo"
+              class="h-24 sm:h-32 mb-6 transform hover:scale-105 transition-transform duration-300"
+            />
+            <h2
+              class="text-2xl text-center sm:text-3xl font-bold text-gradient-primary mb-2 flex items-center"
+            >
+              Welcome to {{ appConstants.APP_NAME }}
+            </h2>
+          </div>
+
+          <!-- Login Form -->
+          <form
+            [formGroup]="loginForm"
+            (ngSubmit)="onLogin()"
+            class="space-y-6"
+          >
+            <!-- Username Field -->
+            <div class="space-y-2">
+              <label
+                for="username"
+                class="block text-sm font-medium text-neutral-700"
+                >Civil Number</label
+              >
+              <div class="relative">
+                <span
+                  class="absolute inset-y-0 left-0 flex items-center pl-3 text-neutral-400"
+                >
+                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fill-rule="evenodd"
+                      d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                      clip-rule="evenodd"
+                    ></path>
+                  </svg>
+                </span>
+                <input
+                  type="text"
+                  id="civilNo"
+                  formControlName="civilNo"
+                  [ngClass]="{
+                    'border-error-500 bg-error-50 focus:ring-error-500/30 focus:border-error-500':
+                      hasError('civilNo'),
+                    'border-success-500 bg-success-50 focus:ring-success-500/30 focus:border-success-500':
+                      civilNoControl?.valid && civilNoControl?.touched,
+                    'border-primary-200 bg-primary-50 focus:ring-primary-500/30 focus:border-primary-500':
+                      !hasError('civilNo') &&
+                      !(civilNoControl?.valid && civilNoControl?.touched)
+                  }"
+                  class="w-full pl-10 pr-4 py-2.5 text-neutral-700 border rounded-xl focus:outline-none focus:ring-2 transition-colors duration-200"
+                  placeholder="Enter your civil number"
+                />
+                <div
+                  *ngIf="hasError('civilNo')"
+                  class="text-error text-xs mt-1.5 flex items-start"
+                >
+                  <svg
+                    class="w-3 h-3 mr-1 mt-0.5"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                      clip-rule="evenodd"
+                    ></path>
+                  </svg>
+                  <span>{{ getErrorMessage("civilNo") }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Password Field -->
+            <div class="space-y-2">
+              <label
+                for="password"
+                class="block text-sm font-medium text-neutral-700"
+                >Password</label
+              >
+              <div class="relative">
+                <span
+                  class="absolute inset-y-0 left-0 flex items-center pl-3 text-neutral-400"
+                >
+                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fill-rule="evenodd"
+                      d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+                      clip-rule="evenodd"
+                    ></path>
+                  </svg>
+                </span>
+                <input
+                  type="password"
+                  id="password"
+                  formControlName="password"
+                  [ngClass]="{
+                    'border-error-500 bg-error-50 focus:ring-error-500/30 focus:border-error-500':
+                      hasError('password'),
+                    'border-success-500 bg-success-50 focus:ring-success-500/30 focus:border-success-500':
+                      passwordControl?.valid && passwordControl?.touched,
+                    'border-primary-200 bg-primary-50 focus:ring-primary-500/30 focus:border-primary-500':
+                      !hasError('password') &&
+                      !(passwordControl?.valid && passwordControl?.touched)
+                  }"
+                  class="w-full pl-10 pr-4 py-2.5 text-neutral-700 border rounded-xl focus:outline-none focus:ring-2 transition-colors duration-200"
+                  placeholder="Enter your password"
+                />
+                <div
+                  *ngIf="hasError('password')"
+                  class="text-error text-xs mt-1.5 flex items-start"
+                >
+                  <svg
+                    class="w-3 h-3 mr-1 mt-0.5"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                      clip-rule="evenodd"
+                    ></path>
+                  </svg>
+                  <span>{{ getErrorMessage("password") }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Remember Me & Forgot Password -->
+            <div class="flex items-center justify-between">
+              <div class="flex items-center">
+                <input
+                  type="checkbox"
+                  id="remember-me"
+                  formControlName="rememberMe"
+                  class="w-4 h-4 border-primary-300 rounded focus:ring-primary-500 checked:bg-primary-500 checked:border-primary-500"
+                />
+                <label for="remember-me" class="ml-2 text-sm text-neutral-600"
+                  >Remember me</label
+                >
+              </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button
+              type="submit"
+              [disabled]="loginForm.invalid && formSubmitted"
+              [ngClass]="{
+                'bg-gradient-to-r from-neutral-200 to-neutral-300 cursor-not-allowed transform-none hover:transform-none hover:shadow-none':
+                  loginForm.invalid && formSubmitted,
+                'bg-gradient-primary hover:shadow-primary-lg transform hover:-translate-y-0.5':
+                  !(loginForm.invalid && formSubmitted)
+              }"
+              class="w-full py-3 px-4 text-white rounded-xl shadow-md hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500/30 flex justify-center items-center"
+            >
+              <span>Sign In</span>
+              <i class="fas fa-sign-in-alt ml-2"></i>
+            </button>
+
+            <!-- Security Note -->
+            <div class="text-xs text-neutral-500 mt-4">
+              <p
+                class="text-center mt-2 flex items-center justify-center gap-2"
+              >
+                © {{ currentYear }} {{ appConstants.ORGANIZATION }}. All rights
+                reserved.
+              </p>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Right Section - Feature Highlights -->
+      <div class="hidden lg:flex lg:w-1/2 bg-gradient-primary p-8 lg:p-12">
+        <div class="flex flex-col justify-center space-y-8 max-w-lg mx-auto">
+          <div class="space-y-4">
+            <h3 class="text-2xl sm:text-3xl font-bold text-white">
+              Welcome to {{ appConstants.APP_NAME }}
+            </h3>
+            <p class="text-primary-100 text-sm sm:text-base">
+              Your gateway to professional development and industry knowledge.
+            </p>
+          </div>
+
+          <div class="grid gap-6">
+            <!-- Feature 1 -->
+            <div
+              class="flex items-start space-x-4 bg-white/10 p-4 rounded-xl backdrop-blur-sm"
+            >
+              <div
+                class="flex-shrink-0 w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center"
+              >
+                <svg
+                  class="w-6 h-6 text-white"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  ></path>
+                </svg>
+              </div>
+              <div>
+                <h4 class="font-semibold text-white">
+                  Comprehensive Course Library
+                </h4>
+                <p class="text-primary-100 text-sm">
+                  Access a wide range of industry-specific courses and training
+                  materials.
+                </p>
+              </div>
+            </div>
+
+            <!-- Feature 2 -->
+            <div
+              class="flex items-start space-x-4 bg-white/10 p-4 rounded-xl backdrop-blur-sm"
+            >
+              <div
+                class="flex-shrink-0 w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center"
+              >
+                <svg
+                  class="w-6 h-6 text-white"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clip-rule="evenodd"
+                  ></path>
+                </svg>
+              </div>
+              <div>
+                <h4 class="font-semibold text-white">
+                  Professional Certifications
+                </h4>
+                <p class="text-primary-100 text-sm">
+                  Track your progress and earn industry-recognized
+                  certifications.
+                </p>
+              </div>
+            </div>
+
+            <!-- Feature 3 -->
+            <div
+              class="flex items-start space-x-4 bg-white/10 p-4 rounded-xl backdrop-blur-sm"
+            >
+              <div
+                class="flex-shrink-0 w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center"
+              >
+                <svg
+                  class="w-6 h-6 text-white"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"
+                  ></path>
+                </svg>
+              </div>
+              <div>
+                <h4 class="font-semibold text-white">Collaborative Learning</h4>
+                <p class="text-primary-100 text-sm">
+                  Connect with peers and industry experts through our learning
+                  community.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- User Type Selection Modal -->
+<app-user-type-modal
+  [show]="showUserTypeModal"
+  [loading]="userTypeModalLoading"
+  (confirm)="onUserTypeConfirm($event)"
+  (cancel)="onUserTypeCancel()"
+></app-user-type-modal>

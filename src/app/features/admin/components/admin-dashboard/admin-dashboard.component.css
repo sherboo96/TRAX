@@ -1,0 +1,21 @@
+/* Admin Dashboard specific styles */
+.admin-dashboard {
+  min-height: 100vh;
+}
+
+.stats-card {
+  transition: transform 0.2s ease-in-out;
+}
+
+.stats-card:hover {
+  transform: translateY(-2px);
+}
+
+.quick-action-card {
+  transition: all 0.2s ease-in-out;
+}
+
+.quick-action-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}

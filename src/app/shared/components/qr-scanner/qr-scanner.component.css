@@ -1,0 +1,39 @@
+/* QR Scanner Component Styles */
+
+/* Ensure the scanner viewport is properly sized */
+zxing-scanner {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Scanning animation for the corner indicators */
+@keyframes scan-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Apply pulse animation to corner indicators */
+.absolute.top-0.left-0,
+.absolute.top-0.right-0,
+.absolute.bottom-0.left-0,
+.absolute.bottom-0.right-0 {
+  animation: scan-pulse 2s ease-in-out infinite;
+}
+
+/* Ensure modal is responsive on mobile */
+@media (max-width: 640px) {
+  .max-w-md {
+    max-width: 95vw;
+  }
+
+  .w-48.h-48 {
+    width: 200px;
+    height: 200px;
+  }
+}

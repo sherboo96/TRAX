@@ -1,0 +1,388 @@
+<div class="p-6">
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">Roles</h1>
+    <button
+      *ngIf="isAdmin"
+      (click)="openAddModal()"
+      class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+    >
+      <svg
+        class="w-5 h-5"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+        ></path>
+      </svg>
+      Add Role
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <app-loading *ngIf="loading"></app-loading>
+
+  <!-- Table -->
+  <div *ngIf="!loading">
+    <app-table
+      [data]="roles"
+      [columns]="tableColumns"
+      [actions]="tableActions"
+      (action)="onTableAction($event)"
+    ></app-table>
+  </div>
+
+  <!-- Add/Edit Modal -->
+  <app-modal
+    [show]="showModal"
+    [title]="isEditing ? 'Edit Role' : 'Add Role'"
+    (close)="closeModal()"
+  >
+    <div class="space-y-4">
+      <div>
+        <label
+          for="name"
+          class="block text-sm font-medium text-neutral-700 mb-1"
+        >
+          Role Name *
+        </label>
+        <input
+          type="text"
+          id="name"
+          [(ngModel)]="formData.name"
+          class="w-full px-3 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+          placeholder="Enter role name"
+        />
+      </div>
+
+      <div>
+        <label
+          for="description"
+          class="block text-sm font-medium text-neutral-700 mb-1"
+        >
+          Description
+        </label>
+        <textarea
+          id="description"
+          [(ngModel)]="formData.description"
+          rows="3"
+          class="w-full px-3 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+          placeholder="Enter role description"
+        ></textarea>
+      </div>
+
+      <div class="flex items-center">
+        <input
+          type="checkbox"
+          id="isActive"
+          [(ngModel)]="formData.isActive"
+          class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-neutral-300 rounded"
+        />
+        <label for="isActive" class="ml-2 block text-sm text-neutral-800">
+          Active
+        </label>
+      </div>
+
+      <!-- Permissions Selection -->
+      <div>
+        <label class="block text-sm font-medium text-neutral-700 mb-2">
+          Permissions
+        </label>
+        <div *ngIf="loadingPermissions" class="text-sm text-neutral-500">
+          Loading permissions...
+        </div>
+        <div
+          *ngIf="!loadingPermissions"
+          class="max-h-48 overflow-y-auto border border-neutral-300 rounded-md p-3"
+        >
+          <div
+            *ngFor="let permission of permissions"
+            class="flex items-center mb-2"
+          >
+            <input
+              type="checkbox"
+              [id]="'perm-' + permission.id"
+              [checked]="isPermissionSelected(permission.id)"
+              (change)="togglePermissionSelection(permission.id)"
+              class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-neutral-300 rounded"
+            />
+            <label
+              [for]="'perm-' + permission.id"
+              class="ml-2 block text-sm text-neutral-800 cursor-pointer"
+            >
+              <div class="font-medium">{{ permission.name }}</div>
+              <div class="text-xs text-neutral-500">
+                {{ permission.permissionKey }}
+              </div>
+            </label>
+          </div>
+        </div>
+        <div class="text-xs text-neutral-500 mt-1">
+          Selected: {{ formData.permissionIds.length }} permissions
+        </div>
+      </div>
+    </div>
+
+    <div class="flex justify-end gap-3 mt-6">
+      <button
+        (click)="closeModal()"
+        class="px-4 py-2 text-neutral-700 bg-neutral-100 hover:bg-neutral-200 rounded-md transition-colors"
+      >
+        Cancel
+      </button>
+      <button
+        (click)="saveRole()"
+        [disabled]="saving"
+        class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+      >
+        <svg
+          *ngIf="saving"
+          class="animate-spin h-4 w-4"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            class="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            stroke-width="4"
+          ></circle>
+          <path
+            class="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          ></path>
+        </svg>
+        {{ saving ? "Saving..." : isEditing ? "Update" : "Create" }}
+      </button>
+    </div>
+  </app-modal>
+
+  <!-- Delete Confirmation Modal -->
+  <app-modal
+    [show]="showDeleteModal"
+    title="Delete Role"
+    (close)="closeDeleteModal()"
+  >
+    <div class="text-center">
+      <div
+        class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4"
+      >
+        <svg
+          class="h-6 w-6 text-red-600"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
+          ></path>
+        </svg>
+      </div>
+      <h3 class="text-lg font-medium text-gray-900 mb-2">Delete Role</h3>
+      <p class="text-sm text-gray-500 mb-6">
+        Are you sure you want to delete the role "{{ roleToDelete?.name }}"?
+        This action cannot be undone.
+      </p>
+    </div>
+
+    <div class="flex justify-end gap-3">
+      <button
+        (click)="closeDeleteModal()"
+        class="px-4 py-2 text-neutral-700 bg-neutral-100 hover:bg-neutral-200 rounded-md transition-colors"
+      >
+        Cancel
+      </button>
+      <button
+        (click)="confirmDelete()"
+        [disabled]="deleting"
+        class="px-4 py-2 bg-error-600 hover:bg-error-700 text-white rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+      >
+        <svg
+          *ngIf="deleting"
+          class="animate-spin h-4 w-4"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            class="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            stroke-width="4"
+          ></circle>
+          <path
+            class="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          ></path>
+        </svg>
+        {{ deleting ? "Deleting..." : "Delete" }}
+      </button>
+    </div>
+  </app-modal>
+
+  <!-- Permissions Modal -->
+  <app-modal
+    [show]="showPermissionsModal"
+    [title]="
+      permissionsRole ? permissionsRole.name + ' Permissions' : 'Permissions'
+    "
+    (close)="closePermissionsModal()"
+    [width]="'w-full max-w-xl'"
+  >
+    <div *ngIf="permissionsRole">
+      <div class="mb-4">
+        <span class="font-semibold text-neutral-800">Total Permissions:</span>
+        <span
+          class="bg-primary-100 text-primary-700 font-semibold rounded-full px-2 py-1 text-xs ml-1"
+        >
+          {{ getGrantedPermissionsCount(permissionsRole) }} /
+          {{ getTotalPermissionsCount(permissionsRole) }}
+        </span>
+      </div>
+      <div class="max-h-72 overflow-y-auto divide-y divide-neutral-100">
+        <div
+          *ngFor="let perm of permissionsRole.rolePermissions"
+          class="py-3 flex items-center gap-3"
+          [ngClass]="perm.isGranted ? 'opacity-100' : 'opacity-60'"
+        >
+          <span
+            class="inline-block w-2 h-2 rounded-full mr-2"
+            [ngClass]="perm.isGranted ? 'bg-success' : 'bg-neutral-300'"
+          ></span>
+          <div class="flex-1">
+            <div class="font-medium text-neutral-800">
+              {{ perm.permissionName }}
+            </div>
+            <div class="text-xs text-neutral-500">{{ perm.permissionKey }}</div>
+          </div>
+          <button
+            (click)="
+              togglePermission(
+                permissionsRole,
+                perm.permissionId,
+                perm.isGranted
+              )
+            "
+            [disabled]="
+              isUpdatingPermission(permissionsRole, perm.permissionId)
+            "
+            class="px-3 py-1 text-xs font-medium rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            [ngClass]="
+              perm.isGranted
+                ? 'bg-error-100 text-error-600 hover:bg-error-200'
+                : 'bg-success/20 text-success hover:bg-success/30'
+            "
+            type="button"
+          >
+            <span
+              *ngIf="isUpdatingPermission(permissionsRole, perm.permissionId)"
+              class="inline-flex items-center"
+            >
+              <svg
+                class="animate-spin -ml-1 mr-1 h-3 w-3"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                ></circle>
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+              </svg>
+              Updating...
+            </span>
+            <span
+              *ngIf="!isUpdatingPermission(permissionsRole, perm.permissionId)"
+            >
+              {{ perm.isGranted ? "Revoke" : "Grant" }}
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </app-modal>
+</div>
+
+<!-- Table Templates -->
+<ng-template #roleNameTemplate let-role>
+  <div class="flex items-center">
+    <div
+      class="w-10 h-10 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-xl flex items-center justify-center mr-4 shadow-sm"
+    >
+      <span class="text-white font-bold text-sm">{{
+        role.name.charAt(0).toUpperCase()
+      }}</span>
+    </div>
+    <div>
+      <div class="font-semibold text-neutral-800 text-base">
+        {{ role.name }}
+      </div>
+      <div class="text-xs text-neutral-500 font-medium">ID: {{ role.id }}</div>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #statusTemplate let-role>
+  <span
+    [class]="
+      role.isActive
+        ? 'bg-gradient-to-r from-success/20 to-success/10 text-success border border-success/30'
+        : 'bg-gradient-to-r from-error-100 to-error-50 text-error-600 border border-error-200'
+    "
+    class="px-3 py-1.5 text-xs font-semibold rounded-full inline-flex items-center"
+  >
+    <span
+      class="w-2 h-2 rounded-full mr-2"
+      [class]="role.isActive ? 'bg-success' : 'bg-error-500'"
+    ></span>
+    {{ role.isActive ? "Active" : "Inactive" }}
+  </span>
+</ng-template>
+
+<ng-template #permissionsTemplate let-role>
+  <div class="text-sm">
+    <button
+      class="inline-flex items-center px-3 py-1.5 bg-gradient-to-r from-primary-500 to-secondary-500 text-white font-semibold rounded-full text-xs hover:from-primary-600 hover:to-secondary-600 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md transform hover:scale-105"
+      (click)="openPermissionsModal(role)"
+      [attr.aria-label]="'Show permissions for ' + role.name"
+      type="button"
+    >
+      <svg
+        class="w-3 h-3 mr-1.5"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+        ></path>
+      </svg>
+      {{ getGrantedPermissionsCount(role) }}
+      <span class="ml-1">Permissions</span>
+    </button>
+  </div>
+</ng-template>

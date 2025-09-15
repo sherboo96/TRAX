@@ -1,0 +1,318 @@
+/* Admin Suggested Courses Component Styles */
+
+/* Line clamp utility for text truncation */
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Card hover animations */
+.card-hover {
+  transition: all 0.3s ease-in-out;
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Custom scrollbar for table */
+.overflow-x-auto::-webkit-scrollbar {
+  height: 8px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Table row hover effects */
+tbody tr:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Priority badge animations */
+.priority-badge {
+  transition: all 0.2s ease-in-out;
+}
+
+.priority-badge:hover {
+  transform: scale(1.05);
+}
+
+/* Status badge animations */
+.status-badge {
+  transition: all 0.2s ease-in-out;
+}
+
+.status-badge:hover {
+  transform: scale(1.05);
+}
+
+/* Action button hover effects */
+.action-button {
+  transition: all 0.2s ease-in-out;
+}
+
+.action-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Filter section animations */
+.filter-section {
+  transition: all 0.3s ease-in-out;
+}
+
+.filter-card {
+  transition: all 0.2s ease-in-out;
+}
+
+.filter-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px -8px rgba(0, 0, 0, 0.1);
+}
+
+/* Pagination button animations */
+.pagination-button {
+  transition: all 0.2s ease-in-out;
+}
+
+.pagination-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Modal animations */
+.modal-enter {
+  animation: modalFadeIn 0.3s ease-out;
+}
+
+.modal-exit {
+  animation: modalFadeOut 0.3s ease-in;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes modalFadeOut {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95) translateY(-10px);
+  }
+}
+
+/* Loading spinner animations */
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive design adjustments */
+@media (max-width: 768px) {
+  .filter-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .table-header {
+    font-size: 0.75rem;
+  }
+
+  .table-cell {
+    font-size: 0.875rem;
+  }
+}
+
+/* Custom focus styles */
+.focus-ring:focus {
+  outline: none;
+  ring: 2px;
+  ring-offset: 2px;
+  ring-color: #3b82f6;
+}
+
+/* Gradient text effects */
+.gradient-text {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Enhanced button styles */
+.btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 25px -8px rgba(102, 126, 234, 0.4);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+/* Enhanced input styles */
+.input-enhanced {
+  border: 2px solid #e2e8f0;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  transition: all 0.2s ease-in-out;
+  background: white;
+}
+
+.input-enhanced:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  outline: none;
+}
+
+/* Card hover effects */
+.card-hover {
+  transition: all 0.3s ease-in-out;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  background: white;
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border-color: #667eea;
+}
+
+/* Badge animations */
+.badge-animate {
+  transition: all 0.2s ease-in-out;
+}
+
+.badge-animate:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Table row selection */
+.table-row-selected {
+  background-color: #f0f9ff;
+  border-left: 4px solid #3b82f6;
+}
+
+/* Empty state animations */
+.empty-state-icon {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Loading skeleton animation */
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Line clamp utility for card descriptions */
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Card hover effects */
+.group:hover .group-hover\:shadow-lg {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Table responsive styles */
+@media (max-width: 768px) {
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .table-responsive table {
+    min-width: 800px;
+  }
+}
+
+/* Table row hover effects */
+.table-row-hover:hover {
+  background-color: #f9fafb;
+}
+
+/* View toggle button active states */
+.view-toggle-active {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.view-toggle-inactive {
+  background-color: white;
+  color: #374151;
+}
+
+.view-toggle-inactive:hover {
+  background-color: #f9fafb;
+}

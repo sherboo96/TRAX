@@ -1,0 +1,143 @@
+/* Footer component specific styles */
+/* Most styling is handled by Tailwind CSS classes */
+
+/* Gradient animation for footer background */
+footer {
+  background: linear-gradient(135deg, #1f2937 0%, #374151 50%, #1f2937 100%);
+  background-size: 200% 200%;
+  animation: gradientShift 8s ease-in-out infinite;
+}
+
+@keyframes gradientShift {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Logo hover effect */
+footer img {
+  transition: transform 0.3s ease-in-out, filter 0.3s ease-in-out;
+}
+
+footer img:hover {
+  transform: scale(1.05);
+  filter: brightness(1.1);
+}
+
+/* Link hover animations */
+footer a {
+  position: relative;
+  overflow: hidden;
+}
+
+footer a::before {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #3b82f6, #60a5fa);
+  transition: width 0.3s ease-in-out;
+}
+
+footer a:hover::before {
+  width: 100%;
+}
+
+/* Social media icons hover effect */
+footer .social-link {
+  transition: all 0.3s ease-in-out;
+  position: relative;
+}
+
+footer .social-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+/* Dot indicator animation */
+footer .dot-indicator {
+  transition: all 0.3s ease-in-out;
+}
+
+footer a:hover .dot-indicator {
+  transform: scale(1.5);
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.6);
+}
+
+/* Section headers with icon animation */
+footer h4 svg {
+  transition: transform 0.3s ease-in-out;
+}
+
+footer h4:hover svg {
+  transform: scale(1.1) rotate(5deg);
+}
+
+/* Bottom bar separator animation */
+footer .bottom-bar {
+  position: relative;
+}
+
+footer .bottom-bar::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #3b82f6, transparent);
+  animation: borderGlow 3s ease-in-out infinite;
+}
+
+@keyframes borderGlow {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  footer .grid {
+    gap: 2rem;
+  }
+
+  footer .bottom-bar .flex {
+    flex-direction: column;
+    gap: 1rem;
+  }
+}
+
+/* Loading state for links */
+footer a.loading {
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+/* Focus states for accessibility */
+footer a:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Print styles */
+@media print {
+  footer {
+    background: #f3f4f6 !important;
+    color: #1f2937 !important;
+  }
+
+  footer a {
+    color: #1f2937 !important;
+  }
+}

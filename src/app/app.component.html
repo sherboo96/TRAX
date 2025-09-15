@@ -1,0 +1,124 @@
+<!-- Global Loading Overlay -->
+<app-loading
+  [isLoading]="isLoading"
+  message="Loading..."
+  type="spinner"
+  size="medium"
+>
+</app-loading>
+
+<div class="min-h-screen flex flex-col">
+  <!-- Only show sidebar if not on auth routes -->
+  <ng-container *ngIf="!isAuthRoute()">
+    <!-- Mobile Menu Toggle Button -->
+    <button
+      (click)="toggleMobileMenu()"
+      class="lg:hidden fixed top-4 left-4 z-50 bg-primary-600 text-white p-2 rounded-lg shadow-lg hover:bg-primary-700 transition-colors duration-200"
+      [attr.aria-label]="isMobileMenuOpen ? 'Close menu' : 'Open menu'"
+    >
+      <svg
+        class="w-6 h-6"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M4 6h16M4 12h16M4 18h16"
+        ></path>
+      </svg>
+    </button>
+
+    <!-- Mobile Overlay -->
+    <div
+      *ngIf="isMobileMenuOpen"
+      class="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
+      (click)="closeMobileMenu()"
+    ></div>
+
+    <!-- Sidebar with mobile responsiveness -->
+    <div
+      class="sidebar-container"
+      [class]="
+        isMobileMenuOpen
+          ? 'translate-x-0'
+          : isSidebarCollapsed
+          ? 'lg:translate-x-0'
+          : 'lg:translate-x-0'
+      "
+    >
+      <app-sidebar (mobileMenuClose)="closeMobileMenu()"></app-sidebar>
+    </div>
+
+    <!-- Main Content Area -->
+    <div
+      class="flex-1 transition-all duration-300 pt-16 lg:pt-16"
+      [class]="
+        isSidebarCollapsed
+          ? 'ml-0 lg:ml-70 xl:ml-70'
+          : 'ml-0 lg:ml-70 xl:ml-280'
+      "
+    >
+      <!-- Header with user menu only -->
+      <div
+        class="fixed top-0 z-40 bg-white shadow-sm border-b border-gray-200 px-4 py-3 transition-all duration-300"
+        [class]="
+          isSidebarCollapsed
+            ? 'left-0 lg:left-[70px] right-0'
+            : 'left-0 lg:left-[280px] right-0'
+        "
+      >
+        <div class="flex justify-between items-center">
+          <div class="flex items-center space-x-4">
+            <h1 class="text-xl font-semibold text-gray-900">
+              OTC Digital Library
+            </h1>
+          </div>
+
+          <!-- User Info -->
+          <div class="flex items-center space-x-4">
+            <div class="hidden md:flex items-center space-x-3">
+              <div class="text-right">
+                <div class="text-sm font-medium text-gray-900">
+                  {{
+                    getFirstThreeNamesCapitalized(
+                      currentUser?.fullNameEn ||
+                        currentUser?.fullNameAr ||
+                        "Guest"
+                    )
+                  }}
+                </div>
+                <div class="text-xs text-gray-500">
+                  {{ isAdmin() ? "Administrator" : "User" }}
+                </div>
+              </div>
+              <div
+                class="w-10 h-10 bg-primary-600 text-white rounded-full flex items-center justify-center font-medium text-lg"
+              >
+                {{
+                  (
+                    currentUser?.fullNameEn ||
+                    currentUser?.fullNameAr ||
+                    "Guest"
+                  ).charAt(0)
+                }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Page Content -->
+      <main class="flex-1">
+        <router-outlet></router-outlet>
+      </main>
+    </div>
+  </ng-container>
+
+  <!-- Show only router outlet for auth routes (login, register, etc.) -->
+  <ng-container *ngIf="isAuthRoute()">
+    <router-outlet></router-outlet>
+  </ng-container>
+</div>

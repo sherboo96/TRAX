@@ -1,0 +1,142 @@
+<!-- AI Helper Side Panel -->
+<div class="ai-helper-container">
+  <!-- Floating Button -->
+  <button
+    (click)="toggleChat()"
+    class="ai-helper-button"
+    [class.active]="isOpen"
+    aria-label="Open AI Assistant"
+  >
+    <i class="fas fa-robot text-xl"></i>
+    <span class="ai-helper-pulse"></span>
+  </button>
+
+  <!-- Side Panel Overlay -->
+  <div *ngIf="isOpen" class="ai-helper-overlay" (click)="toggleChat()"></div>
+
+  <!-- Side Panel -->
+  <div
+    *ngIf="isOpen"
+    class="ai-helper-side-panel"
+    [class.open]="isOpen"
+    (click)="$event.stopPropagation()"
+  >
+    <!-- Chat Header -->
+    <div class="ai-helper-header">
+      <div class="flex items-center">
+        <i class="fas fa-robot text-white mr-2"></i>
+        <h3 class="text-lg font-semibold text-white">OTC AI</h3>
+      </div>
+      <div class="flex items-center space-x-2">
+        <button
+          (click)="clearChat()"
+          class="text-white/70 hover:text-white transition-colors"
+          title="Clear chat"
+        >
+          <i class="fas fa-trash text-sm"></i>
+        </button>
+        <button
+          (click)="toggleChat()"
+          class="text-white/70 hover:text-white transition-colors"
+          title="Close chat"
+        >
+          <i class="fas fa-times text-lg"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Chat Messages -->
+    <div class="ai-helper-messages" #messagesContainer>
+      <div
+        *ngFor="let message of messages"
+        class="message"
+        [class.user-message]="message.type === 'user'"
+        [class.ai-message]="message.type === 'ai'"
+      >
+        <div class="message-content">
+          <!-- User Avatar with Initials -->
+          <div
+            *ngIf="message.type === 'user'"
+            class="message-avatar user-avatar"
+          >
+            <span class="user-initials">{{ getUserInitials() }}</span>
+          </div>
+
+          <!-- AI Avatar with Icon -->
+          <div *ngIf="message.type === 'ai'" class="message-avatar ai-avatar">
+            <i class="fas fa-robot text-secondary-500"></i>
+          </div>
+
+          <div class="message-bubble">
+            <!-- User Message - Simple text -->
+            <p *ngIf="message.type === 'user'" class="message-text">
+              {{ message.content }}
+            </p>
+
+            <!-- AI Message - Formatted content -->
+            <div *ngIf="message.type === 'ai'" class="ai-message-content">
+              <div
+                [innerHTML]="message.formattedContent"
+                class="formatted-content"
+              ></div>
+            </div>
+
+            <span class="message-time">
+              {{ message.timestamp | date : "shortTime" }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading Indicator -->
+      <div *ngIf="isLoading" class="message ai-message">
+        <div class="message-content">
+          <div class="message-avatar ai-avatar">
+            <i class="fas fa-robot text-secondary-500"></i>
+          </div>
+          <div class="message-bubble">
+            <div class="typing-indicator">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Suggestions -->
+    <div *ngIf="messages.length <= 1" class="ai-helper-suggestions">
+      <p class="text-sm text-neutral-600 mb-3">Quick questions:</p>
+      <div class="suggestions-grid">
+        <button
+          *ngFor="let suggestion of suggestions"
+          (click)="sendSuggestion(suggestion)"
+          class="suggestion-button"
+        >
+          {{ suggestion }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Message Input -->
+    <div class="ai-helper-input">
+      <div class="input-container">
+        <textarea
+          [(ngModel)]="currentMessage"
+          (keydown)="onKeyPress($event)"
+          placeholder="Type your message..."
+          class="message-input"
+          rows="1"
+        ></textarea>
+        <button
+          (click)="sendMessage()"
+          [disabled]="!currentMessage.trim() || isLoading"
+          class="send-button"
+        >
+          <i class="fas fa-paper-plane"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

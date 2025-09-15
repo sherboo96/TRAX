@@ -1,0 +1,57 @@
+/* User image optimization */
+.user-image {
+  max-width: 40px;
+  max-height: 40px;
+  min-width: 40px;
+  min-height: 40px;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+  background-color: #f3f4f6;
+}
+
+.user-image-container {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+}
+
+.user-image-loading {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.user-image-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 0.5rem;
+  background-color: #dbeafe;
+  color: #2563eb;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+/* Ensure images don't break layout */
+.user-image-error {
+  display: none;
+}
+
+/* Responsive image handling */
+@media (max-width: 640px) {
+  .user-image,
+  .user-image-container,
+  .user-image-fallback {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    min-height: 32px;
+  }
+
+  .user-image-fallback {
+    font-size: 0.75rem;
+  }
+}

@@ -1,0 +1,280 @@
+<div class="min-h-screen bg-gray-50">
+  <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Search and Filters -->
+    <div
+      [ngClass]="
+        isSearchCollapsed
+          ? 'bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-4'
+          : 'bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 mb-4'
+      "
+    >
+      <!-- Collapsible Header -->
+      <div class="flex items-center justify-between mb-1">
+        <h2 class="text-lg font-semibold text-gray-900 mt-1">
+          Search Resources
+        </h2>
+        <div class="flex items-center space-x-3">
+          <button
+            (click)="addNewResource()"
+            class="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg transition-all duration-200 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+          >
+            <i class="fas fa-plus"></i>
+            <span>Add New</span>
+          </button>
+          <button
+            (click)="toggleSearch()"
+            class="flex items-center space-x-2 px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-all duration-200 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          >
+            <span>{{
+              isSearchCollapsed ? "Show Filters" : "Hide Filters"
+            }}</span>
+            <i
+              [class]="
+                isSearchCollapsed
+                  ? 'fas fa-chevron-down transform transition-transform duration-200'
+                  : 'fas fa-chevron-up transform transition-transform duration-200'
+              "
+            ></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Collapsible Content -->
+      <div [ngClass]="{ hidden: isSearchCollapsed }">
+        <div
+          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4"
+        >
+          <!-- Search -->
+          <div class="sm:col-span-2 lg:col-span-2">
+            <label
+              for="search"
+              class="block text-sm font-medium text-gray-700 mb-2"
+              >Search Resources</label
+            >
+            <div class="relative">
+              <div
+                class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+              >
+                <i class="fas fa-search text-gray-400"></i>
+              </div>
+              <input
+                type="text"
+                id="search"
+                [(ngModel)]="searchTerm"
+                placeholder="Search by title, author, description, or tags..."
+                class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+          </div>
+
+          <!-- Department Filter -->
+          <div>
+            <label
+              for="department"
+              class="block text-sm font-medium text-gray-700 mb-2"
+              >Department</label
+            >
+            <select
+              id="department"
+              [(ngModel)]="selectedDepartment"
+              class="block w-full px-3 py-2 border border-gray-300 rounded-md leading-5 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="All">All</option>
+              <option
+                *ngFor="let department of departments"
+                [value]="department.id"
+              >
+                {{ department.nameEn || department.nameAr }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Level Filter -->
+          <div>
+            <label
+              for="level"
+              class="block text-sm font-medium text-gray-700 mb-2"
+              >Level</label
+            >
+            <select
+              id="level"
+              [(ngModel)]="selectedLevel"
+              class="block w-full px-3 py-2 border border-gray-300 rounded-md leading-5 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option *ngFor="let level of levels" [value]="level">
+                {{ level }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Enrolled Filter -->
+        <div class="mt-4">
+          <label class="block text-sm font-medium text-gray-700 mb-2"
+            >Show</label
+          >
+          <div class="flex flex-wrap gap-1 sm:gap-2">
+            <button
+              (click)="selectedEnrollment = 'all'"
+              [class]="
+                selectedEnrollment === 'all'
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              "
+              class="px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium transition-colors"
+            >
+              All
+            </button>
+            <button
+              (click)="selectedEnrollment = 'enrolled'"
+              [class]="
+                selectedEnrollment === 'enrolled'
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              "
+              class="px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium transition-colors"
+            >
+              Enrolled
+            </button>
+            <button
+              (click)="selectedEnrollment = 'completed'"
+              [class]="
+                selectedEnrollment === 'completed'
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              "
+              class="px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium transition-colors"
+            >
+              Completed
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results Count -->
+    <div
+      class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4"
+    >
+      <p class="text-gray-600">
+        Showing {{ filteredResources.length }} of
+        {{ resources.length }} resources
+      </p>
+      <div class="flex items-center space-x-2">
+        <span class="text-sm text-gray-500">Sort by:</span>
+        <select
+          [(ngModel)]="selectedSort"
+          class="text-sm border border-gray-300 rounded px-2 py-1"
+        >
+          <option value="kpi">KPI</option>
+          <option value="newest">Newest</option>
+          <option value="priority">Priorities</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Resource Grid -->
+    <div
+      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"
+    >
+      <div
+        *ngFor="let resource of filteredResources"
+        class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow flex flex-col"
+      >
+        <!-- Resource Image -->
+        <div class="relative h-48 bg-gray-200">
+          <img
+            [src]="resource.thumbnail"
+            [alt]="resource.title"
+            class="w-full h-full object-cover"
+          />
+          <div class="absolute top-3 right-3">
+            <span
+              class="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 shadow"
+            >
+              KPI: {{ resource.kpiWeight }}
+            </span>
+          </div>
+          <div class="absolute bottom-3 left-3">
+            <span
+              class="px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+            >
+              {{ resource.level }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Resource Content -->
+        <div class="p-4 sm:p-6 flex flex-col flex-1">
+          <!-- Resource Header -->
+          <div class="mb-4">
+            <h3
+              class="text-base sm:text-lg font-semibold text-gray-900 mb-2 line-clamp-2 cursor-pointer hover:text-blue-600"
+              (click)="navigateToResourceDetails(resource)"
+            >
+              {{ resource.title }}
+            </h3>
+            <p class="text-sm text-gray-600 mb-3 line-clamp-2">
+              {{ resource.description }}
+            </p>
+          </div>
+
+          <!-- Resource Details -->
+          <div
+            class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 text-sm text-gray-600 gap-2"
+          >
+            <div class="flex items-center space-x-4">
+              <span class="flex items-center">
+                <i class="fas fa-calendar mr-1"></i>
+                {{ formatDate(resource.publicationDate) }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Departments -->
+          <div class="mb-4">
+            <div class="flex flex-wrap gap-1">
+              <span
+                *ngFor="
+                  let deptName of getDepartmentNames(resource.departmentIds)
+                "
+                class="px-1.5 sm:px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full truncate max-w-full"
+              >
+                {{ deptName }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex space-x-2 mt-2">
+            <button
+              (click)="navigateToResourceDetails(resource)"
+              class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+            >
+              <i class="fas fa-eye mr-1"></i>
+              View Details
+            </button>
+            <button
+              (click)="toggleEnrollment(resource)"
+              [class]="
+                resource.isEnrolled
+                  ? 'bg-green-600 hover:bg-green-700'
+                  : 'bg-gray-600 hover:bg-gray-700'
+              "
+              class="flex-1 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+            >
+              <i
+                [class]="resource.isEnrolled ? 'fas fa-check' : 'fas fa-plus'"
+                class="mr-1"
+              ></i>
+              {{ resource.isEnrolled ? "Enrolled" : "Enroll" }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Collections Section -->
+    <!-- Removed as per request -->
+  </div>
+</div>

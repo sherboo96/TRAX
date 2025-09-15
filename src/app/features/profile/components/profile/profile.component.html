@@ -1,0 +1,775 @@
+<div class="min-h-screen bg-gray-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900 mb-2">Profile</h1>
+          <p class="text-gray-600">
+            Manage your personal information and preferences
+          </p>
+        </div>
+        <div class="flex space-x-3">
+          <button
+            *ngIf="!isEditing"
+            (click)="startEditing()"
+            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+          >
+            <i class="fas fa-edit mr-2"></i>Edit Profile
+          </button>
+          <button
+            *ngIf="isEditing"
+            (click)="saveChanges()"
+            class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+          >
+            <i class="fas fa-save mr-2"></i>Save Changes
+          </button>
+          <button
+            *ngIf="isEditing"
+            (click)="cancelEditing()"
+            class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+          >
+            <i class="fas fa-times mr-2"></i>Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile Overview Card -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+      <div class="flex items-center space-x-6">
+        <!-- Profile Avatar -->
+        <div class="flex-shrink-0">
+          <div
+            class="w-24 h-24 rounded-full bg-blue-500 flex items-center justify-center"
+          >
+            <span class="text-2xl font-bold text-white">
+              {{ profileData.personalInfo.fullName.charAt(0) }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Profile Info -->
+        <div class="flex-1">
+          <h2 class="text-2xl font-bold text-gray-900 mb-2">
+            {{ profileData.personalInfo.fullName }}
+          </h2>
+          <p class="text-gray-600 mb-1">
+            {{ profileData.professionalInfo.position }}
+          </p>
+          <p class="text-gray-600 mb-4">
+            {{ profileData.professionalInfo.department }}
+          </p>
+
+          <!-- Quick Stats -->
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="text-center">
+              <div class="text-2xl font-bold text-blue-600">
+                {{ profileData.learningStats.totalCourses }}
+              </div>
+              <div class="text-sm text-gray-600">Total Courses</div>
+            </div>
+            <div class="text-center">
+              <div class="text-2xl font-bold text-green-600">
+                {{ profileData.learningStats.completedCourses }}
+              </div>
+              <div class="text-sm text-gray-600">Completed</div>
+            </div>
+            <div class="text-center">
+              <div class="text-2xl font-bold text-purple-600">
+                {{ profileData.learningStats.totalHours }}h
+              </div>
+              <div class="text-sm text-gray-600">Learning Hours</div>
+            </div>
+            <div class="text-center">
+              <div class="text-2xl font-bold text-yellow-600">
+                {{ profileData.learningStats.certificates }}
+              </div>
+              <div class="text-sm text-gray-600">Certificates</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Status Badge -->
+        <div class="flex-shrink-0">
+          <span
+            class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800"
+          >
+            <i class="fas fa-circle text-green-400 mr-2"></i>Active
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs Navigation -->
+    <div class="border-b border-gray-200 mb-8">
+      <nav class="-mb-px flex space-x-8">
+        <button
+          (click)="activeTab = 'personal'"
+          [class]="
+            activeTab === 'personal'
+              ? 'border-blue-500 text-blue-600'
+              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+          "
+          class="whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm transition-colors"
+        >
+          <i class="fas fa-user mr-2"></i>Personal Info
+        </button>
+        <button
+          (click)="activeTab = 'professional'"
+          [class]="
+            activeTab === 'professional'
+              ? 'border-blue-500 text-blue-600'
+              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+          "
+          class="whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm transition-colors"
+        >
+          <i class="fas fa-briefcase mr-2"></i>Professional
+        </button>
+        <button
+          (click)="activeTab = 'learning'"
+          [class]="
+            activeTab === 'learning'
+              ? 'border-blue-500 text-blue-600'
+              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+          "
+          class="whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm transition-colors"
+        >
+          <i class="fas fa-graduation-cap mr-2"></i>Learning Stats
+        </button>
+        <button
+          (click)="activeTab = 'preferences'"
+          [class]="
+            activeTab === 'preferences'
+              ? 'border-blue-500 text-blue-600'
+              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+          "
+          class="whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm transition-colors"
+        >
+          <i class="fas fa-cog mr-2"></i>Preferences
+        </button>
+      </nav>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+      <!-- Personal Information Tab -->
+      <div *ngIf="activeTab === 'personal'" class="p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-6">
+          Personal Information
+        </h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Basic Information -->
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Full Name</label
+              >
+              <input
+                type="text"
+                [(ngModel)]="editForm.personalInfo.fullName"
+                [readonly]="!isEditing"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                [class.bg-gray-50]="!isEditing"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Email</label
+              >
+              <input
+                type="email"
+                [(ngModel)]="editForm.personalInfo.email"
+                [readonly]="!isEditing"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                [class.bg-gray-50]="!isEditing"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Phone</label
+              >
+              <input
+                type="tel"
+                [(ngModel)]="editForm.personalInfo.phone"
+                [readonly]="!isEditing"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                [class.bg-gray-50]="!isEditing"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Date of Birth</label
+              >
+              <input
+                type="date"
+                [(ngModel)]="editForm.personalInfo.dateOfBirth"
+                [readonly]="!isEditing"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                [class.bg-gray-50]="!isEditing"
+              />
+            </div>
+          </div>
+
+          <!-- Additional Information -->
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Gender</label
+              >
+              <select
+                [(ngModel)]="editForm.personalInfo.gender"
+                [disabled]="!isEditing"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                [class.bg-gray-50]="!isEditing"
+              >
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Nationality</label
+              >
+              <input
+                type="text"
+                [(ngModel)]="editForm.personalInfo.nationality"
+                [readonly]="!isEditing"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                [class.bg-gray-50]="!isEditing"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Civil Number</label
+              >
+              <input
+                type="text"
+                [(ngModel)]="editForm.personalInfo.civilNumber"
+                [readonly]="!isEditing"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                [class.bg-gray-50]="!isEditing"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Address Information -->
+        <div class="mt-6 space-y-4">
+          <h4 class="text-md font-medium text-gray-900">Address Information</h4>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Address</label
+              >
+              <input
+                type="text"
+                [(ngModel)]="editForm.personalInfo.address"
+                [readonly]="!isEditing"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                [class.bg-gray-50]="!isEditing"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >City</label
+              >
+              <input
+                type="text"
+                [(ngModel)]="editForm.personalInfo.city"
+                [readonly]="!isEditing"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                [class.bg-gray-50]="!isEditing"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Country</label
+              >
+              <input
+                type="text"
+                [(ngModel)]="editForm.personalInfo.country"
+                [readonly]="!isEditing"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                [class.bg-gray-50]="!isEditing"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Professional Information Tab -->
+      <div *ngIf="activeTab === 'professional'" class="p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-6">
+          Professional Information
+        </h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Work Information -->
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Department</label
+              >
+              <input
+                type="text"
+                [(ngModel)]="editForm.professionalInfo.department"
+                [readonly]="!isEditing"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                [class.bg-gray-50]="!isEditing"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Position</label
+              >
+              <input
+                type="text"
+                [(ngModel)]="editForm.professionalInfo.position"
+                [readonly]="!isEditing"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                [class.bg-gray-50]="!isEditing"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Employee ID</label
+              >
+              <input
+                type="text"
+                [(ngModel)]="editForm.professionalInfo.employeeId"
+                [readonly]="!isEditing"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                [class.bg-gray-50]="!isEditing"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Hire Date</label
+              >
+              <input
+                type="date"
+                [(ngModel)]="editForm.professionalInfo.hireDate"
+                [readonly]="!isEditing"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                [class.bg-gray-50]="!isEditing"
+              />
+            </div>
+          </div>
+
+          <!-- Additional Work Info -->
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Supervisor</label
+              >
+              <input
+                type="text"
+                [(ngModel)]="editForm.professionalInfo.supervisor"
+                [readonly]="!isEditing"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                [class.bg-gray-50]="!isEditing"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Work Location</label
+              >
+              <input
+                type="text"
+                [(ngModel)]="editForm.professionalInfo.workLocation"
+                [readonly]="!isEditing"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                [class.bg-gray-50]="!isEditing"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Skills -->
+        <div class="mt-6">
+          <h4 class="text-md font-medium text-gray-900 mb-4">Skills</h4>
+          <div class="flex flex-wrap gap-2">
+            <span
+              *ngFor="let skill of profileData.professionalInfo.skills"
+              class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800"
+            >
+              {{ skill }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Certifications -->
+        <div class="mt-6">
+          <h4 class="text-md font-medium text-gray-900 mb-4">Certifications</h4>
+          <div class="space-y-2">
+            <div
+              *ngFor="let cert of profileData.professionalInfo.certifications"
+              class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg"
+            >
+              <i class="fas fa-certificate text-green-500"></i>
+              <span class="text-sm text-gray-700">{{ cert }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Learning Statistics Tab -->
+      <div *ngIf="activeTab === 'learning'" class="p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-6">
+          Learning Statistics
+        </h3>
+
+        <!-- Learning Overview -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div
+            class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg p-6 text-white"
+          >
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <i class="fas fa-graduation-cap text-2xl"></i>
+              </div>
+              <div class="ml-4">
+                <div class="text-2xl font-bold">
+                  {{ profileData.learningStats.totalCourses }}
+                </div>
+                <div class="text-blue-100">Total Courses</div>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="bg-gradient-to-r from-green-500 to-green-600 rounded-lg p-6 text-white"
+          >
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <i class="fas fa-check-circle text-2xl"></i>
+              </div>
+              <div class="ml-4">
+                <div class="text-2xl font-bold">
+                  {{ profileData.learningStats.completedCourses }}
+                </div>
+                <div class="text-green-100">Completed</div>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg p-6 text-white"
+          >
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <i class="fas fa-clock text-2xl"></i>
+              </div>
+              <div class="ml-4">
+                <div class="text-2xl font-bold">
+                  {{ profileData.learningStats.totalHours }}h
+                </div>
+                <div class="text-purple-100">Learning Hours</div>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-lg p-6 text-white"
+          >
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <i class="fas fa-trophy text-2xl"></i>
+              </div>
+              <div class="ml-4">
+                <div class="text-2xl font-bold">
+                  {{ profileData.learningStats.certificates }}
+                </div>
+                <div class="text-yellow-100">Certificates</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Detailed Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Progress Stats -->
+          <div class="space-y-4">
+            <h4 class="text-md font-medium text-gray-900">Progress Overview</h4>
+
+            <div>
+              <div class="flex justify-between text-sm text-gray-600 mb-1">
+                <span>Course Completion Rate</span>
+                <span>{{ getCompletionRate() }}%</span>
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div
+                  [class]="getProgressColor(getCompletionRate())"
+                  class="h-2 rounded-full transition-all duration-300"
+                  [style.width.%]="getCompletionRate()"
+                ></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex justify-between text-sm text-gray-600 mb-1">
+                <span>Average Score</span>
+                <span>{{ profileData.learningStats.averageScore }}%</span>
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div
+                  [class]="
+                    getProgressColor(profileData.learningStats.averageScore)
+                  "
+                  class="h-2 rounded-full transition-all duration-300"
+                  [style.width.%]="profileData.learningStats.averageScore"
+                ></div>
+              </div>
+            </div>
+
+            <div
+              class="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+            >
+              <div>
+                <div class="text-sm text-gray-600">Learning Streak</div>
+                <div class="text-2xl font-bold text-orange-600">
+                  {{ profileData.learningStats.learningStreak }} days
+                </div>
+              </div>
+              <i class="fas fa-fire text-orange-500 text-2xl"></i>
+            </div>
+          </div>
+
+          <!-- Activity Stats -->
+          <div class="space-y-4">
+            <h4 class="text-md font-medium text-gray-900">
+              Activity Information
+            </h4>
+
+            <div class="space-y-3">
+              <div
+                class="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+              >
+                <div class="flex items-center">
+                  <i class="fas fa-play-circle text-blue-500 mr-3"></i>
+                  <span class="text-sm text-gray-700">In Progress Courses</span>
+                </div>
+                <span class="text-lg font-semibold text-blue-600">{{
+                  profileData.learningStats.inProgressCourses
+                }}</span>
+              </div>
+
+              <div
+                class="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+              >
+                <div class="flex items-center">
+                  <i class="fas fa-calendar-alt text-green-500 mr-3"></i>
+                  <span class="text-sm text-gray-700">Last Active</span>
+                </div>
+                <span class="text-sm text-gray-600">{{
+                  formatDateTime(profileData.learningStats.lastActive)
+                }}</span>
+              </div>
+
+              <div
+                class="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+              >
+                <div class="flex items-center">
+                  <i class="fas fa-clock text-purple-500 mr-3"></i>
+                  <span class="text-sm text-gray-700"
+                    >Days Since Last Active</span
+                  >
+                </div>
+                <span class="text-lg font-semibold text-purple-600">{{
+                  getDaysSinceLastActive()
+                }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Preferences Tab -->
+      <div *ngIf="activeTab === 'preferences'" class="p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-6">
+          Preferences & Settings
+        </h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- General Preferences -->
+          <div class="space-y-4">
+            <h4 class="text-md font-medium text-gray-900">
+              General Preferences
+            </h4>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Language</label
+              >
+              <select
+                [(ngModel)]="editForm.preferences.language"
+                [disabled]="!isEditing"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                [class.bg-gray-50]="!isEditing"
+              >
+                <option value="English">English</option>
+                <option value="Arabic">Arabic</option>
+                <option value="French">French</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Timezone</label
+              >
+              <select
+                [(ngModel)]="editForm.preferences.timezone"
+                [disabled]="!isEditing"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                [class.bg-gray-50]="!isEditing"
+              >
+                <option value="Asia/Kuwait">Asia/Kuwait (GMT+3)</option>
+                <option value="UTC">UTC (GMT+0)</option>
+                <option value="America/New_York">
+                  America/New_York (GMT-5)
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Notification Preferences -->
+          <div class="space-y-4">
+            <h4 class="text-md font-medium text-gray-900">
+              Notification Preferences
+            </h4>
+
+            <div class="space-y-3">
+              <div class="flex items-center justify-between">
+                <div>
+                  <div class="text-sm font-medium text-gray-700">
+                    Email Notifications
+                  </div>
+                  <div class="text-sm text-gray-500">
+                    Receive updates via email
+                  </div>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    [(ngModel)]="editForm.preferences.notifications.email"
+                    [disabled]="!isEditing"
+                    class="sr-only peer"
+                  />
+                  <div
+                    class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"
+                  ></div>
+                </label>
+              </div>
+
+              <div class="flex items-center justify-between">
+                <div>
+                  <div class="text-sm font-medium text-gray-700">
+                    SMS Notifications
+                  </div>
+                  <div class="text-sm text-gray-500">
+                    Receive updates via SMS
+                  </div>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    [(ngModel)]="editForm.preferences.notifications.sms"
+                    [disabled]="!isEditing"
+                    class="sr-only peer"
+                  />
+                  <div
+                    class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"
+                  ></div>
+                </label>
+              </div>
+
+              <div class="flex items-center justify-between">
+                <div>
+                  <div class="text-sm font-medium text-gray-700">
+                    Push Notifications
+                  </div>
+                  <div class="text-sm text-gray-500">
+                    Receive browser notifications
+                  </div>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    [(ngModel)]="editForm.preferences.notifications.push"
+                    [disabled]="!isEditing"
+                    class="sr-only peer"
+                  />
+                  <div
+                    class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"
+                  ></div>
+                </label>
+              </div>
+
+              <div class="flex items-center justify-between">
+                <div>
+                  <div class="text-sm font-medium text-gray-700">
+                    Course Updates
+                  </div>
+                  <div class="text-sm text-gray-500">
+                    New content and announcements
+                  </div>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    [(ngModel)]="
+                      editForm.preferences.notifications.courseUpdates
+                    "
+                    [disabled]="!isEditing"
+                    class="sr-only peer"
+                  />
+                  <div
+                    class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"
+                  ></div>
+                </label>
+              </div>
+
+              <div class="flex items-center justify-between">
+                <div>
+                  <div class="text-sm font-medium text-gray-700">
+                    Achievement Alerts
+                  </div>
+                  <div class="text-sm text-gray-500">
+                    Certificates and milestones
+                  </div>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    [(ngModel)]="
+                      editForm.preferences.notifications.achievementAlerts
+                    "
+                    [disabled]="!isEditing"
+                    class="sr-only peer"
+                  />
+                  <div
+                    class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"
+                  ></div>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

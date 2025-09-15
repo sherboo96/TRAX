@@ -1,0 +1,16 @@
+/* Admin Courses specific styles */
+.course-item {
+  transition: background-color 0.2s ease-in-out;
+}
+
+.course-item:hover {
+  background-color: #f9fafb;
+}
+
+.action-button {
+  transition: all 0.2s ease-in-out;
+}
+
+.action-button:hover {
+  transform: translateY(-1px);
+}

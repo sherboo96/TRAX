@@ -1,0 +1,405 @@
+<div *ngIf="resource" class="min-h-screen bg-gray-50">
+  <!-- Resource Header -->
+  <div class="bg-white border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <!-- Breadcrumb -->
+      <nav class="flex mb-6" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+          <li class="inline-flex items-center">
+            <a
+              routerLink="/admin/digital-library"
+              class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors"
+            >
+              <i class="fas fa-arrow-left mr-2"></i>
+              Back to Digital Library
+            </a>
+          </li>
+        </ol>
+      </nav>
+
+      <!-- Resource Title and Basic Info -->
+      <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+        <div class="xl:col-span-2">
+          <h1 class="text-3xl font-bold text-gray-900 mb-4">
+            {{ resource.title }}
+          </h1>
+          <p class="text-lg text-gray-600 mb-6 leading-relaxed">
+            {{ resource.description }}
+          </p>
+
+          <!-- Resource Meta -->
+          <div
+            class="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-6"
+          >
+            <div class="flex items-center">
+              <i class="fas fa-user mr-2 text-blue-500"></i>
+              <span>{{ resource.author }}</span>
+            </div>
+            <div class="flex items-center">
+              <i class="fas fa-star text-yellow-400 mr-1"></i>
+              <span class="font-medium">KPI: {{ resource.kpiWeight }}</span>
+              <span class="ml-1">({{ resource.reviewCount }} reviews)</span>
+            </div>
+            <div class="flex items-center">
+              <i class="fas fa-calendar mr-2 text-green-500"></i>
+              <span>{{ formatDate(resource.publicationDate) }}</span>
+            </div>
+            <div class="flex items-center">
+              <i class="fas fa-building mr-2 text-purple-500"></i>
+              <span>{{ resource.publisher }}</span>
+            </div>
+          </div>
+
+          <!-- Resource Badges -->
+          <div class="flex flex-wrap gap-2 mb-6">
+            <span
+              [class]="getLevelColor(resource.level)"
+              class="px-3 py-1 rounded-full text-sm font-medium"
+            >
+              {{ resource.level }}
+            </span>
+            <span
+              class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm font-medium"
+            >
+              {{ resource.language }}
+            </span>
+            <span
+              *ngFor="
+                let deptName of getDepartmentNames(resource.departmentIds)
+              "
+              class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium"
+            >
+              {{ deptName }}
+            </span>
+            <span
+              *ngIf="resource.isbn"
+              class="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm font-medium"
+            >
+              ISBN: {{ resource.isbn }}
+            </span>
+            <span
+              *ngIf="resource.doi"
+              class="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm font-medium"
+            >
+              DOI: {{ resource.doi }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Resource Image and Actions -->
+        <div class="xl:col-span-1">
+          <!-- Resource Action Buttons -->
+          <div class="flex flex-col gap-3 mb-6">
+            <!-- Edit Button -->
+            <button
+              (click)="editResource()"
+              class="w-full inline-flex items-center justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
+            >
+              <i class="fas fa-edit mr-2"></i>
+              Edit Resource
+            </button>
+
+            <!-- Download Button -->
+            <button
+              (click)="downloadResource()"
+              [disabled]="!resource.isAvailable"
+              class="w-full inline-flex items-center justify-center px-4 py-2 border border-blue-600 shadow-sm text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:border-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
+            >
+              <i class="fas fa-download mr-2"></i>
+              Download
+            </button>
+
+            <!-- Bookmark Button -->
+            <button
+              (click)="toggleBookmark()"
+              [class]="
+                resource.isBookmarked
+                  ? 'border-blue-600 text-blue-600 bg-blue-50 hover:bg-blue-100'
+                  : 'border-gray-300 text-gray-700 bg-white hover:bg-gray-50'
+              "
+              class="w-full inline-flex items-center justify-center px-4 py-2 border shadow-sm text-sm font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
+            >
+              <i
+                [class]="
+                  resource.isBookmarked ? 'fas fa-bookmark' : 'far fa-bookmark'
+                "
+                class="mr-2"
+              ></i>
+              {{ resource.isBookmarked ? "Bookmarked" : "Bookmark" }}
+            </button>
+
+            <!-- Enroll Button -->
+            <button
+              (click)="toggleEnrollment()"
+              [class]="
+                resource.isEnrolled
+                  ? 'border-green-600 text-green-600 bg-green-50 hover:bg-green-100'
+                  : 'border-gray-300 text-gray-700 bg-white hover:bg-gray-50'
+              "
+              class="w-full inline-flex items-center justify-center px-4 py-2 border shadow-sm text-sm font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
+            >
+              <i
+                [class]="resource.isEnrolled ? 'fas fa-check' : 'fas fa-plus'"
+                class="mr-2"
+              ></i>
+              {{ resource.isEnrolled ? "Enrolled" : "Enroll" }}
+            </button>
+          </div>
+
+          <!-- Resource Image -->
+          <div class="relative">
+            <img
+              [src]="resource.thumbnail"
+              [alt]="resource.title"
+              class="w-full h-64 object-cover rounded-xl shadow-md"
+            />
+            <div
+              class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-xl"
+            ></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="grid grid-cols-1 xl:grid-cols-4 gap-8">
+      <!-- Left Column - Resource Content -->
+      <div class="xl:col-span-3">
+        <!-- Navigation Tabs -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-8">
+          <nav class="flex overflow-x-auto">
+            <button
+              (click)="setActiveTab('overview')"
+              [class]="
+                activeTab === 'overview'
+                  ? 'border-blue-500 text-blue-600 bg-blue-50'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+              "
+              class="whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm transition-all duration-200 flex-shrink-0"
+            >
+              <i class="fas fa-info-circle mr-2"></i>
+              Overview
+            </button>
+            <button
+              (click)="setActiveTab('details')"
+              [class]="
+                activeTab === 'details'
+                  ? 'border-blue-500 text-blue-600 bg-blue-50'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+              "
+              class="whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm transition-all duration-200 flex-shrink-0"
+            >
+              <i class="fas fa-file-alt mr-2"></i>
+              Details
+            </button>
+            <button
+              (click)="setActiveTab('tags')"
+              [class]="
+                activeTab === 'tags'
+                  ? 'border-blue-500 text-blue-600 bg-blue-50'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+              "
+              class="whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm transition-all duration-200 flex-shrink-0"
+            >
+              <i class="fas fa-tags mr-2"></i>
+              Tags
+            </button>
+          </nav>
+
+          <!-- Tab Content -->
+          <div class="p-6">
+            <!-- Overview Tab -->
+            <div *ngIf="activeTab === 'overview'" class="space-y-6">
+              <div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-3">
+                  Description
+                </h3>
+                <p class="text-gray-600 leading-relaxed">
+                  {{ resource.description }}
+                </p>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h4 class="text-md font-semibold text-gray-900 mb-2">
+                    Resource Information
+                  </h4>
+                  <div class="space-y-2 text-sm text-gray-600">
+                    <div class="flex justify-between">
+                      <span>Level:</span>
+                      <span class="font-medium">{{ resource.level }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span>Language:</span>
+                      <span class="font-medium">{{ resource.language }}</span>
+                    </div>
+                    <div class="flex justify-between" *ngIf="resource.pages">
+                      <span>Pages:</span>
+                      <span class="font-medium">{{ resource.pages }}</span>
+                    </div>
+                    <div class="flex justify-between" *ngIf="resource.duration">
+                      <span>Duration:</span>
+                      <span class="font-medium">{{ resource.duration }}</span>
+                    </div>
+                    <div class="flex justify-between" *ngIf="resource.size">
+                      <span>Size:</span>
+                      <span class="font-medium">{{ resource.size }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 class="text-md font-semibold text-gray-900 mb-2">
+                    Publication Details
+                  </h4>
+                  <div class="space-y-2 text-sm text-gray-600">
+                    <div class="flex justify-between">
+                      <span>Author:</span>
+                      <span class="font-medium">{{ resource.author }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span>Publisher:</span>
+                      <span class="font-medium">{{ resource.publisher }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span>Published:</span>
+                      <span class="font-medium">{{
+                        formatDate(resource.publicationDate)
+                      }}</span>
+                    </div>
+                    <div class="flex justify-between" *ngIf="resource.isbn">
+                      <span>ISBN:</span>
+                      <span class="font-medium">{{ resource.isbn }}</span>
+                    </div>
+                    <div class="flex justify-between" *ngIf="resource.doi">
+                      <span>DOI:</span>
+                      <span class="font-medium">{{ resource.doi }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Details Tab -->
+            <div *ngIf="activeTab === 'details'" class="space-y-6">
+              <div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-3">
+                  Technical Details
+                </h3>
+                <div class="bg-gray-50 rounded-lg p-4">
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span class="font-medium text-gray-700">URL:</span>
+                      <a
+                        [href]="resource.url"
+                        target="_blank"
+                        class="text-blue-600 hover:text-blue-800 break-all ml-2"
+                      >
+                        {{ resource.url }}
+                      </a>
+                    </div>
+                    <div>
+                      <span class="font-medium text-gray-700">KPI Weight:</span>
+                      <span class="ml-2">{{ resource.kpiWeight }}</span>
+                    </div>
+                    <div>
+                      <span class="font-medium text-gray-700">Priority:</span>
+                      <span class="ml-2">{{
+                        resource.priority || "Not set"
+                      }}</span>
+                    </div>
+                    <div>
+                      <span class="font-medium text-gray-700">Status:</span>
+                      <span class="ml-2">
+                        <span
+                          [class]="
+                            resource.isAvailable
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-red-100 text-red-800'
+                          "
+                          class="px-2 py-1 rounded-full text-xs font-medium"
+                        >
+                          {{
+                            resource.isAvailable ? "Available" : "Unavailable"
+                          }}
+                        </span>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tags Tab -->
+            <div *ngIf="activeTab === 'tags'" class="space-y-6">
+              <div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-3">Tags</h3>
+                <div class="flex flex-wrap gap-2">
+                  <span
+                    *ngFor="let tag of resource.tags"
+                    class="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-full"
+                  >
+                    {{ tag }}
+                  </span>
+                </div>
+              </div>
+
+              <div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-3">
+                  Departments
+                </h3>
+                <div class="flex flex-wrap gap-2">
+                  <span
+                    *ngFor="
+                      let deptName of getDepartmentNames(resource.departmentIds)
+                    "
+                    class="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full"
+                  >
+                    {{ deptName }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column - Sidebar -->
+      <div class="xl:col-span-1">
+        <!-- AI Helper -->
+        <div
+          class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6"
+        >
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">AI Helper</h3>
+          <app-ai-helper></app-ai-helper>
+        </div>
+
+        <!-- Related Resources -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">
+            Related Resources
+          </h3>
+          <p class="text-sm text-gray-600">
+            Related resources will be displayed here based on similar topics,
+            departments, or tags.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Loading State -->
+<div
+  *ngIf="loading"
+  class="min-h-screen bg-gray-50 flex items-center justify-center"
+>
+  <div class="text-center">
+    <div
+      class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"
+    ></div>
+    <p class="text-gray-600">Loading resource details...</p>
+  </div>
+</div>
