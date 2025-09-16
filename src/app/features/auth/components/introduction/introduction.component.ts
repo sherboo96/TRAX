@@ -1,95 +1,99 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../../core/services/auth.service';
 import { APP_CONSTANTS } from '../../../../core/constants/app.constants';
+import { TranslationService } from '../../../../../locale/translation.service';
+import { TranslatePipe } from '../../../../../locale/translation.pipe';
+import { SupportedLanguage } from '../../../../../locale/translation.types';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-introduction',
   templateUrl: './introduction.component.html',
   styleUrls: ['./introduction.component.css'],
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, FormsModule, TranslatePipe],
 })
-export class IntroductionComponent implements OnInit {
+export class IntroductionComponent implements OnInit, OnDestroy {
   currentSlide = 0;
   autoplayInterval: any;
   isAuthenticated = false;
   currentYear = new Date().getFullYear();
   appConstants = APP_CONSTANTS;
 
+  // Translation properties
+  currentLanguage: SupportedLanguage = 'en';
+  isRTL = false;
+  supportedLanguages: SupportedLanguage[] = [];
+  private subscription = new Subscription();
+
   slides = [
     {
-      title: 'Welcome to Oil Training Center',
-      subtitle: 'Empowering Excellence in Oil & Gas Training',
-      description:
-        'Discover comprehensive training programs designed to enhance skills and knowledge in the oil and gas industry.',
+      titleKey: 'introduction.slides.welcome.title',
+      subtitleKey: 'introduction.slides.welcome.subtitle',
+      descriptionKey: 'introduction.slides.welcome.description',
       image: 'assets/images/logos/OTC.png',
       icon: '🏭',
-      features: [
-        'Professional Certification Programs',
-        'Industry Expert Instructors',
-        'Hands-on Practical Training',
-        'Flexible Learning Options',
-      ],
+      featuresKey: 'introduction.slides.welcome.features',
     },
     {
-      title: 'Our Mission',
-      subtitle: "Building Tomorrow's Industry Leaders",
-      description:
-        'We are committed to providing world-class training and development opportunities for professionals in the oil and gas sector.',
+      titleKey: 'introduction.slides.mission.title',
+      subtitleKey: 'introduction.slides.mission.subtitle',
+      descriptionKey: 'introduction.slides.mission.description',
       image: 'assets/images/logos/OTC.png',
       icon: '🎯',
-      features: [
-        'Quality Education Standards',
-        'Industry-Relevant Curriculum',
-        'Continuous Professional Development',
-        'Global Best Practices',
-      ],
+      featuresKey: 'introduction.slides.mission.features',
     },
     {
-      title: 'Training Programs',
-      subtitle: 'Comprehensive Learning Solutions',
-      description:
-        'From technical skills to leadership development, our programs cover all aspects of the oil and gas industry.',
+      titleKey: 'introduction.slides.programs.title',
+      subtitleKey: 'introduction.slides.programs.subtitle',
+      descriptionKey: 'introduction.slides.programs.description',
       image: 'assets/images/logos/OTC.png',
       icon: '📚',
-      features: [
-        'Technical Skills Training',
-        'Safety & Compliance Courses',
-        'Management & Leadership',
-        'Digital Transformation',
-      ],
+      featuresKey: 'introduction.slides.programs.features',
     },
     {
-      title: 'Why Choose OTC?',
-      subtitle: 'Excellence in Every Detail',
-      description:
-        'Join thousands of professionals who trust OTC for their career advancement and skill development needs.',
+      titleKey: 'introduction.slides.whyChoose.title',
+      subtitleKey: 'introduction.slides.whyChoose.subtitle',
+      descriptionKey: 'introduction.slides.whyChoose.description',
       image: 'assets/images/logos/OTC.png',
       icon: '⭐',
-      features: [
-        'Proven Track Record',
-        'Expert Faculty',
-        'Modern Facilities',
-        'Career Support Services',
-      ],
+      featuresKey: 'introduction.slides.whyChoose.features',
     },
   ];
 
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private translationService: TranslationService
+  ) {}
 
   ngOnInit(): void {
     this.isAuthenticated = this.authService.isAuthenticated();
     if (!this.isAuthenticated) {
       this.startAutoplay();
     }
+
+    // Initialize translation properties
+    this.supportedLanguages = this.translationService.getSupportedLanguages();
+    this.currentLanguage = this.translationService.getCurrentLanguage();
+    this.isRTL = this.translationService.isRTL();
+
+    // Subscribe to language changes
+    this.subscription.add(
+      this.translationService.getCurrentLanguage$().subscribe((language) => {
+        this.currentLanguage = language;
+        this.isRTL = this.translationService.isRTL();
+      })
+    );
   }
 
   ngOnDestroy(): void {
     if (this.autoplayInterval) {
       clearInterval(this.autoplayInterval);
     }
+    this.subscription.unsubscribe();
   }
 
   startAutoplay(): void {
@@ -131,5 +135,14 @@ export class IntroductionComponent implements OnInit {
   goToDashboard(): void {
     // Navigate to dashboard if already authenticated
     window.location.href = APP_CONSTANTS.ROUTES.DASHBOARD;
+  }
+
+  // Language switching methods
+  switchLanguage(language: SupportedLanguage): void {
+    this.translationService.setLanguage(language);
+  }
+
+  getLanguageDisplayName(language: SupportedLanguage): string {
+    return language === 'en' ? 'English' : 'العربية';
   }
 }

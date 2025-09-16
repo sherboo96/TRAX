@@ -1,10 +1,11 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormBuilder,
   FormGroup,
   Validators,
   ReactiveFormsModule,
+  FormsModule,
   AbstractControl,
 } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -13,15 +14,24 @@ import { UserTypeModalComponent } from '../../../../shared/components/user-type-
 import { User, UserRole } from '../../../../core/models/user.model';
 import { APP_CONSTANTS } from '../../../../core/constants/app.constants';
 import { Subscription } from 'rxjs';
+import { TranslationService } from '../../../../../locale/translation.service';
+import { TranslatePipe } from '../../../../../locale/translation.pipe';
+import { SupportedLanguage } from '../../../../../locale/translation.types';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, UserTypeModalComponent],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    FormsModule,
+    UserTypeModalComponent,
+    TranslatePipe,
+  ],
 })
-export class LoginComponent implements OnDestroy {
+export class LoginComponent implements OnInit, OnDestroy {
   loginForm: FormGroup;
   loading = false;
   errorMessage = '';
@@ -32,12 +42,17 @@ export class LoginComponent implements OnDestroy {
   // User type modal state
   showUserTypeModal = false;
   userTypeModalLoading = false;
+  // Translation properties
+  currentLanguage: SupportedLanguage = 'en';
+  isRTL = false;
+  supportedLanguages: SupportedLanguage[] = [];
   private subscription = new Subscription();
 
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private translationService: TranslationService
   ) {
     this.loginForm = this.fb.group({
       civilNo: [
@@ -59,6 +74,21 @@ export class LoginComponent implements OnDestroy {
 
     //   })
     // );
+  }
+
+  ngOnInit(): void {
+    // Initialize translation properties
+    this.supportedLanguages = this.translationService.getSupportedLanguages();
+    this.currentLanguage = this.translationService.getCurrentLanguage();
+    this.isRTL = this.translationService.isRTL();
+
+    // Subscribe to language changes
+    this.subscription.add(
+      this.translationService.getCurrentLanguage$().subscribe((language) => {
+        this.currentLanguage = language;
+        this.isRTL = this.translationService.isRTL();
+      })
+    );
   }
 
   ngOnDestroy(): void {
@@ -87,18 +117,19 @@ export class LoginComponent implements OnDestroy {
     if (!control || !control.errors) return '';
 
     if (control.errors['required']) {
-      return `${
-        fieldName === 'civilNo' ? 'Civil number' : 'Password'
-      } is required`;
+      return this.translationService.translate(
+        `login.form.${fieldName}.errors.required`
+      );
     }
     if (control.errors['minlength']) {
-      if (fieldName === 'civilNo') {
-        return 'Civil number must be 12 digits';
-      }
-      return 'Password must be at least 6 characters';
+      return this.translationService.translate(
+        `login.form.${fieldName}.errors.minlength`
+      );
     }
     if (control.errors['maxlength']) {
-      return 'Civil number must be 12 digits';
+      return this.translationService.translate(
+        `login.form.${fieldName}.errors.maxlength`
+      );
     }
 
     return 'Invalid input';
@@ -135,7 +166,8 @@ export class LoginComponent implements OnDestroy {
           console.error('Login error in component:', error);
           this.loading = false;
           this.errorMessage =
-            error.error?.message || 'Login failed. Please try again.';
+            error.error?.message ||
+            this.translationService.translate('login.form.loginError');
         },
       });
     } else {
@@ -168,5 +200,14 @@ export class LoginComponent implements OnDestroy {
   // Keep the old method for backward compatibility
   onSubmit(): void {
     this.onLogin();
+  }
+
+  // Language switching methods
+  switchLanguage(language: SupportedLanguage): void {
+    this.translationService.setLanguage(language);
+  }
+
+  getLanguageDisplayName(language: SupportedLanguage): string {
+    return language === 'en' ? 'English' : 'العربية';
   }
 }

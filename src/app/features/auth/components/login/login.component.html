@@ -1,5 +1,7 @@
 <div
   class="min-h-screen flex items-center justify-center bg-gradient-to-br from-neutral-50 to-neutral-100 p-4 sm:p-6 lg:p-8"
+  [class.rtl]="isRTL"
+  [attr.dir]="isRTL ? 'rtl' : 'ltr'"
 >
   <div class="w-full max-w-7xl mx-auto">
     <div
@@ -9,20 +11,33 @@
       <div
         class="relative flex-1 flex flex-col items-center justify-center p-6 sm:p-8 lg:p-12"
       >
-        <!-- MOO Logo -->
+        <!-- Language Switcher -->
+        <div class="absolute top-4 right-4">
+          <select
+            [(ngModel)]="currentLanguage"
+            (change)="switchLanguage(currentLanguage)"
+            class="px-3 py-1 text-sm border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+          >
+            <option *ngFor="let lang of supportedLanguages" [value]="lang">
+              {{ getLanguageDisplayName(lang) }}
+            </option>
+          </select>
+        </div>
 
         <div class="w-full max-w-md mx-auto">
           <!-- Logo Section -->
           <div class="flex flex-col items-center mb-8">
             <img
               src="assets/images/logos/logo.jpeg"
-              alt="{{ appConstants.APP_NAME }} Logo"
+              [alt]="appConstants.APP_NAME + ' Logo'"
               class="h-24 sm:h-32 mb-6 transform hover:scale-105 transition-transform duration-300"
             />
             <h2
               class="text-2xl text-center sm:text-3xl font-bold text-gradient-primary mb-2 flex items-center"
             >
-              Welcome to {{ appConstants.APP_NAME }}
+              {{
+                "login.title" | translate : { appName: appConstants.APP_NAME }
+              }}
             </h2>
           </div>
 
@@ -37,11 +52,13 @@
               <label
                 for="username"
                 class="block text-sm font-medium text-neutral-700"
-                >Civil Number</label
+                >{{ "login.form.civilNumber.label" | translate }}</label
               >
               <div class="relative">
                 <span
                   class="absolute inset-y-0 left-0 flex items-center pl-3 text-neutral-400"
+                  [class.right-0]="isRTL"
+                  [class.left-0]="!isRTL"
                 >
                   <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                     <path
@@ -64,8 +81,12 @@
                       !hasError('civilNo') &&
                       !(civilNoControl?.valid && civilNoControl?.touched)
                   }"
-                  class="w-full pl-10 pr-4 py-2.5 text-neutral-700 border rounded-xl focus:outline-none focus:ring-2 transition-colors duration-200"
-                  placeholder="Enter your civil number"
+                  [class.pl-10]="!isRTL"
+                  [class.pr-10]="isRTL"
+                  class="w-full py-2.5 text-neutral-700 border rounded-xl focus:outline-none focus:ring-2 transition-colors duration-200"
+                  [placeholder]="
+                    'login.form.civilNumber.placeholder' | translate
+                  "
                 />
                 <div
                   *ngIf="hasError('civilNo')"
@@ -92,11 +113,13 @@
               <label
                 for="password"
                 class="block text-sm font-medium text-neutral-700"
-                >Password</label
+                >{{ "login.form.password.label" | translate }}</label
               >
               <div class="relative">
                 <span
                   class="absolute inset-y-0 left-0 flex items-center pl-3 text-neutral-400"
+                  [class.right-0]="isRTL"
+                  [class.left-0]="!isRTL"
                 >
                   <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                     <path
@@ -119,8 +142,10 @@
                       !hasError('password') &&
                       !(passwordControl?.valid && passwordControl?.touched)
                   }"
-                  class="w-full pl-10 pr-4 py-2.5 text-neutral-700 border rounded-xl focus:outline-none focus:ring-2 transition-colors duration-200"
-                  placeholder="Enter your password"
+                  [class.pl-10]="!isRTL"
+                  [class.pr-10]="isRTL"
+                  class="w-full py-2.5 text-neutral-700 border rounded-xl focus:outline-none focus:ring-2 transition-colors duration-200"
+                  [placeholder]="'login.form.password.placeholder' | translate"
                 />
                 <div
                   *ngIf="hasError('password')"
@@ -151,8 +176,10 @@
                   formControlName="rememberMe"
                   class="w-4 h-4 border-primary-300 rounded focus:ring-primary-500 checked:bg-primary-500 checked:border-primary-500"
                 />
-                <label for="remember-me" class="ml-2 text-sm text-neutral-600"
-                  >Remember me</label
+                <label
+                  for="remember-me"
+                  class="ml-2 text-sm text-neutral-600"
+                  >{{ "login.form.rememberMe" | translate }}</label
                 >
               </div>
             </div>
@@ -169,7 +196,7 @@
               }"
               class="w-full py-3 px-4 text-white rounded-xl shadow-md hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500/30 flex justify-center items-center"
             >
-              <span>Sign In</span>
+              <span>{{ "login.form.signIn" | translate }}</span>
               <i class="fas fa-sign-in-alt ml-2"></i>
             </button>
 
@@ -178,8 +205,14 @@
               <p
                 class="text-center mt-2 flex items-center justify-center gap-2"
               >
-                © {{ currentYear }} {{ appConstants.ORGANIZATION }}. All rights
-                reserved.
+                {{
+                  "login.footer.copyright"
+                    | translate
+                      : {
+                          year: currentYear,
+                          organization: appConstants.ORGANIZATION
+                        }
+                }}
               </p>
             </div>
           </form>
@@ -187,100 +220,73 @@
       </div>
 
       <!-- Right Section - Feature Highlights -->
-      <div class="hidden lg:flex lg:w-1/2 bg-gradient-primary p-8 lg:p-12">
+      <div
+        class="hidden lg:flex lg:w-1/2 bg-gradient-primary p-8 lg:p-12"
+        [class.rtl]="isRTL"
+        [attr.dir]="isRTL ? 'rtl' : 'ltr'"
+      >
         <div class="flex flex-col justify-center space-y-8 max-w-lg mx-auto">
-          <div class="space-y-4">
-            <h3 class="text-2xl sm:text-3xl font-bold text-white">
-              Welcome to {{ appConstants.APP_NAME }}
-            </h3>
-            <p class="text-primary-100 text-sm sm:text-base">
-              Your gateway to professional development and industry knowledge.
-            </p>
-          </div>
-
           <div class="grid gap-6">
+            <div class="space-y-4">
+              <h3
+                class="text-2xl sm:text-3xl font-bold text-white"
+                [class.text-right]="isRTL"
+              >
+                {{
+                  "login.features.title"
+                    | translate : { appName: appConstants.APP_NAME }
+                }}
+              </h3>
+              <p
+                class="text-primary-100 text-sm sm:text-base"
+                [class.text-right]="isRTL"
+              >
+                {{ "login.features.subtitle" | translate }}
+              </p>
+            </div>
+
             <!-- Feature 1 -->
             <div
-              class="flex items-start space-x-4 bg-white/10 p-4 rounded-xl backdrop-blur-sm"
+              class="bg-white/10 p-4 rounded-xl backdrop-blur-sm"
+              [class.text-right]="isRTL"
+              [class.text-left]="!isRTL"
             >
-              <div
-                class="flex-shrink-0 w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center"
-              >
-                <svg
-                  class="w-6 h-6 text-white"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                  ></path>
-                </svg>
-              </div>
-              <div>
-                <h4 class="font-semibold text-white">
-                  Comprehensive Course Library
-                </h4>
-                <p class="text-primary-100 text-sm">
-                  Access a wide range of industry-specific courses and training
-                  materials.
-                </p>
-              </div>
+              <h4 class="font-semibold text-white mb-2">
+                {{ "login.features.courseLibrary.title" | translate }}
+              </h4>
+              <p class="text-primary-100 text-sm">
+                {{ "login.features.courseLibrary.description" | translate }}
+              </p>
             </div>
 
             <!-- Feature 2 -->
             <div
-              class="flex items-start space-x-4 bg-white/10 p-4 rounded-xl backdrop-blur-sm"
+              class="bg-white/10 p-4 rounded-xl backdrop-blur-sm"
+              [class.text-right]="isRTL"
+              [class.text-left]="!isRTL"
             >
-              <div
-                class="flex-shrink-0 w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center"
-              >
-                <svg
-                  class="w-6 h-6 text-white"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                    clip-rule="evenodd"
-                  ></path>
-                </svg>
-              </div>
-              <div>
-                <h4 class="font-semibold text-white">
-                  Professional Certifications
-                </h4>
-                <p class="text-primary-100 text-sm">
-                  Track your progress and earn industry-recognized
-                  certifications.
-                </p>
-              </div>
+              <h4 class="font-semibold text-white mb-2">
+                {{ "login.features.certifications.title" | translate }}
+              </h4>
+              <p class="text-primary-100 text-sm">
+                {{ "login.features.certifications.description" | translate }}
+              </p>
             </div>
 
             <!-- Feature 3 -->
             <div
-              class="flex items-start space-x-4 bg-white/10 p-4 rounded-xl backdrop-blur-sm"
+              class="bg-white/10 p-4 rounded-xl backdrop-blur-sm"
+              [class.text-right]="isRTL"
+              [class.text-left]="!isRTL"
             >
-              <div
-                class="flex-shrink-0 w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center"
-              >
-                <svg
-                  class="w-6 h-6 text-white"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"
-                  ></path>
-                </svg>
-              </div>
-              <div>
-                <h4 class="font-semibold text-white">Collaborative Learning</h4>
-                <p class="text-primary-100 text-sm">
-                  Connect with peers and industry experts through our learning
-                  community.
-                </p>
-              </div>
+              <h4 class="font-semibold text-white mb-2">
+                {{ "login.features.collaborativeLearning.title" | translate }}
+              </h4>
+              <p class="text-primary-100 text-sm">
+                {{
+                  "login.features.collaborativeLearning.description" | translate
+                }}
+              </p>
             </div>
           </div>
         </div>

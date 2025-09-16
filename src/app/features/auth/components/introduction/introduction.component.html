@@ -1,4 +1,7 @@
-<div class="min-h-screen bg-gradient-to-br from-primary-50 to-secondary-50">
+<div
+  class="min-h-screen bg-gradient-to-br from-primary-50 to-secondary-50"
+  [class.rtl]="isRTL"
+>
   <!-- Header Section -->
   <header class="bg-white shadow-primary border-b border-primary-200">
     <div class="container mx-auto px-4 py-6">
@@ -9,7 +12,7 @@
           >
             <img
               src="assets/images/logos/logo.jpeg"
-              alt="{{ appConstants.APP_NAME }} Logo"
+              [alt]="appConstants.APP_NAME + ' Logo'"
               class="w-8 h-8 object-contain"
             />
           </div>
@@ -17,10 +20,22 @@
             <h1 class="text-2xl font-bold text-gradient-primary">
               {{ appConstants.APP_NAME }}
             </h1>
-            <p class="text-sm text-primary-600">Digital Learning Platform</p>
+            <p class="text-sm text-primary-600">
+              {{ "introduction.header.tagline" | translate }}
+            </p>
           </div>
         </div>
-        <div class="header-actions">
+        <div class="header-actions flex items-center space-x-4">
+          <!-- Language Switcher -->
+          <select
+            [(ngModel)]="currentLanguage"
+            (change)="switchLanguage(currentLanguage)"
+            class="px-3 py-1 text-sm border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+          >
+            <option *ngFor="let lang of supportedLanguages" [value]="lang">
+              {{ getLanguageDisplayName(lang) }}
+            </option>
+          </select>
           <button (click)="goToLogin()" class="btn-primary flex items-center">
             <svg
               class="w-5 h-5 mr-2"
@@ -35,7 +50,7 @@
                 d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
               ></path>
             </svg>
-            Sign In
+            {{ "introduction.header.signIn" | translate }}
           </button>
         </div>
       </div>
@@ -47,17 +62,17 @@
     <div class="container mx-auto px-4">
       <div class="text-center max-w-4xl mx-auto">
         <h2 class="text-4xl md:text-6xl font-bold mb-6">
-          Welcome to
-          <span class="text-secondary-400">{{ appConstants.APP_NAME }}</span>
+          {{
+            "introduction.hero.title"
+              | translate : { appName: appConstants.APP_NAME }
+          }}
         </h2>
         <p class="text-xl md:text-2xl text-primary-100 mb-8 leading-relaxed">
-          Your gateway to professional development and industry knowledge.
-          Discover comprehensive training programs designed to enhance your
-          skills and advance your career in the digital age.
+          {{ "introduction.hero.subtitle" | translate }}
         </p>
         <div class="flex flex-col sm:flex-row gap-4 justify-center">
           <button (click)="goToLogin()" class="btn-secondary text-lg px-8 py-4">
-            Start Your Learning Journey
+            {{ "introduction.hero.startJourney" | translate }}
             <svg
               class="w-5 h-5 ml-2"
               fill="none"
@@ -73,7 +88,7 @@
             </svg>
           </button>
           <button class="btn-outline-secondary text-lg px-8 py-4">
-            Learn More
+            {{ "introduction.hero.learnMore" | translate }}
           </button>
         </div>
       </div>
@@ -85,11 +100,13 @@
     <div class="container mx-auto px-4">
       <div class="text-center mb-16">
         <h2 class="text-3xl md:text-4xl font-bold text-primary-700 mb-4">
-          Why Choose {{ appConstants.APP_NAME }}?
+          {{
+            "introduction.features.title"
+              | translate : { appName: appConstants.APP_NAME }
+          }}
         </h2>
         <p class="text-lg text-neutral-600 max-w-2xl mx-auto">
-          Experience world-class education with cutting-edge technology and
-          expert instructors
+          {{ "introduction.features.subtitle" | translate }}
         </p>
       </div>
 
@@ -116,11 +133,13 @@
             </svg>
           </div>
           <h3 class="text-xl font-semibold text-primary-700 mb-4">
-            Professional Training
+            {{ "introduction.features.professionalTraining.title" | translate }}
           </h3>
           <p class="text-neutral-600">
-            Industry-leading courses designed by experts to help you advance
-            your career and stay ahead in the competitive job market.
+            {{
+              "introduction.features.professionalTraining.description"
+                | translate
+            }}
           </p>
         </div>
 
@@ -146,11 +165,10 @@
             </svg>
           </div>
           <h3 class="text-xl font-semibold text-primary-700 mb-4">
-            Diverse Course Library
+            {{ "introduction.features.diverseLibrary.title" | translate }}
           </h3>
           <p class="text-neutral-600">
-            Access a comprehensive collection of courses covering technology,
-            business, and professional development topics.
+            {{ "introduction.features.diverseLibrary.description" | translate }}
           </p>
         </div>
 
@@ -176,11 +194,12 @@
             </svg>
           </div>
           <h3 class="text-xl font-semibold text-primary-700 mb-4">
-            Expert Instructors
+            {{ "introduction.features.expertInstructors.title" | translate }}
           </h3>
           <p class="text-neutral-600">
-            Learn from industry professionals and certified experts who bring
-            real-world experience to every lesson.
+            {{
+              "introduction.features.expertInstructors.description" | translate
+            }}
           </p>
         </div>
       </div>
@@ -191,15 +210,14 @@
   <section class="py-20 bg-gradient-secondary text-white">
     <div class="container mx-auto px-4 text-center">
       <h2 class="text-3xl md:text-4xl font-bold mb-6">
-        Ready to Start Your Learning Journey?
+        {{ "introduction.cta.title" | translate }}
       </h2>
       <p class="text-xl mb-8 max-w-2xl mx-auto">
-        Join thousands of professionals who have already transformed their
-        careers with our comprehensive training programs.
+        {{ "introduction.cta.subtitle" | translate }}
       </p>
       <div class="flex flex-col sm:flex-row gap-4 justify-center">
         <button (click)="goToLogin()" class="btn-primary text-lg px-8 py-4">
-          Get Started Now
+          {{ "introduction.cta.getStarted" | translate }}
           <svg
             class="w-5 h-5 ml-2"
             fill="none"
@@ -215,7 +233,7 @@
           </svg>
         </button>
         <button class="btn-outline-primary text-lg px-8 py-4">
-          View Courses
+          {{ "introduction.cta.viewCourses" | translate }}
         </button>
       </div>
     </div>
@@ -232,84 +250,95 @@
             >
               <img
                 src="assets/images/logos/logo.jpeg"
-                alt="{{ appConstants.APP_NAME }} Logo"
+                [alt]="appConstants.APP_NAME + ' Logo'"
                 class="w-6 h-6 object-contain"
               />
             </div>
             <div>
               <h3 class="text-xl font-bold">{{ appConstants.APP_NAME }}</h3>
-              <p class="text-primary-200 text-sm">Digital Learning Platform</p>
+              <p class="text-primary-200 text-sm">
+                {{ "introduction.footer.tagline" | translate }}
+              </p>
             </div>
           </div>
           <p class="text-primary-200 mb-4 max-w-md">
-            Empowering professionals with cutting-edge training and development
-            programs to advance their careers in the digital age.
+            {{ "introduction.footer.description" | translate }}
           </p>
         </div>
 
         <div>
-          <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
+          <h4 class="text-lg font-semibold mb-4">
+            {{ "introduction.footer.quickLinks.title" | translate }}
+          </h4>
           <ul class="space-y-2">
             <li>
               <a
                 href="#"
                 class="text-primary-200 hover:text-white transition-colors"
-                >About Us</a
+                >{{ "introduction.footer.quickLinks.aboutUs" | translate }}</a
               >
             </li>
             <li>
               <a
                 href="#"
                 class="text-primary-200 hover:text-white transition-colors"
-                >Courses</a
+                >{{ "introduction.footer.quickLinks.courses" | translate }}</a
               >
             </li>
             <li>
               <a
                 href="#"
                 class="text-primary-200 hover:text-white transition-colors"
-                >Instructors</a
+                >{{
+                  "introduction.footer.quickLinks.instructors" | translate
+                }}</a
               >
             </li>
             <li>
               <a
                 href="#"
                 class="text-primary-200 hover:text-white transition-colors"
-                >Contact</a
+                >{{ "introduction.footer.quickLinks.contact" | translate }}</a
               >
             </li>
           </ul>
         </div>
 
         <div>
-          <h4 class="text-lg font-semibold mb-4">Support</h4>
+          <h4 class="text-lg font-semibold mb-4">
+            {{ "introduction.footer.support.title" | translate }}
+          </h4>
           <ul class="space-y-2">
             <li>
               <a
                 href="#"
                 class="text-primary-200 hover:text-white transition-colors"
-                >Help Center</a
+                >{{ "introduction.footer.support.helpCenter" | translate }}</a
               >
             </li>
             <li>
               <a
                 href="#"
                 class="text-primary-200 hover:text-white transition-colors"
-                >Privacy Policy</a
+                >{{
+                  "introduction.footer.support.privacyPolicy" | translate
+                }}</a
               >
             </li>
             <li>
               <a
                 href="#"
                 class="text-primary-200 hover:text-white transition-colors"
-                >Terms of Service</a
+                >{{
+                  "introduction.footer.support.termsOfService" | translate
+                }}</a
               >
             </li>
             <li>
               <a
                 href="#"
                 class="text-primary-200 hover:text-white transition-colors"
-                >FAQ</a
+                >{{ "introduction.footer.support.faq" | translate }}</a
               >
             </li>
           </ul>
@@ -318,8 +347,11 @@
 
       <div class="border-t border-primary-600 mt-8 pt-8 text-center">
         <p class="text-primary-200">
-          © {{ currentYear }} {{ appConstants.ORGANIZATION }}. All rights
-          reserved.
+          {{
+            "introduction.footer.copyright"
+              | translate
+                : { year: currentYear, organization: appConstants.ORGANIZATION }
+          }}
         </p>
       </div>
     </div>
