@@ -38,11 +38,6 @@ export class AuthService {
   login(credentials: LoginRequest): Observable<ApiLoginResponse> {
     console.log('Login attempt with credentials:', credentials);
 
-    // For development/testing - mock login
-    if (this.isDevelopmentMode()) {
-      return this.mockLogin(credentials);
-    }
-
     return this.http
       .post<ApiLoginResponse>(
         `${APP_CONSTANTS.API_BASE_URL}/authentication/login`,

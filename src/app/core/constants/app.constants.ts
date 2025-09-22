@@ -2,7 +2,7 @@ export const APP_CONSTANTS = {
   APP_NAME: 'TRAX',
   VERSION: '1.0.0',
   ORGANIZATION: 'trax.com',
-  API_BASE_URL: 'https://tech.moo.gov.kw/courses/api',
+  API_BASE_URL: 'https://localhost:7195/api',
   STORAGE_KEYS: {
     AUTH_TOKEN: 'auth_token',
     USER_DATA: 'user_data',

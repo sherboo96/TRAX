@@ -5,11 +5,12 @@ import {
   ReactiveFormsModule,
   FormBuilder,
   FormGroup,
+  FormControl,
   Validators,
   FormArray,
   AbstractControl,
 } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
 import { CourseService } from '../../../../core/services/course.service';
 import { InstructorService } from '../../../../core/services/instructor.service';
@@ -19,6 +20,7 @@ import { User, UserRole } from '../../../../core/models/user.model';
 import { Instructor } from '../../../../core/models/instructor.model';
 import { Department } from '../../../../core/models/department.model';
 import { AiHelperComponent } from '../../../../shared/components/ai-helper/ai-helper.component';
+import { environment } from '../../../../../environments/environment';
 
 // Add this helper function at the top of the class (after imports, before the class definition)
 function atLeastOneNonEmptyValidator(control: AbstractControl) {
@@ -27,6 +29,20 @@ function atLeastOneNonEmptyValidator(control: AbstractControl) {
       (ctrl) => ctrl.value && ctrl.value.toString().trim() !== ''
     );
     return hasNonEmpty ? null : { atLeastOne: true };
+  }
+  return null;
+}
+
+// Helper function for individual form array controls
+function nonEmptyValidator(control: AbstractControl) {
+  const value = control.value;
+  if (
+    value === null ||
+    value === undefined ||
+    value === '' ||
+    value.toString().trim() === ''
+  ) {
+    return { required: true };
   }
   return null;
 }
@@ -51,18 +67,24 @@ export class AddCourseComponent implements OnInit {
   submitting = false;
   loadingInstructors = false;
   loadingDepartments = false;
+  selectedImage: File | null = null;
+  imagePreview: string | null = null;
+
+  // Edit mode properties
+  isEditMode = false;
+  courseId: number | null = null;
+  originalCourse: any = null;
 
   // Real data from APIs
   instructors: Instructor[] = [];
   departments: Department[] = [];
 
-  // Form options
+  // Form options - CourseCategory enum values
   categories = [
-    { id: 1, name: 'Technology', icon: '💻' },
-    { id: 2, name: 'Business', icon: '💼' },
-    { id: 3, name: 'Design', icon: '🎨' },
-    { id: 4, name: 'Marketing', icon: '📈' },
-    { id: 5, name: 'Development', icon: '🚀' },
+    { id: 1, name: 'On Site', icon: '🏢' },
+    { id: 2, name: 'Online', icon: '💻' },
+    { id: 3, name: 'In a Place', icon: '📍' },
+    { id: 4, name: 'Abroad', icon: '✈️' },
   ];
 
   levels = [
@@ -113,7 +135,8 @@ export class AddCourseComponent implements OnInit {
     private instructorService: InstructorService,
     private departmentService: DepartmentService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {
     this.courseForm = this.fb.group({
       title: ['', [Validators.required, Validators.minLength(3)]],
@@ -129,23 +152,32 @@ export class AddCourseComponent implements OnInit {
       level: [1, Validators.required],
       duration: ['', Validators.required],
       price: [0, [Validators.required, Validators.min(0)]],
-      progress: [
-        0,
-        [Validators.required, Validators.min(0), Validators.max(100)],
-      ],
+      kpiWeight: [0, [Validators.required, Validators.min(0)]],
       status: [1, Validators.required],
-      requirements: this.fb.array([], atLeastOneNonEmptyValidator),
-      learningOutcomes: this.fb.array([], atLeastOneNonEmptyValidator),
+      requirements: this.fb.array([]),
+      learningOutcomes: this.fb.array([]),
       language: ['en', Validators.required],
       certificate: [true],
-      targetDepartmentIds: this.fb.array([], atLeastOneNonEmptyValidator),
-      instructorIds: this.fb.array([], atLeastOneNonEmptyValidator),
+      targetDepartmentIds: this.fb.array([]),
+      instructorIds: this.fb.array([]),
     });
   }
 
   ngOnInit(): void {
     this.currentUser = this.authService.currentUserValue;
-    this.initializeForm();
+
+    // Check if we're in edit mode
+    this.route.params.subscribe((params) => {
+      if (params['id']) {
+        this.isEditMode = true;
+        this.courseId = +params['id'];
+        this.loadCourseForEdit();
+      } else {
+        this.isEditMode = false;
+        this.initializeForm();
+      }
+    });
+
     this.loadInstructors();
     this.loadDepartments();
 
@@ -165,21 +197,116 @@ export class AddCourseComponent implements OnInit {
     this.addInstructor();
     this.addDepartment();
 
-    // Mark the first control in each FormArray as touched to show validation errors if left empty
-    setTimeout(() => {
-      if (this.requirements.length > 0) {
-        this.requirements.at(0).markAsTouched();
-      }
-      if (this.learningOutcomes.length > 0) {
-        this.learningOutcomes.at(0).markAsTouched();
-      }
-      if (this.instructorIds.length > 0) {
-        this.instructorIds.at(0).markAsTouched();
-      }
-      if (this.targetDepartmentIds.length > 0) {
-        this.targetDepartmentIds.at(0).markAsTouched();
-      }
-    }, 0);
+    // Don't mark controls as touched initially - let users fill them first
+    // The validation will be triggered when they try to submit
+  }
+
+  private loadCourseForEdit(): void {
+    if (!this.courseId) return;
+
+    this.loading = true;
+    this.courseService.getCourseById(this.courseId).subscribe({
+      next: (response) => {
+        if (response.statusCode === 200 && response.result) {
+          this.originalCourse = response.result;
+          this.populateFormWithCourseData(response.result);
+          this.loading = false;
+        } else {
+          console.error('Failed to load course for edit:', response.message);
+          this.loading = false;
+        }
+      },
+      error: (error) => {
+        console.error('Error loading course for edit:', error);
+        this.loading = false;
+      },
+    });
+  }
+
+  private populateFormWithCourseData(course: any): void {
+    // Populate basic form fields
+    this.courseForm.patchValue({
+      title: course.title || '',
+      description: course.description || '',
+      location: course.location || '',
+      startDate: course.startDate
+        ? new Date(course.startDate).toISOString().split('T')[0]
+        : '',
+      endDate: course.endDate
+        ? new Date(course.endDate).toISOString().split('T')[0]
+        : '',
+      timeFrom: course.timeFrom || '',
+      timeTo: course.timeTo || '',
+      availableSeats: course.availableSeats || 1000,
+      category: course.category || 1,
+      onlineRepeated: course.onlineRepeated || false,
+      level: course.level || 1,
+      duration: course.duration || '',
+      price: course.price || 0,
+      kpiWeight: course.kpiWeight || 0,
+      status: course.statusId || 1,
+      language: course.language || 'en',
+      certificate: course.certificate || false,
+    });
+
+    // Populate form arrays
+    this.populateFormArrays(course);
+
+    // Set image preview if course has an image
+    if (course.image) {
+      this.imagePreview = `${environment.imageBaseUrl}${course.image}`;
+    }
+
+    // Update section completion
+    this.updateSectionCompletion();
+  }
+
+  private populateFormArrays(course: any): void {
+    // Clear existing arrays
+    this.requirements.clear();
+    this.learningOutcomes.clear();
+    this.instructorIds.clear();
+    this.targetDepartmentIds.clear();
+
+    // Populate requirements
+    if (course.requirements && course.requirements.length > 0) {
+      course.requirements.forEach((req: string) => {
+        this.requirements.push(this.fb.control(req, nonEmptyValidator));
+      });
+    } else {
+      this.addRequirement();
+    }
+
+    // Populate learning outcomes
+    if (course.learningOutcomes && course.learningOutcomes.length > 0) {
+      course.learningOutcomes.forEach((outcome: string) => {
+        this.learningOutcomes.push(this.fb.control(outcome, nonEmptyValidator));
+      });
+    } else {
+      this.addLearningOutcome();
+    }
+
+    // Populate instructor IDs
+    if (course.instructors && course.instructors.length > 0) {
+      course.instructors.forEach((instructor: any) => {
+        this.instructorIds.push(
+          this.fb.control(instructor.id, nonEmptyValidator)
+        );
+      });
+    } else {
+      this.addInstructor();
+    }
+
+    // Populate target department IDs
+    if (course.targetDepartments && course.targetDepartments.length > 0) {
+      course.targetDepartments.forEach((dept: any) => {
+        this.targetDepartmentIds.push(
+          this.fb.control(dept.id, nonEmptyValidator)
+        );
+      });
+    } else {
+      this.addDepartment();
+    }
   }
 
   private loadInstructors(): void {
@@ -246,9 +373,26 @@ export class AddCourseComponent implements OnInit {
     return this.courseForm.get('instructorIds') as FormArray;
   }
 
+  // Helper methods to get properly typed form controls
+  getRequirementControl(index: number): FormControl {
+    return this.requirements.at(index) as FormControl;
+  }
+
+  getLearningOutcomeControl(index: number): FormControl {
+    return this.learningOutcomes.at(index) as FormControl;
+  }
+
+  getInstructorControl(index: number): FormControl {
+    return this.instructorIds.at(index) as FormControl;
+  }
+
+  getDepartmentControl(index: number): FormControl {
+    return this.targetDepartmentIds.at(index) as FormControl;
+  }
+
   // Add/Remove methods for dynamic arrays
   addRequirement(): void {
-    this.requirements.push(this.fb.control('', Validators.required));
+    this.requirements.push(this.fb.control('', nonEmptyValidator));
     this.updateSectionCompletion();
   }
 
@@ -260,7 +404,7 @@ export class AddCourseComponent implements OnInit {
   }
 
   addLearningOutcome(): void {
-    this.learningOutcomes.push(this.fb.control('', Validators.required));
+    this.learningOutcomes.push(this.fb.control('', nonEmptyValidator));
     this.updateSectionCompletion();
   }
 
@@ -272,7 +416,7 @@ export class AddCourseComponent implements OnInit {
   }
 
   addInstructor(): void {
-    this.instructorIds.push(this.fb.control('', Validators.required));
+    this.instructorIds.push(this.fb.control('', nonEmptyValidator));
     this.updateSectionCompletion();
   }
 
@@ -284,7 +428,7 @@ export class AddCourseComponent implements OnInit {
   }
 
   addDepartment(): void {
-    this.targetDepartmentIds.push(this.fb.control('', Validators.required));
+    this.targetDepartmentIds.push(this.fb.control('', nonEmptyValidator));
     this.updateSectionCompletion();
   }
 
@@ -421,6 +565,26 @@ export class AddCourseComponent implements OnInit {
     });
   }
 
+  private isFormArrayValid(formArray: FormArray): boolean {
+    if (formArray.length === 0) return false;
+    return formArray.controls.some(
+      (control) => control.value && control.value.toString().trim() !== ''
+    );
+  }
+
+  private isFormValid(): boolean {
+    // Check basic form validity
+    if (!this.courseForm.valid) return false;
+
+    // Check form arrays have at least one valid entry
+    return (
+      this.isFormArrayValid(this.requirements) &&
+      this.isFormArrayValid(this.learningOutcomes) &&
+      this.isFormArrayValid(this.instructorIds) &&
+      this.isFormArrayValid(this.targetDepartmentIds)
+    );
+  }
+
   private isSectionComplete(sectionId: string): boolean {
     const controls = this.courseForm.controls;
 
@@ -446,15 +610,15 @@ export class AddCourseComponent implements OnInit {
           controls['level'].valid &&
           controls['status'].valid &&
           controls['price'].valid &&
-          controls['progress'].valid &&
+          controls['kpiWeight'].valid &&
           controls['language'].valid
         );
       case 'content':
         return (
-          this.requirements.valid &&
-          this.learningOutcomes.valid &&
-          this.instructorIds.valid &&
-          this.targetDepartmentIds.valid
+          this.isFormArrayValid(this.requirements) &&
+          this.isFormArrayValid(this.learningOutcomes) &&
+          this.isFormArrayValid(this.instructorIds) &&
+          this.isFormArrayValid(this.targetDepartmentIds)
         );
       default:
         return false;
@@ -463,7 +627,11 @@ export class AddCourseComponent implements OnInit {
 
   // Form submission
   onSubmit(): void {
-    if (this.courseForm.valid) {
+    // Mark all form controls as touched to show validation errors
+    this.markFormGroupTouched();
+
+    // Check if form is valid including custom validation
+    if (this.isFormValid()) {
       this.submitting = true;
 
       const formValue = this.courseForm.value;
@@ -483,8 +651,8 @@ export class AddCourseComponent implements OnInit {
         level: formValue.level,
         duration: formValue.duration,
         price: formValue.price,
-        progress: formValue.progress,
-        status: formValue.status,
+        kpiWeight: formValue.kpiWeight,
+        statusId: formValue.status, // API expects statusId, not status
         requirements: formValue.requirements.filter(
           (req: string) => req.trim() !== ''
         ),
@@ -493,25 +661,44 @@ export class AddCourseComponent implements OnInit {
         ),
         language: formValue.language,
         certificate: formValue.certificate,
-        targetDepartmentIds: formValue.targetDepartmentIds.filter(
-          (id: any) => id !== null && id !== undefined && id !== ''
-        ),
-        instructorIds: formValue.instructorIds.filter(
-          (id: any) => id !== null && id !== undefined && id !== ''
-        ),
+        targetDepartmentIds: formValue.targetDepartmentIds
+          .filter((id: any) => id !== null && id !== undefined && id !== '')
+          .map((id: any) => parseInt(id)), // Convert to numbers
+        instructorIds: formValue.instructorIds
+          .filter((id: any) => id !== null && id !== undefined && id !== '')
+          .map((id: any) => parseInt(id)), // Convert to numbers
+        imageFile: this.selectedImage || undefined, // Add the selected image file
       };
 
-      this.courseService.createCourse(coursePayload).subscribe({
+      // Debug: Log the payload to verify image file is included
+      console.log('Course payload:', coursePayload);
+      console.log('Image file:', this.selectedImage);
+      console.log(
+        'FormData will be created with image file:',
+        !!this.selectedImage
+      );
+
+      // Choose between create and update based on mode
+      const courseOperation = this.isEditMode
+        ? this.courseService.updateCourse(this.courseId!, coursePayload)
+        : this.courseService.createCourse(coursePayload);
+
+      courseOperation.subscribe({
         next: (response: any) => {
-          console.log('Course created successfully:', response);
+          console.log(
+            `Course ${this.isEditMode ? 'updated' : 'created'} successfully:`,
+            response
+          );
           this.submitting = false;
 
           // Show success message
-          if (response.success) {
+          if (response.statusCode === 200 || response.statusCode === 201) {
             // Navigate back to courses list with success state
             this.router.navigate(['/admin/courses'], {
               queryParams: {
-                message: 'Course created successfully!',
+                message: `Course ${
+                  this.isEditMode ? 'updated' : 'created'
+                } successfully!`,
                 type: 'success',
               },
             });
@@ -545,18 +732,67 @@ export class AddCourseComponent implements OnInit {
     } else {
       this.markFormGroupTouched();
       console.log('Form validation errors:', this.getFormValidationErrors());
+      console.log('Form status:', {
+        valid: this.courseForm.valid,
+        invalid: this.courseForm.invalid,
+        pending: this.courseForm.pending,
+        disabled: this.courseForm.disabled,
+        touched: this.courseForm.touched,
+        dirty: this.courseForm.dirty,
+        value: this.courseForm.value,
+      });
+      console.log('Form array validation:', {
+        requirements: this.isFormArrayValid(this.requirements),
+        learningOutcomes: this.isFormArrayValid(this.learningOutcomes),
+        instructorIds: this.isFormArrayValid(this.instructorIds),
+        targetDepartmentIds: this.isFormArrayValid(this.targetDepartmentIds),
+      });
     }
   }
 
   // Helper method to get detailed validation errors
   private getFormValidationErrors(): any {
     const errors: any = {};
+
+    // Check top-level controls
     Object.keys(this.courseForm.controls).forEach((key) => {
       const control = this.courseForm.get(key);
       if (control && control.errors) {
         errors[key] = control.errors;
       }
+
+      // Check FormArray controls
+      if (control instanceof FormArray) {
+        const arrayErrors: any = {};
+        control.controls.forEach((arrayControl, index) => {
+          if (arrayControl.errors) {
+            arrayErrors[index] = arrayControl.errors;
+          }
+        });
+        if (Object.keys(arrayErrors).length > 0) {
+          errors[key] = arrayErrors;
+        }
+      }
     });
+
+    // Add custom validation errors
+    if (!this.isFormValid()) {
+      errors['formValidation'] = {
+        requirements: !this.isFormArrayValid(this.requirements)
+          ? 'At least one requirement is required'
+          : null,
+        learningOutcomes: !this.isFormArrayValid(this.learningOutcomes)
+          ? 'At least one learning outcome is required'
+          : null,
+        instructorIds: !this.isFormArrayValid(this.instructorIds)
+          ? 'At least one instructor is required'
+          : null,
+        targetDepartmentIds: !this.isFormArrayValid(this.targetDepartmentIds)
+          ? 'At least one department is required'
+          : null,
+      };
+    }
+
     return errors;
   }
 
@@ -576,6 +812,53 @@ export class AddCourseComponent implements OnInit {
   // Cancel and go back
   onCancel(): void {
     this.router.navigate(['/admin/courses']);
+  }
+
+  // Image upload methods
+  onImageSelected(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      // Validate file type
+      const allowedTypes = [
+        'image/jpeg',
+        'image/jpg',
+        'image/png',
+        'image/gif',
+        'image/webp',
+      ];
+      if (!allowedTypes.includes(file.type)) {
+        alert('Please select a valid image file (JPEG, PNG, GIF, or WebP)');
+        return;
+      }
+
+      // Validate file size (max 5MB)
+      const maxSize = 5 * 1024 * 1024; // 5MB
+      if (file.size > maxSize) {
+        alert('Image size should not exceed 5MB');
+        return;
+      }
+
+      this.selectedImage = file;
+
+      // Create preview
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.imagePreview = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  removeImage(): void {
+    this.selectedImage = null;
+    this.imagePreview = null;
+    // Reset the file input
+    const fileInput = document.getElementById(
+      'courseImage'
+    ) as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = '';
+    }
   }
 
   // Helper methods

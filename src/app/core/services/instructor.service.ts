@@ -45,8 +45,23 @@ export class InstructorService {
 
   // Create new instructor
   createInstructor(instructor: CreateInstructorDto): Observable<Instructor> {
+    const formData = new FormData();
+
+    // Append all instructor properties with exact DTO property names
+    formData.append('NameEn', instructor.nameEn);
+    formData.append('NameAr', instructor.nameAr);
+    formData.append('Bio', instructor.bio);
+    formData.append('Email', instructor.email);
+    formData.append('Phone', instructor.phone);
+    formData.append('InstitutionId', instructor.institutionId.toString());
+
+    // Append image file if provided
+    if (instructor.imageFile) {
+      formData.append('ImageFile', instructor.imageFile);
+    }
+
     return this.http
-      .post<Instructor>(this.apiUrl, instructor)
+      .post<Instructor>(this.apiUrl, formData)
       .pipe(catchError(this.handleError.bind(this)));
   }
 
@@ -55,8 +70,23 @@ export class InstructorService {
     id: number,
     instructor: UpdateInstructorDto
   ): Observable<Instructor> {
+    const formData = new FormData();
+
+    // Append all instructor properties with exact DTO property names
+    formData.append('NameEn', instructor.nameEn);
+    formData.append('NameAr', instructor.nameAr);
+    formData.append('Bio', instructor.bio);
+    formData.append('Email', instructor.email);
+    formData.append('Phone', instructor.phone);
+    formData.append('InstitutionId', instructor.institutionId.toString());
+
+    // Append image file if provided
+    if (instructor.imageFile) {
+      formData.append('ImageFile', instructor.imageFile);
+    }
+
     return this.http
-      .put<Instructor>(`${this.apiUrl}/${id}`, instructor)
+      .put<Instructor>(`${this.apiUrl}/${id}`, formData)
       .pipe(catchError(this.handleError.bind(this)));
   }
 

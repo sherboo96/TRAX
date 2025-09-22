@@ -1,34 +1,76 @@
 <div class="min-h-screen bg-neutral-50">
   <div class="px-4 sm:px-6 lg:px-8 py-8">
-    <app-loading
-      *ngIf="loading"
-      [isLoading]="loading"
-      message="Loading departments..."
-      type="spinner"
-      size="medium"
-    ></app-loading>
+    <!-- Page Header -->
+    <div class="mb-6">
+      <div class="flex justify-between items-center">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900">Departments</h1>
+          <p class="text-gray-600">Manage departments in the system</p>
+        </div>
+        <div class="flex items-center space-x-2">
+          <button
+            (click)="toggleViewMode()"
+            class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors duration-200"
+          >
+            <i class="fas fa-sitemap mr-2"></i>
+            {{
+              viewMode === "table"
+                ? "Tree View"
+                : viewMode === "tree"
+                ? "Complete Tree"
+                : "Table View"
+            }}
+          </button>
+        </div>
+      </div>
+    </div>
 
-    <div *ngIf="!loading && departments.length === 0" class="text-center py-12">
-      <svg
-        class="mx-auto h-12 w-12 text-neutral-400"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-        />
-      </svg>
-      <h3 class="mt-2 text-sm font-medium text-neutral-900">No departments</h3>
-      <p class="mt-1 text-sm text-neutral-500">
-        Get started by adding a new department.
-      </p>
-      <div class="mt-6">
+    <!-- Enhanced Filters Section -->
+    <div
+      class="bg-gradient-to-r from-primary-50 to-primary-100 p-6 rounded-xl border border-primary-200 shadow-sm mb-6"
+    >
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center space-x-3">
+          <div class="flex items-center space-x-2">
+            <svg
+              class="w-5 h-5 text-primary-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z"
+              />
+            </svg>
+            <h4 class="text-lg font-semibold text-primary-900">Filters</h4>
+          </div>
+          <span
+            *ngIf="hasActiveFilters()"
+            class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary-100 text-primary-800 border border-primary-200"
+          >
+            <svg
+              class="w-4 h-4 mr-1"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+            {{ getActiveFiltersCount() }} active
+          </span>
+        </div>
         <button
-          class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+          (click)="clearFilters()"
+          [disabled]="!hasActiveFilters()"
+          class="inline-flex items-center px-3 py-2 text-sm font-medium text-primary-700 bg-primary-100 hover:bg-primary-200 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-primary-500"
         >
           <svg
             class="w-4 h-4 mr-2"
@@ -40,75 +82,85 @@
               stroke-linecap="round"
               stroke-linejoin="round"
               stroke-width="2"
-              d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+              d="M6 18L18 6M6 6l12 12"
             />
           </svg>
-          Add Department
+          Clear All
         </button>
       </div>
-    </div>
 
-    <div
-      *ngIf="!loading && departments.length > 0"
-      class="bg-white shadow overflow-hidden sm:rounded-lg"
-    >
-      <div class="px-4 py-5 sm:px-6">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="text-lg leading-6 font-bold text-neutral-900">
-            Departments
-          </h3>
-          <div class="flex items-center space-x-3">
-            <button
-              (click)="refreshDepartments()"
-              class="inline-flex items-center px-3 py-2 border border-neutral-300 text-sm font-medium rounded-md text-neutral-700 bg-white hover:bg-neutral-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors duration-200"
-              [disabled]="loading"
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Order Filter -->
+        <div
+          class="bg-white p-4 rounded-lg border border-primary-200 shadow-sm"
+        >
+          <div class="flex items-center space-x-2 mb-2">
+            <svg
+              class="w-4 h-4 text-primary-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-              <svg
-                class="w-4 h-4 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                />
-              </svg>
-              Refresh
-            </button>
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"
+              />
+            </svg>
+            <label class="text-sm font-medium text-primary-900"
+              >Sort Order</label
+            >
           </div>
+          <select
+            [(ngModel)]="filters.order"
+            (change)="onFilterChange()"
+            class="w-full px-3 py-2 border border-primary-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
+          >
+            <option value="ASC">Ascending (A-Z)</option>
+            <option value="DESC">Descending (Z-A)</option>
+          </select>
         </div>
 
-        <!-- Enhanced Filters Section -->
+        <!-- Department Filter -->
         <div
-          class="bg-gradient-to-r from-primary-50 to-primary-100 p-6 rounded-xl border border-primary-200 shadow-sm"
+          class="bg-white p-4 rounded-lg border border-primary-200 shadow-sm"
         >
-          <div class="flex items-center justify-between mb-4">
-            <div class="flex items-center space-x-3">
-              <div class="flex items-center space-x-2">
-                <svg
-                  class="w-5 h-5 text-primary-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z"
-                  />
-                </svg>
-                <h4 class="text-lg font-semibold text-primary-900">Filters</h4>
-              </div>
-              <span
-                *ngIf="hasActiveFilters()"
-                class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary-100 text-primary-800 border border-primary-200"
+          <div class="flex items-center space-x-2 mb-3">
+            <svg
+              class="w-4 h-4 text-primary-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+              />
+            </svg>
+            <label class="text-sm font-medium text-primary-900"
+              >Department Type</label
+            >
+          </div>
+          <label class="flex items-center space-x-3 cursor-pointer group">
+            <div class="relative">
+              <input
+                type="checkbox"
+                id="isDepartment"
+                [(ngModel)]="filters.isDepartment"
+                (change)="onFilterChange()"
+                class="sr-only"
+              />
+              <div
+                class="w-6 h-6 border-2 border-primary-300 rounded-md flex items-center justify-center transition-colors duration-200 group-hover:border-primary-400"
+                [class.bg-primary-600]="filters.isDepartment"
+                [class.border-primary-600]="filters.isDepartment"
               >
                 <svg
-                  class="w-4 h-4 mr-1"
+                  *ngIf="filters.isDepartment"
+                  class="w-4 h-4 text-white"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -120,500 +172,250 @@
                     d="M5 13l4 4L19 7"
                   />
                 </svg>
-                {{ getActiveFiltersCount() }} active
-              </span>
-            </div>
-            <button
-              (click)="clearFilters()"
-              [disabled]="!hasActiveFilters()"
-              class="inline-flex items-center px-3 py-2 text-sm font-medium text-primary-700 bg-primary-100 hover:bg-primary-200 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-primary-500"
-            >
-              <svg
-                class="w-4 h-4 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-              Clear All
-            </button>
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <!-- Order Filter -->
-            <div
-              class="bg-white p-4 rounded-lg border border-primary-200 shadow-sm"
-            >
-              <div class="flex items-center space-x-2 mb-2">
-                <svg
-                  class="w-4 h-4 text-primary-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"
-                  />
-                </svg>
-                <label class="text-sm font-medium text-primary-900"
-                  >Sort Order</label
-                >
               </div>
-              <select
-                [(ngModel)]="filters.order"
-                (change)="onFilterChange()"
-                class="w-full px-3 py-2 border border-primary-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
-              >
-                <option value="ASC">Ascending (A-Z)</option>
-                <option value="DESC">Descending (Z-A)</option>
-              </select>
             </div>
-
-            <!-- Department Filter -->
-            <div
-              class="bg-white p-4 rounded-lg border border-primary-200 shadow-sm"
+            <span class="text-sm text-gray-700 group-hover:text-gray-900"
+              >Show Departments Only</span
             >
-              <div class="flex items-center space-x-2 mb-3">
-                <svg
-                  class="w-4 h-4 text-primary-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                  />
-                </svg>
-                <label class="text-sm font-medium text-primary-900"
-                  >Department Type</label
-                >
-              </div>
-              <label class="flex items-center space-x-3 cursor-pointer group">
-                <div class="relative">
-                  <input
-                    type="checkbox"
-                    id="isDepartment"
-                    [(ngModel)]="filters.isDepartment"
-                    (change)="onFilterChange()"
-                    class="sr-only"
-                  />
-                  <div
-                    class="w-6 h-6 border-2 border-primary-300 rounded-md flex items-center justify-center transition-colors duration-200 group-hover:border-primary-400"
-                    [class.bg-primary-600]="filters.isDepartment"
-                    [class.border-primary-600]="filters.isDepartment"
-                  >
-                    <svg
-                      *ngIf="filters.isDepartment"
-                      class="w-4 h-4 text-white"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                  </div>
-                </div>
-                <span class="text-sm text-gray-700 group-hover:text-gray-900"
-                  >Show Departments Only</span
-                >
-              </label>
-            </div>
-
-            <!-- Inspector Filter -->
-            <div
-              class="bg-white p-4 rounded-lg border border-primary-200 shadow-sm"
-            >
-              <div class="flex items-center space-x-2 mb-3">
-                <svg
-                  class="w-4 h-4 text-primary-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-                  />
-                </svg>
-                <label class="text-sm font-medium text-primary-900"
-                  >Inspector Role</label
-                >
-              </div>
-              <label class="flex items-center space-x-3 cursor-pointer group">
-                <div class="relative">
-                  <input
-                    type="checkbox"
-                    id="isInspector"
-                    [(ngModel)]="filters.isInspector"
-                    (change)="onFilterChange()"
-                    class="sr-only"
-                  />
-                  <div
-                    class="w-6 h-6 border-2 border-primary-300 rounded-md flex items-center justify-center transition-colors duration-200 group-hover:border-primary-400"
-                    [class.bg-primary-600]="filters.isInspector"
-                    [class.border-primary-600]="filters.isInspector"
-                  >
-                    <svg
-                      *ngIf="filters.isInspector"
-                      class="w-4 h-4 text-white"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                  </div>
-                </div>
-                <span class="text-sm text-gray-700 group-hover:text-gray-900"
-                  >Show Inspectors Only</span
-                >
-              </label>
-            </div>
-
-            <!-- Upper Management Filter -->
-            <div
-              class="bg-white p-4 rounded-lg border border-primary-200 shadow-sm"
-            >
-              <div class="flex items-center space-x-2 mb-3">
-                <svg
-                  class="w-4 h-4 text-primary-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                  />
-                </svg>
-                <label class="text-sm font-medium text-primary-900"
-                  >Management Level</label
-                >
-              </div>
-              <label class="flex items-center space-x-3 cursor-pointer group">
-                <div class="relative">
-                  <input
-                    type="checkbox"
-                    id="isUpperManagement"
-                    [(ngModel)]="filters.isUpperManagement"
-                    (change)="onFilterChange()"
-                    class="sr-only"
-                  />
-                  <div
-                    class="w-6 h-6 border-2 border-primary-300 rounded-md flex items-center justify-center transition-colors duration-200 group-hover:border-primary-400"
-                    [class.bg-primary-600]="filters.isUpperManagement"
-                    [class.border-primary-600]="filters.isUpperManagement"
-                  >
-                    <svg
-                      *ngIf="filters.isUpperManagement"
-                      class="w-4 h-4 text-white"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                  </div>
-                </div>
-                <span class="text-sm text-gray-700 group-hover:text-gray-900"
-                  >Upper Management Only</span
-                >
-              </label>
-            </div>
-          </div>
+          </label>
         </div>
-      </div>
-      <!-- Custom Table -->
-      <div class="overflow-x-auto">
-        <table class="w-full">
-          <thead
-            class="bg-gradient-to-r from-primary-50 to-secondary-50 border-b border-primary-200"
-          >
-            <tr>
-              <th
-                class="px-6 py-4 text-left text-xs font-bold text-primary-700 uppercase tracking-wider"
-              >
-                Department Name (EN)
-              </th>
-              <th
-                class="px-6 py-4 text-left text-xs font-bold text-primary-700 uppercase tracking-wider"
-              >
-                Department Name (AR)
-              </th>
-              <th
-                class="px-6 py-4 text-left text-xs font-bold text-primary-700 uppercase tracking-wider"
-              >
-                Type
-              </th>
-              <th
-                class="px-6 py-4 text-left text-xs font-bold text-primary-700 uppercase tracking-wider"
-              >
-                Main Type
-              </th>
-              <th
-                class="px-6 py-4 text-left text-xs font-bold text-primary-700 uppercase tracking-wider"
-              >
-                Organization
-              </th>
-              <th
-                class="px-6 py-4 text-left text-xs font-bold text-primary-700 uppercase tracking-wider"
-              >
-                Status
-              </th>
-              <th
-                class="px-6 py-4 text-left text-xs font-bold text-primary-700 uppercase tracking-wider"
-              >
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-neutral-100">
-            <tr
-              *ngFor="let department of departments; let i = index"
-              class="hover:bg-primary-50 transition-colors duration-200 group"
-              [class.bg-neutral-25]="i % 2 === 0"
-            >
-              <td class="px-6 py-4 whitespace-nowrap">
-                <div class="flex items-center">
-                  <div class="flex-shrink-0 h-10 w-10">
-                    <div
-                      class="h-10 w-10 bg-primary-100 rounded-lg flex items-center justify-center"
-                    >
-                      <svg
-                        class="h-5 w-5 text-primary-600"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                        />
-                      </svg>
-                    </div>
-                  </div>
-                  <div class="ml-4">
-                    <div class="text-sm font-medium text-neutral-900">
-                      {{ department?.nameEn || "N/A" }}
-                    </div>
-                    <div class="text-sm text-neutral-500">
-                      ID: {{ department?.id }}
-                    </div>
-                  </div>
-                </div>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <span class="text-sm text-neutral-900">{{
-                  department?.nameAr || "N/A"
-                }}</span>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <span class="text-sm text-neutral-900">{{
-                  department?.type || "N/A"
-                }}</span>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <span class="text-sm text-neutral-900">{{
-                  department?.mainType || "N/A"
-                }}</span>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <span class="text-sm text-neutral-900">{{
-                  getOrganizationDisplayName(department?.organization || null)
-                }}</span>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <span
-                  class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                  [ngClass]="{
-                    'bg-green-100 text-green-800': department?.isActive,
-                    'bg-red-100 text-red-800': !department?.isActive
-                  }"
-                >
-                  {{ department?.isActive ? "Active" : "Inactive" }}
-                </span>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <div
-                  class="flex items-center space-x-2 opacity-60 group-hover:opacity-100 transition-opacity duration-200"
-                >
-                  <button
-                    (click)="openEditModal(department)"
-                    class="p-2 rounded-lg hover:bg-blue-100 transition-all duration-200 inline-flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 text-blue-600 hover:text-blue-700"
-                    title="Edit"
-                    type="button"
-                  >
-                    <svg
-                      class="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="1.5"
-                        d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"
-                      ></path>
-                    </svg>
-                  </button>
-                  <button
-                    (click)="openDeleteModal(department)"
-                    class="p-2 rounded-lg hover:bg-red-100 transition-all duration-200 inline-flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 text-red-600 hover:text-red-700"
-                    title="Delete"
-                    type="button"
-                  >
-                    <svg
-                      class="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="1.5"
-                        d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"
-                      ></path>
-                    </svg>
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
 
-      <!-- Pagination -->
-      <div class="px-4 py-3 border-t border-neutral-200 bg-neutral-50 sm:px-6">
+        <!-- Inspector Filter -->
         <div
-          class="flex flex-col sm:flex-row items-center justify-between space-y-2 sm:space-y-0"
+          class="bg-white p-4 rounded-lg border border-primary-200 shadow-sm"
         >
-          <!-- Page Size Selector -->
-          <div class="flex items-center space-x-2">
-            <label for="pageSize" class="text-sm text-neutral-700">Show:</label>
-            <select
-              id="pageSize"
-              [(ngModel)]="pageSize"
-              (change)="onPageSizeChange(pageSize)"
-              class="text-sm border border-neutral-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+          <div class="flex items-center space-x-2 mb-3">
+            <svg
+              class="w-4 h-4 text-primary-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-              <option value="5">5</option>
-              <option value="10">10</option>
-              <option value="20">20</option>
-              <option value="50">50</option>
-            </select>
-            <span class="text-sm text-neutral-700">per page</span>
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+              />
+            </svg>
+            <label class="text-sm font-medium text-primary-900"
+              >Inspector Role</label
+            >
           </div>
-
-          <!-- Page Navigation -->
-          <div class="flex items-center space-x-2">
-            <button
-              (click)="onPageChange(1)"
-              [disabled]="currentPage <= 1"
-              class="px-2 py-1 text-sm border border-neutral-300 rounded-md bg-white hover:bg-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-primary-500"
-              title="First Page"
-            >
-              <svg
-                class="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+          <label class="flex items-center space-x-3 cursor-pointer group">
+            <div class="relative">
+              <input
+                type="checkbox"
+                id="isInspector"
+                [(ngModel)]="filters.isInspector"
+                (change)="onFilterChange()"
+                class="sr-only"
+              />
+              <div
+                class="w-6 h-6 border-2 border-primary-300 rounded-md flex items-center justify-center transition-colors duration-200 group-hover:border-primary-400"
+                [class.bg-primary-600]="filters.isInspector"
+                [class.border-primary-600]="filters.isInspector"
               >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M11 19l-7-7 7-7m8 14l-7-7 7-7"
-                />
-              </svg>
-            </button>
-
-            <button
-              (click)="onPageChange(currentPage - 1)"
-              [disabled]="currentPage <= 1"
-              class="px-3 py-1 text-sm border border-neutral-300 rounded-md bg-white hover:bg-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-primary-500"
+                <svg
+                  *ngIf="filters.isInspector"
+                  class="w-4 h-4 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              </div>
+            </div>
+            <span class="text-sm text-gray-700 group-hover:text-gray-900"
+              >Show Inspectors Only</span
             >
-              Previous
-            </button>
+          </label>
+        </div>
 
-            <span class="text-sm text-neutral-700 px-2">
-              Page {{ currentPage }} of {{ totalPages }}
-            </span>
-
-            <button
-              (click)="onPageChange(currentPage + 1)"
-              [disabled]="currentPage >= totalPages"
-              class="px-3 py-1 text-sm border border-neutral-300 rounded-md bg-white hover:bg-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-primary-500"
+        <!-- Upper Management Filter -->
+        <div
+          class="bg-white p-4 rounded-lg border border-primary-200 shadow-sm"
+        >
+          <div class="flex items-center space-x-2 mb-3">
+            <svg
+              class="w-4 h-4 text-primary-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-              Next
-            </button>
-
-            <button
-              (click)="onPageChange(totalPages)"
-              [disabled]="currentPage >= totalPages"
-              class="px-2 py-1 text-sm border border-neutral-300 rounded-md bg-white hover:bg-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-primary-500"
-              title="Last Page"
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+              />
+            </svg>
+            <label class="text-sm font-medium text-primary-900"
+              >Management Level</label
             >
-              <svg
-                class="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+          </div>
+          <label class="flex items-center space-x-3 cursor-pointer group">
+            <div class="relative">
+              <input
+                type="checkbox"
+                id="isUpperManagement"
+                [(ngModel)]="filters.isUpperManagement"
+                (change)="onFilterChange()"
+                class="sr-only"
+              />
+              <div
+                class="w-6 h-6 border-2 border-primary-300 rounded-md flex items-center justify-center transition-colors duration-200 group-hover:border-primary-400"
+                [class.bg-primary-600]="filters.isUpperManagement"
+                [class.border-primary-600]="filters.isUpperManagement"
               >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M13 5l7 7-7 7M5 5l7 7-7 7"
-                />
-              </svg>
-            </button>
-          </div>
-
-          <!-- Results Info -->
-          <div class="text-sm text-neutral-700">
-            <span *ngIf="totalItems > 0">
-              Showing {{ (currentPage - 1) * pageSize + 1 }} to
-              {{ getEndItemNumber() }} of {{ totalItems }} results
-            </span>
-            <span *ngIf="totalItems === 0"> No results found </span>
-          </div>
+                <svg
+                  *ngIf="filters.isUpperManagement"
+                  class="w-4 h-4 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              </div>
+            </div>
+            <span class="text-sm text-gray-700 group-hover:text-gray-900"
+              >Upper Management Only</span
+            >
+          </label>
         </div>
       </div>
+    </div>
+
+    <!-- Tree View -->
+    <div
+      *ngIf="viewMode === 'tree'"
+      class="bg-white shadow rounded-lg overflow-hidden"
+    >
+      <div class="px-6 py-4 border-b border-gray-200">
+        <h3 class="text-lg font-medium text-gray-900">Department Hierarchy</h3>
+        <p class="text-sm text-gray-500">
+          Click on nodes to expand/collapse the tree structure
+        </p>
+      </div>
+
+      <div class="p-6">
+        <div *ngIf="loading" class="flex justify-center items-center py-8">
+          <div
+            class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"
+          ></div>
+          <span class="ml-2 text-gray-600">Loading department tree...</span>
+        </div>
+
+        <div
+          *ngIf="!loading && departmentTree.length === 0"
+          class="text-center py-8"
+        >
+          <i class="fas fa-sitemap text-4xl text-gray-400 mb-4"></i>
+          <h3 class="text-lg font-medium text-gray-900 mb-2">
+            No departments found
+          </h3>
+          <p class="text-gray-500">
+            Start by adding a new department to build the hierarchy.
+          </p>
+        </div>
+
+        <div *ngIf="!loading && departmentTree.length > 0" class="space-y-1">
+          <ng-container *ngFor="let node of departmentTree">
+            <app-department-tree-node
+              [node]="node"
+              [level]="0"
+              (toggle)="toggleNode($event)"
+              (actionClick)="onTreeActionClick($event.action, $event.node)"
+            ></app-department-tree-node>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+
+    <!-- Complete Tree View -->
+    <div
+      *ngIf="viewMode === 'complete-tree'"
+      class="bg-white shadow rounded-lg overflow-hidden"
+    >
+      <div class="px-6 py-4 border-b border-gray-200">
+        <h3 class="text-lg font-medium text-gray-900">
+          Complete Department Hierarchy
+        </h3>
+        <p class="text-sm text-gray-500">
+          Complete recursive tree showing all parent-child relationships
+        </p>
+      </div>
+
+      <div class="p-6">
+        <div *ngIf="loading" class="flex justify-center items-center py-8">
+          <div
+            class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"
+          ></div>
+          <span class="ml-2 text-gray-600">Loading complete tree...</span>
+        </div>
+
+        <div
+          *ngIf="!loading && treeNodes.length === 0"
+          class="text-center py-8"
+        >
+          <i class="fas fa-sitemap text-4xl text-gray-400 mb-4"></i>
+          <h3 class="text-lg font-medium text-gray-900 mb-2">
+            No departments found
+          </h3>
+          <p class="text-gray-500">
+            Start by adding a new department to build the hierarchy.
+          </p>
+        </div>
+
+        <div *ngIf="!loading && treeNodes.length > 0">
+          <app-department-tree-visualizer
+            [rootDepartment]="rootDepartment"
+            [treeNodes]="treeNodes"
+            [totalNodes]="totalNodes"
+            [maxDepth]="maxDepth"
+            [activeCount]="activeCount"
+            [inactiveCount]="inactiveCount"
+            (toggle)="onTreeToggle($event)"
+            (actionClick)="onTreeActionClick($event.action, $event.node)"
+          ></app-department-tree-visualizer>
+        </div>
+      </div>
+    </div>
+
+    <!-- Data Table Component -->
+    <div *ngIf="viewMode === 'table'">
+      <app-data-table
+        [columns]="tableColumns"
+        [data]="departments"
+        [loading]="loading"
+        [emptyMessage]="'No departments found'"
+        [emptyIcon]="'fas fa-building'"
+        [actions]="tableActions"
+        [pagination]="paginationInfo"
+        [searchTerm]="searchTerm"
+        [showSearch]="true"
+        [showPagination]="true"
+        [showRefresh]="false"
+        (sort)="onTableSort($event)"
+        (search)="onTableSearch($event)"
+        (refresh)="onTableRefresh()"
+        (add)="onTableAdd()"
+        (pageChange)="onTablePageChange($event)"
+        (pageSizeChange)="onTablePageSizeChange($event)"
+        (actionClick)="onTableActionClick($event)"
+      ></app-data-table>
     </div>
   </div>
 </div>
@@ -736,7 +538,7 @@
       type="submit"
       (click)="saveDepartment()"
       [disabled]="
-        (!formData.nameEn.trim() && !formData.nameAr.trim()) || saving
+        (!formData.nameEn.trim() && !formData.nameAr?.trim()) || saving
       "
       class="inline-flex items-center px-4 py-2.5 border border-transparent text-sm font-medium rounded-lg text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
     >

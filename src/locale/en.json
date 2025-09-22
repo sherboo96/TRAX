@@ -158,5 +158,169 @@
     "success": "Success",
     "cancel": "Cancel",
     "confirm": "Confirm"
+  },
+  "sidebar": {
+    "digitalLibrary": "Digital Library",
+    "dashboard": "Dashboard",
+    "adminDashboard": "Admin Dashboard",
+    "expandSidebar": "Expand sidebar",
+    "collapseSidebar": "Collapse sidebar",
+    "courses": {
+      "title": "Courses",
+      "manageCourses": "Manage Courses",
+      "suggestedCourses": "Suggested Courses",
+      "requests": "Requests"
+    },
+    "organization": {
+      "title": "Organization",
+      "users": "Users",
+      "departments": "Departments",
+      "organizations": "Organizations"
+    },
+    "institutions": {
+      "title": "Out Institutions",
+      "instructors": "Instructors",
+      "institutions": "Institutions"
+    },
+    "rolesPermissions": {
+      "title": "Roles & Permissions",
+      "roles": "Roles"
+    },
+    "settings": "Settings",
+    "profile": "Profile",
+    "logout": "Logout",
+    "confirmLogout": {
+      "title": "Confirm Logout",
+      "message": "Are you sure you want to logout? You will need to sign in again to access your account.",
+      "confirmText": "Logout"
+    }
+  },
+  "adminDashboard": {
+    "title": "Admin Dashboard",
+    "welcome": "Welcome, {{name}}",
+    "overview": "Overview",
+    "subtitle": "Comprehensive management of the digital training platform",
+    "stats": {
+      "totalCourses": "Total Courses",
+      "totalInstructors": "Total Instructors",
+      "totalInstitutions": "Total Institutions",
+      "totalUsers": "Total Users",
+      "pendingRequests": "Pending Requests"
+    },
+    "upcomingCourses": {
+      "title": "Upcoming Courses",
+      "instructor": "Instructor",
+      "startDate": "Start Date",
+      "enrolledCount": "Enrolled",
+      "viewAll": "View All"
+    },
+    "topCourses": {
+      "title": "Top Courses",
+      "enrolledCount": "Enrolled",
+      "percentage": "Percentage",
+      "viewAll": "View All"
+    },
+    "recentAttendees": {
+      "title": "Recent Attendees",
+      "name": "Name",
+      "course": "Course",
+      "completionDate": "Completion Date",
+      "status": "Status",
+      "completed": "Completed",
+      "inProgress": "In Progress",
+      "viewAll": "View All"
+    },
+    "enrollmentRequests": {
+      "title": "Enrollment Requests",
+      "name": "Name",
+      "course": "Course",
+      "requestDate": "Request Date",
+      "approve": "Approve",
+      "reject": "Reject",
+      "viewAll": "View All"
+    },
+    "actions": {
+      "viewDetails": "View Details",
+      "edit": "Edit",
+      "delete": "Delete",
+      "approve": "Approve",
+      "reject": "Reject"
+    },
+    "analytics": "Analytics",
+    "charts": {
+      "courseKpis": "Course Performance",
+      "departmentKpis": "Department Performance",
+      "totalEnrollments": "Total Enrollments",
+      "completed": "Completed",
+      "revenue": "Revenue",
+      "hours": "Hours",
+      "totalCourses": "Total Courses",
+      "activeUsers": "Active Users",
+      "loading": "Loading chart data..."
+    }
+  },
+  "adminCourses": {
+    "title": "Course Management",
+    "subtitle": "Comprehensive management of all training courses",
+    "addCourse": "Add New Course",
+    "searchPlaceholder": "Search courses...",
+    "filters": {
+      "title": "Filter Courses",
+      "category": "Category",
+      "level": "Level",
+      "status": "Status",
+      "clearFilters": "Clear Filters"
+    },
+    "table": {
+      "title": "Course Title",
+      "category": "Category",
+      "level": "Level",
+      "status": "Status",
+      "progress": "Progress",
+      "resources": "Resources",
+      "actions": "Actions"
+    },
+    "actions": {
+      "view": "View",
+      "edit": "Edit",
+      "delete": "Delete",
+      "publish": "Publish",
+      "unpublish": "Unpublish",
+      "makeActive": "Make Active",
+      "complete": "Complete",
+      "attendanceQR": "Attendance QR",
+      "generateQR": "Generate QR"
+    },
+    "status": {
+      "draft": "Draft",
+      "published": "Published",
+      "inProgress": "In Progress",
+      "completed": "Completed",
+      "archived": "Archived"
+    },
+    "level": {
+      "beginner": "Beginner",
+      "intermediate": "Intermediate",
+      "advanced": "Advanced"
+    },
+    "messages": {
+      "noCourses": "No courses available",
+      "loading": "Loading...",
+      "courseUpdated": "Course updated successfully",
+      "courseDeleted": "Course deleted successfully",
+      "coursePublished": "Course published successfully",
+      "courseUnpublished": "Course unpublished successfully",
+      "courseActivated": "Course activated successfully",
+      "courseCompleted": "Course completed successfully"
+    },
+    "qrPopup": {
+      "title": "Attendance QR Code",
+      "course": "Course",
+      "autoReload": "Auto Reload",
+      "manualReload": "Manual Reload",
+      "countdown": "Reload in",
+      "seconds": "seconds",
+      "close": "Close"
+    }
   }
 }

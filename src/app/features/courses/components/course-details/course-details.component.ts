@@ -138,7 +138,7 @@ export class CourseDetailsComponent implements OnInit {
   attendancePage = 1;
   attendancePageSize = 10;
   attendanceTotalCount = 0;
-  selectedAttendanceDate = new Date().toISOString().split('T')[0];
+  selectedAttendanceDate = '';
 
   // QR Popup properties
   showAttendanceQRPopup = false;
@@ -182,6 +182,12 @@ export class CourseDetailsComponent implements OnInit {
         next: (response: any) => {
           if (response.statusCode == 200) {
             this.course = this.mapApiCourseToLocal(response.result);
+            // Set default attendance date to course start date
+            if (this.course.startDate) {
+              this.selectedAttendanceDate = new Date(this.course.startDate)
+                .toISOString()
+                .split('T')[0];
+            }
             this.loadEnrollments();
           } else {
             this.toastr.error('Course not found');
@@ -452,9 +458,12 @@ export class CourseDetailsComponent implements OnInit {
     return userEnrollment ? userEnrollment.registerationStatusId : null;
   }
 
-  // Check if user can enroll (not enrolled or rejected)
+  // Check if user can enroll (not enrolled or rejected) and course is published
   canUserEnroll(): boolean {
     if (!this.currentUser || !this.course) return false;
+
+    // Only allow enrollment if course is published
+    if (!this.isCoursePublished()) return false;
 
     // If course has user registration info, use that
     if (this.course.isUserRegistered !== undefined) {
@@ -515,6 +524,12 @@ export class CourseDetailsComponent implements OnInit {
       next: (response: any) => {
         if (response.statusCode === 200) {
           this.course = this.mapApiCourseToLocal(response.result);
+          // Update attendance date if not already set
+          if (this.course.startDate && !this.selectedAttendanceDate) {
+            this.selectedAttendanceDate = new Date(this.course.startDate)
+              .toISOString()
+              .split('T')[0];
+          }
         }
       },
       error: (error) => {
@@ -748,6 +763,31 @@ export class CourseDetailsComponent implements OnInit {
     });
   }
 
+  completeCourse(): void {
+    if (!this.course) return;
+
+    this.courseService.completeCourse(this.course.id).subscribe({
+      next: (response: any) => {
+        if (response.statusCode === 200) {
+          this.toastr.success(
+            response.message || 'Course completed successfully!'
+          );
+          // Update the course status locally
+          if (this.course) {
+            this.course.statusId = 4; // Assuming 'Completed' is statusId 4
+            this.course.statusName = 'Completed';
+          }
+        } else {
+          this.toastr.error(response.message || 'Failed to complete course');
+        }
+      },
+      error: (error: any) => {
+        console.error('Error completing course:', error);
+        this.toastr.error(error.error?.message || 'Failed to complete course');
+      },
+    });
+  }
+
   archiveCourse(): void {
     if (!this.course) return;
 
@@ -795,6 +835,48 @@ export class CourseDetailsComponent implements OnInit {
     return (
       this.course?.statusId === 2 || this.course?.statusName === 'Published'
     );
+  }
+
+  // Check if course can be completed (only active courses can be completed)
+  canCompleteCourse(): boolean {
+    return this.course?.statusId === 3 || this.course?.statusName === 'Active';
+  }
+
+  // Check if course is active
+  isCourseActive(): boolean {
+    return this.course?.statusId === 3 || this.course?.statusName === 'Active';
+  }
+
+  // Check if course is completed
+  isCourseCompleted(): boolean {
+    return (
+      this.course?.statusId === 4 || this.course?.statusName === 'Completed'
+    );
+  }
+
+  // Check if QR buttons should be shown (active status only)
+  shouldShowQRButtons(): boolean {
+    return this.isCourseActive();
+  }
+
+  // Check if edit button should be shown (not completed)
+  shouldShowEditButton(): boolean {
+    return !this.isCourseCompleted();
+  }
+
+  // Check if publish/unpublish buttons should be shown (not completed)
+  shouldShowPublishButtons(): boolean {
+    return !this.isCourseCompleted();
+  }
+
+  // Check if make active button should be shown (not completed)
+  shouldShowMakeActiveButton(): boolean {
+    return !this.isCourseCompleted() && this.canMakeActive();
+  }
+
+  // Check if complete button should be shown (active only)
+  shouldShowCompleteButton(): boolean {
+    return this.canCompleteCourse();
   }
 
   getRegisterationClosedAtColor(): string {
@@ -897,6 +979,17 @@ export class CourseDetailsComponent implements OnInit {
 
   // Make Math available in template
   Math = Math;
+
+  // Get registration count
+  getRegistrationCount(): number {
+    return this.enrollments.length;
+  }
+
+  // Get registration count text
+  getRegistrationCountText(): string {
+    const count = this.getRegistrationCount();
+    return `${count} student${count !== 1 ? 's' : ''}`;
+  }
 
   showAttendanceQR(): void {
     if (!this.course) return;

@@ -259,7 +259,7 @@ export class ResourceDetailsComponent implements OnInit {
   getDepartmentNames(departmentIds: number[]): string[] {
     return departmentIds.map((id) => {
       const dept = this.departments.find((d) => d.id === id);
-      return dept ? dept.nameEn || dept.nameAr : 'Department';
+      return dept ? dept.nameEn || dept.nameAr || 'Department' : 'Department';
     });
   }
 

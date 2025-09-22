@@ -11,6 +11,7 @@ import {
   DepartmentResponse,
   PaginatedDepartmentResponse,
 } from '../models/department.model';
+import { DepartmentTreeNode } from '../models/department-tree.model';
 
 @Injectable({
   providedIn: 'root',
@@ -86,6 +87,87 @@ export class DepartmentService {
   deleteDepartment(id: number): Observable<void> {
     return this.http
       .delete<void>(`${this.apiUrl}/${id}`)
+      .pipe(catchError(this.handleError.bind(this)));
+  }
+
+  // Get department tree
+  getDepartmentTree(
+    organizationId?: number
+  ): Observable<DepartmentResponse<DepartmentTreeNode[]>> {
+    let params: any = {};
+    if (organizationId) {
+      params.organizationId = organizationId.toString();
+    }
+
+    return this.http
+      .get<DepartmentResponse<DepartmentTreeNode[]>>(`${this.apiUrl}/tree`, {
+        params,
+      })
+      .pipe(catchError(this.handleError.bind(this)));
+  }
+
+  // Get department tree by org record
+  getDepartmentTreeByOrgRecord(
+    orgRecordId: number
+  ): Observable<DepartmentResponse<DepartmentTreeNode[]>> {
+    return this.http
+      .get<DepartmentResponse<DepartmentTreeNode[]>>(
+        `${this.apiUrl}/tree/${orgRecordId}`
+      )
+      .pipe(catchError(this.handleError.bind(this)));
+  }
+
+  // Get full hierarchy analysis
+  getHierarchyAnalysis(): Observable<DepartmentResponse<any>> {
+    return this.http
+      .get<DepartmentResponse<any>>(`${this.apiUrl}/hierarchy-analysis`)
+      .pipe(catchError(this.handleError.bind(this)));
+  }
+
+  // Get hierarchy analysis for a specific OrgRecordId
+  getOrgRecordHierarchy(
+    orgRecordId: number
+  ): Observable<DepartmentResponse<any>> {
+    return this.http
+      .get<DepartmentResponse<any>>(
+        `${this.apiUrl}/hierarchy-analysis/org-record/${orgRecordId}`
+      )
+      .pipe(catchError(this.handleError.bind(this)));
+  }
+
+  // Get departments by base department ID
+  getDepartmentsByBaseDepartmentId(
+    baseDepartmentId: number
+  ): Observable<DepartmentResponse<Department[]>> {
+    return this.http
+      .get<DepartmentResponse<Department[]>>(
+        `${this.apiUrl}/base-department/${baseDepartmentId}`
+      )
+      .pipe(catchError(this.handleError.bind(this)));
+  }
+
+  // Get departments where BaseDepartmentId equals OrgRecordId
+  getDepartmentsByOrgRecordAsBaseDepartment(
+    orgRecordId: number
+  ): Observable<DepartmentResponse<any>> {
+    return this.http
+      .get<DepartmentResponse<any>>(
+        `${this.apiUrl}/org-record/${orgRecordId}/as-base-department`
+      )
+      .pipe(catchError(this.handleError.bind(this)));
+  }
+
+  // Get complete department tree with recursive children
+  getCompleteDepartmentTree(
+    rootDepartmentId?: number
+  ): Observable<DepartmentResponse<any>> {
+    let params: any = {};
+    if (rootDepartmentId) {
+      params.rootDepartmentId = rootDepartmentId.toString();
+    }
+
+    return this.http
+      .get<DepartmentResponse<any>>(`${this.apiUrl}/complete-tree`, { params })
       .pipe(catchError(this.handleError.bind(this)));
   }
 

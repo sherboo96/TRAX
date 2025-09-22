@@ -8,6 +8,7 @@ export interface Instructor {
   institutionId: number;
   fullName?: string; // Computed property for display
   specialty?: string; // Specialty field
+  photoUrl?: string; // Image URL
   institution?: {
     id: number;
     nameAr: string;
@@ -30,6 +31,7 @@ export interface CreateInstructorDto {
   email: string;
   phone: string;
   institutionId: number;
+  imageFile?: File; // For file upload
 }
 
 export interface UpdateInstructorDto {
@@ -39,6 +41,7 @@ export interface UpdateInstructorDto {
   email: string;
   phone: string;
   institutionId: number;
+  imageFile?: File; // For file upload
 }
 
 export interface InstructorResponse {

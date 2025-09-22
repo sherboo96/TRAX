@@ -2,8 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { LoadingComponent } from '../../../../shared/components/loading/loading.component';
 import { ModalComponent } from '../../../../shared/components/modal/modal.component';
+import {
+  DataTableComponent,
+  TableColumn,
+  TableAction,
+  PaginationInfo,
+} from '../../../../shared/components/data-table/data-table.component';
 import { AuthService } from '../../../../core/services/auth.service';
 import { InstructorService } from '../../../../core/services/instructor.service';
 import { InstitutionService } from '../../../../core/services/institution.service';
@@ -16,6 +21,7 @@ import {
 } from '../../../../core/models/instructor.model';
 import { Institution } from '../../../../core/models/institution.model';
 import { PaginationRequest } from '../../../../core/models/pagination.model';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-admin-instructors',
@@ -26,8 +32,8 @@ import { PaginationRequest } from '../../../../core/models/pagination.model';
     CommonModule,
     RouterModule,
     FormsModule,
-    LoadingComponent,
     ModalComponent,
+    DataTableComponent,
   ],
 })
 export class AdminInstructorsComponent implements OnInit {
@@ -44,10 +50,80 @@ export class AdminInstructorsComponent implements OnInit {
   totalItems: number = 0;
   totalPages: number = 1;
 
+  // Search and sorting properties
+  searchTerm: string = '';
+  sortField: string = 'nameEn';
+  sortDirection: 'asc' | 'desc' = 'asc';
+
+  // Table configuration
+  tableColumns: TableColumn[] = [
+    {
+      key: 'nameEn',
+      label: 'Instructor',
+      sortable: true,
+      type: 'avatar',
+      width: '25%',
+    },
+    {
+      key: 'email',
+      label: 'Email',
+      sortable: true,
+      type: 'text',
+      width: '20%',
+    },
+    {
+      key: 'phone',
+      label: 'Phone',
+      sortable: false,
+      type: 'text',
+      width: '15%',
+    },
+    {
+      key: 'specialty',
+      label: 'Specialty',
+      sortable: true,
+      type: 'text',
+      width: '15%',
+    },
+    {
+      key: 'institutionId',
+      label: 'Institution',
+      sortable: false,
+      type: 'text',
+      width: '15%',
+    },
+    {
+      key: 'actions',
+      label: 'Actions',
+      sortable: false,
+      type: 'actions',
+      align: 'right',
+      width: '10%',
+    },
+  ];
+
+  tableActions: TableAction[] = [
+    {
+      label: 'Edit',
+      icon: 'fas fa-edit',
+      color: 'info',
+      action: 'edit',
+    },
+    {
+      label: 'Delete',
+      icon: 'fas fa-trash',
+      color: 'danger',
+      action: 'delete',
+    },
+  ];
+
+  paginationInfo: PaginationInfo | null = null;
+
   // Modal states
   showModal = false;
   showDeleteModal = false;
   isEditing = false;
+  submitting = false;
 
   // Form data
   formData: CreateInstructorDto = {
@@ -59,35 +135,14 @@ export class AdminInstructorsComponent implements OnInit {
     institutionId: 0,
   };
 
+  // Image handling
+  selectedImage: File | null = null;
+  imagePreview: string | null = null;
+
   // Delete confirmation
   instructorToDelete: Instructor | null = null;
   instructorToEdit: Instructor | null = null;
-
-  // Table configuration
-  tableColumns: any[] = []; // This will be initialized in ngOnInit
-  paginationRequest: PaginationRequest = {
-    page: 1,
-    pageSize: 10,
-    order: 'ASC' as const,
-    sortBy: 'id',
-  };
-
-  tableActions = [
-    {
-      name: 'edit',
-      svg: `<svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-      </svg>`,
-      class: 'text-blue-600 hover:text-blue-800',
-    },
-    {
-      name: 'delete',
-      svg: `<svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-      </svg>`,
-      class: 'text-red-600 hover:text-red-800',
-    },
-  ];
+  selectedInstructor: Instructor | null = null;
 
   constructor(
     private authService: AuthService,
@@ -100,24 +155,6 @@ export class AdminInstructorsComponent implements OnInit {
     this.currentUser = this.authService.currentUserValue;
     this.loadInstructors();
     this.loadInstitutions();
-
-    // Initialize table columns after templates are available
-    this.tableColumns = [
-      {
-        header: 'Instructor',
-        field: 'fullName',
-        cellTemplate: null, // No template for now, will be added later
-      },
-      { header: 'Email', field: 'email' },
-      { header: 'Phone', field: 'phoneNumber' },
-      { header: 'Specialty', field: 'specialty' },
-      {
-        header: 'Institution',
-        field: 'institutionId',
-        cellTemplate: null, // No template for now, will be added later
-      },
-      { header: 'Status', field: 'status', cellTemplate: null }, // No template for now, will be added later
-    ];
   }
 
   get isAdmin(): boolean {
@@ -146,8 +183,9 @@ export class AdminInstructorsComponent implements OnInit {
     const paginationRequest: PaginationRequest = {
       page: this.currentPage,
       pageSize: this.pageSize,
-      order: 'ASC',
-      sortBy: 'id',
+      order: this.sortDirection.toUpperCase() as 'ASC' | 'DESC',
+      sortBy: this.sortField,
+      searchTerm: this.searchTerm,
     };
 
     this.instructorService.getInstructors(paginationRequest).subscribe({
@@ -157,6 +195,14 @@ export class AdminInstructorsComponent implements OnInit {
           this.totalItems = response.pagination.total;
           this.totalPages = Math.ceil(this.totalItems / this.pageSize);
           this.currentPage = response.pagination.currentPage;
+
+          // Update pagination info for the data table
+          this.paginationInfo = {
+            currentPage: this.currentPage,
+            pageSize: this.pageSize,
+            totalItems: this.totalItems,
+            totalPages: this.totalPages,
+          };
         } else {
           this.toastr.error(
             response.message || 'Failed to load instructors',
@@ -197,6 +243,14 @@ export class AdminInstructorsComponent implements OnInit {
   }
 
   openAddModal(): void {
+    if (this.institutions.length === 0) {
+      this.toastr.warning(
+        'Please wait for institutions to load before adding an instructor',
+        'Loading...'
+      );
+      return;
+    }
+
     this.isEditing = false;
     this.formData = {
       nameEn: '',
@@ -204,7 +258,7 @@ export class AdminInstructorsComponent implements OnInit {
       bio: '',
       email: '',
       phone: '',
-      institutionId: this.institutions.length > 0 ? this.institutions[0].id : 0,
+      institutionId: Number(this.institutions[0].id),
     };
     this.showModal = true;
   }
@@ -218,8 +272,15 @@ export class AdminInstructorsComponent implements OnInit {
       bio: instructor.bio,
       email: instructor.email,
       phone: instructor.phone,
-      institutionId: instructor.institutionId,
+      institutionId: Number(instructor.institutionId),
     };
+
+    // Reset image handling
+    this.selectedImage = null;
+    this.imagePreview = instructor.photoUrl
+      ? this.getImageUrl(instructor.photoUrl)
+      : null;
+
     this.showModal = true;
   }
 
@@ -235,6 +296,10 @@ export class AdminInstructorsComponent implements OnInit {
       phone: '',
       institutionId: 0,
     };
+
+    // Reset image handling
+    this.selectedImage = null;
+    this.imagePreview = null;
   }
 
   saveInstructor(): void {
@@ -243,39 +308,61 @@ export class AdminInstructorsComponent implements OnInit {
       return;
     }
 
-    this.saving = true;
+    if (!this.formData.email.trim()) {
+      this.toastr.error('Email is required', 'Validation Error');
+      return;
+    }
+
+    // Convert institutionId to number
+    const institutionId = Number(this.formData.institutionId);
+    if (!institutionId || institutionId <= 0) {
+      this.toastr.error(
+        'Please select a valid institution',
+        'Validation Error'
+      );
+      return;
+    }
+
+    // Create a copy of formData with converted institutionId and image
+    const instructorData = {
+      ...this.formData,
+      institutionId: institutionId,
+      imageFile: this.selectedImage || undefined,
+    };
+
+    this.submitting = true;
 
     if (this.isEditing && this.instructorToEdit) {
       // Update instructor
       this.instructorService
         .updateInstructor(
           this.instructorToEdit.id,
-          this.formData as UpdateInstructorDto
+          instructorData as UpdateInstructorDto
         )
         .subscribe({
           next: (instructor) => {
             this.toastr.success('Instructor updated successfully', 'Success');
             this.closeModal();
             this.loadInstructors();
-            this.saving = false;
+            this.submitting = false;
           },
           error: (error) => {
             console.error('Error updating instructor:', error);
-            this.saving = false;
+            this.submitting = false;
           },
         });
     } else {
       // Create instructor
-      this.instructorService.createInstructor(this.formData).subscribe({
+      this.instructorService.createInstructor(instructorData).subscribe({
         next: (instructor) => {
           this.toastr.success('Instructor created successfully', 'Success');
           this.closeModal();
           this.loadInstructors();
-          this.saving = false;
+          this.submitting = false;
         },
         error: (error) => {
           console.error('Error creating instructor:', error);
-          this.saving = false;
+          this.submitting = false;
         },
       });
     }
@@ -294,7 +381,7 @@ export class AdminInstructorsComponent implements OnInit {
   confirmDelete(): void {
     if (!this.instructorToDelete) return;
 
-    this.deleting = true;
+    this.submitting = true;
     this.instructorService
       .deleteInstructor(this.instructorToDelete.id)
       .subscribe({
@@ -302,19 +389,52 @@ export class AdminInstructorsComponent implements OnInit {
           this.toastr.success('Instructor deleted successfully', 'Success');
           this.closeDeleteModal();
           this.loadInstructors();
-          this.deleting = false;
+          this.submitting = false;
         },
         error: (error) => {
           console.error('Error deleting instructor:', error);
-          this.deleting = false;
+          this.submitting = false;
         },
       });
   }
 
-  onTableAction(event: { name: string; row: any }): void {
-    const instructor = event.row as Instructor;
+  // Data table event handlers
+  onTableSort(event: { field: string; direction: 'asc' | 'desc' }): void {
+    this.sortField = event.field;
+    this.sortDirection = event.direction;
+    this.currentPage = 1;
+    this.loadInstructors();
+  }
 
-    switch (event.name) {
+  onTableSearch(searchTerm: string): void {
+    this.searchTerm = searchTerm;
+    this.currentPage = 1;
+    this.loadInstructors();
+  }
+
+  onTableRefresh(): void {
+    this.loadInstructors();
+  }
+
+  onTableAdd(): void {
+    this.openAddModal();
+  }
+
+  onTablePageChange(page: number): void {
+    this.currentPage = page;
+    this.loadInstructors();
+  }
+
+  onTablePageSizeChange(pageSize: number): void {
+    this.pageSize = pageSize;
+    this.currentPage = 1;
+    this.loadInstructors();
+  }
+
+  onTableActionClick(event: { action: string; item: any }): void {
+    const instructor = event.item as Instructor;
+
+    switch (event.action) {
       case 'edit':
         this.openEditModal(instructor);
         break;
@@ -327,5 +447,32 @@ export class AdminInstructorsComponent implements OnInit {
   getInstitutionName(institutionId: number): string {
     const institution = this.institutions.find((i) => i.id === institutionId);
     return institution ? institution.nameEn : 'Unknown';
+  }
+
+  // Image handling methods
+  onImageSelected(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      this.selectedImage = file;
+
+      // Create preview
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.imagePreview = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  removeImage(): void {
+    this.selectedImage = null;
+    this.imagePreview = null;
+  }
+
+  getImageUrl(photoUrl?: string): string {
+    if (photoUrl) {
+      return `${environment.imageBaseUrl}${photoUrl}`;
+    }
+    return '/assets/images/default-instructor.png';
   }
 }

@@ -3,17 +3,33 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
 import { User, UserRole } from '../../../../core/models/user.model';
+import { TranslationService } from '../../../../../locale/translation.service';
+import { TranslatePipe } from '../../../../../locale/translation.pipe';
+import {
+  DashboardService,
+  DashboardStats,
+  TopCourse,
+  RecentAttendee,
+  ChartData,
+  CourseKpi,
+  DepartmentKpi,
+} from '../../../../core/services/dashboard.service';
+import { BaseResponse } from '../../../../core/models/base-response.model';
 
 @Component({
   selector: 'app-admin-dashboard',
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.css'],
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, TranslatePipe],
 })
 export class AdminDashboardComponent implements OnInit {
   currentUser: User | null = null;
-  stats = {
+  isRTL = false;
+  loading = false;
+  error: string | null = null;
+
+  stats: DashboardStats = {
     totalCourses: 0,
     totalInstructors: 0,
     totalInstitutions: 0,
@@ -21,162 +37,134 @@ export class AdminDashboardComponent implements OnInit {
     pendingRequests: 0,
   };
 
-  upcomingCourses: any[] = [];
-  topCourses: any[] = [];
-  recentAttendees: any[] = [];
-  enrollmentRequests: any[] = [];
+  topCourses: TopCourse[] = [];
+  recentAttendees: RecentAttendee[] = [];
 
-  constructor(private authService: AuthService) {}
+  // Chart data
+  courseKpisChart: ChartData<CourseKpi> | null = null;
+  departmentKpisChart: ChartData<DepartmentKpi> | null = null;
+
+  constructor(
+    private authService: AuthService,
+    public translationService: TranslationService,
+    private dashboardService: DashboardService
+  ) {}
 
   ngOnInit(): void {
     this.currentUser = this.authService.currentUserValue;
+    this.setupRTLSupport();
     this.loadStats();
-    this.loadUpcomingCourses();
     this.loadTopCourses();
     this.loadRecentAttendees();
-    this.loadEnrollmentRequests();
+    this.loadCourseKpisChart();
+    this.loadDepartmentKpisChart();
+  }
+
+  private setupRTLSupport(): void {
+    this.translationService.getCurrentLanguage$().subscribe(() => {
+      this.isRTL = this.translationService.isRTL();
+    });
   }
 
   private loadStats(): void {
-    // Mock data for now - replace with actual API calls
-    this.stats = {
-      totalCourses: 25,
-      totalInstructors: 15,
-      totalInstitutions: 8,
-      totalUsers: 150,
-      pendingRequests: 12,
-    };
-  }
+    this.loading = true;
+    this.error = null;
 
-  private loadUpcomingCourses(): void {
-    // Mock data for upcoming courses
-    this.upcomingCourses = [
-      {
-        title: 'Advanced Angular Development',
-        instructor: 'Dr. Ahmed Al-Sabah',
-        startDate: 'Dec 15, 2024',
-        enrolledCount: 45,
+    this.dashboardService.getDashboardStats().subscribe({
+      next: (response: BaseResponse<DashboardStats>) => {
+        if (response.statusCode === 200 && response.result) {
+          this.stats = response.result;
+        } else {
+          this.error =
+            response.message || 'Failed to load dashboard statistics';
+        }
+        this.loading = false;
       },
-      {
-        title: 'React Fundamentals',
-        instructor: 'Prof. Fatima Al-Rashid',
-        startDate: 'Dec 18, 2024',
-        enrolledCount: 38,
+      error: (error) => {
+        this.error = 'Failed to load dashboard statistics';
+        this.loading = false;
+        console.error('Error loading dashboard stats:', error);
       },
-      {
-        title: 'Node.js Backend Development',
-        instructor: 'Eng. Mohammed Al-Khalil',
-        startDate: 'Dec 20, 2024',
-        enrolledCount: 32,
-      },
-      {
-        title: 'UI/UX Design Principles',
-        instructor: 'Ms. Sara Al-Mansouri',
-        startDate: 'Dec 22, 2024',
-        enrolledCount: 28,
-      },
-    ];
+    });
   }
 
   private loadTopCourses(): void {
-    // Mock data for top courses with enrollment percentages
-    this.topCourses = [
-      {
-        title: 'Angular Development',
-        enrolledCount: 156,
-        percentage: 85,
+    this.dashboardService.getTopCourses(5).subscribe({
+      next: (response: BaseResponse<TopCourse[]>) => {
+        if (response.statusCode === 200 && response.result) {
+          this.topCourses = response.result;
+        } else {
+          console.error('Failed to load top courses:', response.message);
+        }
       },
-      {
-        title: 'React Fundamentals',
-        enrolledCount: 142,
-        percentage: 78,
+      error: (error) => {
+        console.error('Error loading top courses:', error);
       },
-      {
-        title: 'Node.js Backend',
-        enrolledCount: 98,
-        percentage: 65,
-      },
-      {
-        title: 'UI/UX Design',
-        enrolledCount: 87,
-        percentage: 58,
-      },
-      {
-        title: 'Database Management',
-        enrolledCount: 76,
-        percentage: 52,
-      },
-    ];
+    });
   }
 
   private loadRecentAttendees(): void {
-    // Mock data for recent course attendees
-    this.recentAttendees = [
-      {
-        name: 'Ahmed Al-Sabah',
-        course: 'Advanced Angular Development',
-        completionDate: 'Dec 10, 2024',
-        status: 'Completed',
+    this.dashboardService.getRecentAttendees(5).subscribe({
+      next: (response: BaseResponse<RecentAttendee[]>) => {
+        if (response.statusCode === 200 && response.result) {
+          this.recentAttendees = response.result;
+        } else {
+          console.error('Failed to load recent attendees:', response.message);
+        }
       },
-      {
-        name: 'Fatima Al-Rashid',
-        course: 'React Fundamentals',
-        completionDate: 'Dec 8, 2024',
-        status: 'Completed',
+      error: (error) => {
+        console.error('Error loading recent attendees:', error);
       },
-      {
-        name: 'Mohammed Al-Khalil',
-        course: 'Node.js Backend Development',
-        completionDate: 'Dec 5, 2024',
-        status: 'In Progress',
-      },
-      {
-        name: 'Sara Al-Mansouri',
-        course: 'UI/UX Design Principles',
-        completionDate: 'Dec 3, 2024',
-        status: 'Completed',
-      },
-      {
-        name: 'Khalid Al-Zahra',
-        course: 'Database Management',
-        completionDate: 'Dec 1, 2024',
-        status: 'Completed',
-      },
-    ];
-  }
-
-  private loadEnrollmentRequests(): void {
-    // Mock data for enrollment requests
-    this.enrollmentRequests = [
-      {
-        name: 'Ali Al-Mutairi',
-        course: 'Advanced Angular Development',
-        requestDate: 'Dec 12, 2024',
-      },
-      {
-        name: 'Noura Al-Salem',
-        course: 'React Fundamentals',
-        requestDate: 'Dec 11, 2024',
-      },
-      {
-        name: 'Abdullah Al-Qahtani',
-        course: 'Node.js Backend Development',
-        requestDate: 'Dec 10, 2024',
-      },
-      {
-        name: 'Mariam Al-Hajri',
-        course: 'UI/UX Design Principles',
-        requestDate: 'Dec 9, 2024',
-      },
-      {
-        name: 'Omar Al-Suwaidi',
-        course: 'Database Management',
-        requestDate: 'Dec 8, 2024',
-      },
-    ];
+    });
   }
 
   get isAdmin(): boolean {
     return this.currentUser?.roleId === UserRole.ADMIN;
+  }
+
+  formatDate(dateString: string): string {
+    return new Date(dateString).toLocaleDateString();
+  }
+
+  formatDateTime(dateString: string): string {
+    return new Date(dateString).toLocaleString();
+  }
+
+  getEnrollmentPercentage(enrolledCount: number, maxCapacity: number): number {
+    if (maxCapacity === 0) return 0;
+    return Math.round((enrolledCount / maxCapacity) * 100);
+  }
+
+  private loadCourseKpisChart(): void {
+    this.dashboardService.getCourseKpisChart(10).subscribe({
+      next: (response: BaseResponse<ChartData<CourseKpi>>) => {
+        if (response.statusCode === 200 && response.result) {
+          this.courseKpisChart = response.result;
+        } else {
+          console.error('Failed to load course KPIs chart:', response.message);
+        }
+      },
+      error: (error) => {
+        console.error('Error loading course KPIs chart:', error);
+      },
+    });
+  }
+
+  private loadDepartmentKpisChart(): void {
+    this.dashboardService.getDepartmentKpisChart(10).subscribe({
+      next: (response: BaseResponse<ChartData<DepartmentKpi>>) => {
+        if (response.statusCode === 200 && response.result) {
+          this.departmentKpisChart = response.result;
+        } else {
+          console.error(
+            'Failed to load department KPIs chart:',
+            response.message
+          );
+        }
+      },
+      error: (error) => {
+        console.error('Error loading department KPIs chart:', error);
+      },
+    });
   }
 }

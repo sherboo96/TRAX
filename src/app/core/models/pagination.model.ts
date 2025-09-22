@@ -17,4 +17,13 @@ export interface PaginationRequest {
   pageSize?: number;
   order?: 'ASC' | 'DESC';
   sortBy?: string;
+  searchTerm?: string;
+}
+
+export interface PaginatedResult<T> {
+  items: T[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
 }

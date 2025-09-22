@@ -16,19 +16,13 @@ import { SidebarService } from './shared/services/sidebar.service';
 import { AuthService } from './core/services/auth.service';
 import { User } from './core/models/user.model';
 import { APP_CONSTANTS } from './core/constants/app.constants';
-import { ConfirmModalComponent } from './shared/components/confirm-modal/confirm-modal.component';
+import { TranslationService } from '../locale/translation.service';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   standalone: true,
-  imports: [
-    CommonModule,
-    RouterModule,
-    LoadingComponent,
-    SidebarComponent,
-    ConfirmModalComponent,
-  ],
+  imports: [CommonModule, RouterModule, LoadingComponent, SidebarComponent],
   styleUrl: './app.component.css',
 })
 export class AppComponent implements OnInit, OnDestroy {
@@ -38,6 +32,7 @@ export class AppComponent implements OnInit, OnDestroy {
   isSidebarCollapsed = false;
   isMobileMenuOpen = false;
   showLogoutConfirm = false;
+  isRTL = false;
   private routerSubscription?: Subscription;
   private sidebarSubscription?: Subscription;
 
@@ -45,7 +40,8 @@ export class AppComponent implements OnInit, OnDestroy {
     private router: Router,
     private authService: AuthService,
     private sidebarService: SidebarService,
-    private titleService: Title
+    private titleService: Title,
+    private translationService: TranslationService
   ) {
     this.authService.currentUser$.subscribe((user) => {
       this.currentUser = user;
@@ -56,6 +52,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.setupRouteLoading();
     this.setupSidebarState();
     this.setAppTitle();
+    this.setupRTLSupport();
   }
 
   ngOnDestroy(): void {
@@ -100,6 +97,12 @@ export class AppComponent implements OnInit, OnDestroy {
 
   private setAppTitle(): void {
     this.titleService.setTitle(this.title);
+  }
+
+  private setupRTLSupport(): void {
+    this.translationService.getCurrentLanguage$().subscribe(() => {
+      this.isRTL = this.translationService.isRTL();
+    });
   }
 
   toggleMobileMenu(): void {

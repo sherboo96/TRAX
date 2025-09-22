@@ -13,6 +13,8 @@ import {
 import { User, UserRole } from '../../../../core/models/user.model';
 import { AiHelperComponent } from '../../../../shared/components/ai-helper/ai-helper.component';
 import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
+import { TranslationService } from '../../../../../locale/translation.service';
+import { TranslatePipe } from '../../../../../locale/translation.pipe';
 import { environment } from '../../../../../environments/environment';
 
 @Component({
@@ -27,10 +29,12 @@ import { environment } from '../../../../../environments/environment';
     HttpClientModule,
     AiHelperComponent,
     PaginationComponent,
+    TranslatePipe,
   ],
 })
 export class AdminCoursesComponent implements OnInit {
   currentUser: User | null = null;
+  isRTL = false;
   courses: Course[] = [];
   filteredCourses: Course[] = [];
   loading = false;
@@ -66,34 +70,60 @@ export class AdminCoursesComponent implements OnInit {
   isAutoReloadEnabled = true;
 
   // Filter options
-  categories: string[] = [
-    'All Categories',
-    'Technology',
-    'Business',
-    'Design',
-    'Marketing',
-    'Development',
-  ];
-  levels: string[] = ['All Levels', 'Beginner', 'Intermediate', 'Advanced'];
-  statuses: string[] = [
-    'All Status',
-    'Draft',
-    'Published',
-    'In Progress',
-    'Completed',
-    'Archived',
-  ];
+  categories: string[] = [];
+  levels: string[] = [];
+  statuses: string[] = [];
 
   constructor(
     private authService: AuthService,
     private courseService: CourseService,
     private router: Router,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    public translationService: TranslationService
   ) {}
 
   ngOnInit(): void {
     this.currentUser = this.authService.currentUserValue;
+    this.setupRTLSupport();
+    this.initializeFilterOptions();
     this.loadCourses();
+  }
+
+  private setupRTLSupport(): void {
+    this.translationService.getCurrentLanguage$().subscribe(() => {
+      this.isRTL = this.translationService.isRTL();
+      this.initializeFilterOptions(); // Reinitialize filter options when language changes
+    });
+  }
+
+  private initializeFilterOptions(): void {
+    this.categories = [
+      this.translationService.translate('adminCourses.filters.category') +
+        ' - All',
+      'Technology',
+      'Business',
+      'Design',
+      'Marketing',
+      'Development',
+    ];
+
+    this.levels = [
+      this.translationService.translate('adminCourses.filters.level') +
+        ' - All',
+      this.translationService.translate('adminCourses.level.beginner'),
+      this.translationService.translate('adminCourses.level.intermediate'),
+      this.translationService.translate('adminCourses.level.advanced'),
+    ];
+
+    this.statuses = [
+      this.translationService.translate('adminCourses.filters.status') +
+        ' - All',
+      this.translationService.translate('adminCourses.status.draft'),
+      this.translationService.translate('adminCourses.status.published'),
+      this.translationService.translate('adminCourses.status.inProgress'),
+      this.translationService.translate('adminCourses.status.completed'),
+      this.translationService.translate('adminCourses.status.archived'),
+    ];
   }
 
   private loadCourses(): void {
@@ -144,8 +174,7 @@ export class AdminCoursesComponent implements OnInit {
   }
 
   editCourse(courseId: number): void {
-    // Implement edit course functionality
-    console.log('Edit course:', courseId);
+    this.router.navigate(['/admin/courses/edit', courseId]);
   }
 
   deleteCourse(courseId: number): void {
@@ -182,15 +211,23 @@ export class AdminCoursesComponent implements OnInit {
   getStatusText(status: number): string {
     switch (status) {
       case 1:
-        return 'Draft';
+        return this.translationService.translate('adminCourses.status.draft');
       case 2:
-        return 'Published';
+        return this.translationService.translate(
+          'adminCourses.status.published'
+        );
       case 3:
-        return 'In Progress';
+        return this.translationService.translate(
+          'adminCourses.status.inProgress'
+        );
       case 4:
-        return 'Completed';
+        return this.translationService.translate(
+          'adminCourses.status.completed'
+        );
       case 5:
-        return 'Archived';
+        return this.translationService.translate(
+          'adminCourses.status.archived'
+        );
       default:
         return 'Unknown';
     }
@@ -214,11 +251,13 @@ export class AdminCoursesComponent implements OnInit {
   getLevelText(level: number): string {
     switch (level) {
       case 1:
-        return 'Beginner';
+        return this.translationService.translate('adminCourses.level.beginner');
       case 2:
-        return 'Intermediate';
+        return this.translationService.translate(
+          'adminCourses.level.intermediate'
+        );
       case 3:
-        return 'Advanced';
+        return this.translationService.translate('adminCourses.level.advanced');
       default:
         return 'Unknown';
     }
@@ -261,7 +300,7 @@ export class AdminCoursesComponent implements OnInit {
     }
 
     // Add category filter
-    if (this.selectedCategory && this.selectedCategory !== 'All Categories') {
+    if (this.selectedCategory && !this.selectedCategory.includes('All')) {
       const categoryMap: { [key: string]: number } = {
         Technology: 1,
         Business: 2,
@@ -273,23 +312,27 @@ export class AdminCoursesComponent implements OnInit {
     }
 
     // Add level filter
-    if (this.selectedLevel && this.selectedLevel !== 'All Levels') {
+    if (this.selectedLevel && !this.selectedLevel.includes('All')) {
       const levelMap: { [key: string]: number } = {
-        Beginner: 1,
-        Intermediate: 2,
-        Advanced: 3,
+        [this.translationService.translate('adminCourses.level.beginner')]: 1,
+        [this.translationService.translate(
+          'adminCourses.level.intermediate'
+        )]: 2,
+        [this.translationService.translate('adminCourses.level.advanced')]: 3,
       };
       filterRequest.level = levelMap[this.selectedLevel];
     }
 
     // Add status filter
-    if (this.selectedStatus && this.selectedStatus !== 'All Status') {
+    if (this.selectedStatus && !this.selectedStatus.includes('All')) {
       const statusMap: { [key: string]: number } = {
-        Draft: 1,
-        Published: 2,
-        'In Progress': 3,
-        Completed: 4,
-        Archived: 5,
+        [this.translationService.translate('adminCourses.status.draft')]: 1,
+        [this.translationService.translate('adminCourses.status.published')]: 2,
+        [this.translationService.translate(
+          'adminCourses.status.inProgress'
+        )]: 3,
+        [this.translationService.translate('adminCourses.status.completed')]: 4,
+        [this.translationService.translate('adminCourses.status.archived')]: 5,
       };
       filterRequest.status = statusMap[this.selectedStatus];
     }
@@ -379,6 +422,46 @@ export class AdminCoursesComponent implements OnInit {
     return course.statusId === 2 || course.statusName === 'Published';
   }
 
+  canTogglePublishStatus(course: Course): boolean {
+    // Hide publish/unpublish button when course is active (3) or completed (4)
+    return course.statusId !== 3 && course.statusId !== 4;
+  }
+
+  canCompleteCourse(course: Course): boolean {
+    // Show complete button only when course is active (3)
+    return course.statusId === 3;
+  }
+
+  // Check if course is completed
+  isCourseCompleted(course: Course): boolean {
+    return course.statusId === 4 || course.statusName === 'Completed';
+  }
+
+  // Check if edit button should be shown (not completed)
+  shouldShowEditButton(course: Course): boolean {
+    return !this.isCourseCompleted(course);
+  }
+
+  // Check if publish/unpublish buttons should be shown (not completed)
+  shouldShowPublishButtons(course: Course): boolean {
+    return !this.isCourseCompleted(course);
+  }
+
+  // Check if make active button should be shown (not completed)
+  shouldShowMakeActiveButton(course: Course): boolean {
+    return !this.isCourseCompleted(course) && this.canMakeActive(course);
+  }
+
+  // Check if complete button should be shown (active only)
+  shouldShowCompleteButton(course: Course): boolean {
+    return this.canCompleteCourse(course);
+  }
+
+  // Check if QR buttons should be shown (active status only)
+  shouldShowQRButtons(course: Course): boolean {
+    return course.statusId === 3 || course.statusName === 'In Progress';
+  }
+
   toggleCourseStatus(course: Course): void {
     if (!course) return;
 
@@ -431,6 +514,28 @@ export class AdminCoursesComponent implements OnInit {
       },
       error: (error: any) => {
         this.toastr.error('Error making course active:', error);
+      },
+    });
+  }
+
+  completeCourse(course: Course): void {
+    if (!course) return;
+
+    this.courseService.completeCourse(course.id).subscribe({
+      next: (response: any) => {
+        if (response.statusCode === 200) {
+          // Update the course status locally
+          course.statusId = 4;
+          course.statusName = 'Completed';
+          this.toastr.success(
+            response.message || 'Course completed successfully!'
+          );
+        } else {
+          this.toastr.error('Failed to complete course:', response.message);
+        }
+      },
+      error: (error: any) => {
+        this.toastr.error('Error completing course:', error);
       },
     });
   }

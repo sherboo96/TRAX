@@ -12,6 +12,8 @@ import { SidebarService } from '../../services/sidebar.service';
 import { User } from '../../../core/models/user.model';
 import { APP_CONSTANTS } from '../../../core/constants/app.constants';
 import { ConfirmModalComponent } from '../confirm-modal/confirm-modal.component';
+import { TranslationService } from '../../../../locale/translation.service';
+import { TranslatePipe } from '../../../../locale/translation.pipe';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -19,7 +21,7 @@ import { Subscription } from 'rxjs';
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.css'],
   standalone: true,
-  imports: [CommonModule, RouterModule, ConfirmModalComponent],
+  imports: [CommonModule, RouterModule, ConfirmModalComponent, TranslatePipe],
 })
 export class SidebarComponent implements OnInit, OnDestroy {
   currentUser: User | null = null;
@@ -27,13 +29,15 @@ export class SidebarComponent implements OnInit, OnDestroy {
   showLogoutConfirm = false;
   appName = APP_CONSTANTS.APP_NAME;
   private sidebarSubscription?: Subscription;
+  isRTL = false;
 
   @Output() mobileMenuClose = new EventEmitter<void>();
 
   constructor(
     private authService: AuthService,
     private sidebarService: SidebarService,
-    private router: Router
+    private router: Router,
+    private translationService: TranslationService
   ) {}
 
   ngOnInit(): void {
@@ -48,6 +52,11 @@ export class SidebarComponent implements OnInit, OnDestroy {
         this.isCollapsed = collapsed;
       }
     );
+
+    // Subscribe to language changes for RTL support
+    this.translationService.getCurrentLanguage$().subscribe(() => {
+      this.isRTL = this.translationService.isRTL();
+    });
   }
 
   ngOnDestroy(): void {

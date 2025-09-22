@@ -158,5 +158,169 @@
     "success": "نجح",
     "cancel": "إلغاء",
     "confirm": "تأكيد"
+  },
+  "sidebar": {
+    "digitalLibrary": "المكتبة الرقمية",
+    "dashboard": "لوحة التحكم",
+    "adminDashboard": "لوحة تحكم الإدارة",
+    "expandSidebar": "توسيع الشريط الجانبي",
+    "collapseSidebar": "طي الشريط الجانبي",
+    "courses": {
+      "title": "الدورات",
+      "manageCourses": "إدارة الدورات",
+      "suggestedCourses": "الدورات المقترحة",
+      "requests": "الطلبات"
+    },
+    "organization": {
+      "title": "المنظمة",
+      "users": "المستخدمون",
+      "departments": "الأقسام",
+      "organizations": "المنظمات"
+    },
+    "institutions": {
+      "title": "المؤسسات الخارجية",
+      "instructors": "المدربون",
+      "institutions": "المؤسسات"
+    },
+    "rolesPermissions": {
+      "title": "الأدوار والصلاحيات",
+      "roles": "الأدوار"
+    },
+    "settings": "الإعدادات",
+    "profile": "الملف الشخصي",
+    "logout": "تسجيل الخروج",
+    "confirmLogout": {
+      "title": "تأكيد تسجيل الخروج",
+      "message": "هل أنت متأكد من أنك تريد تسجيل الخروج؟ ستحتاج إلى تسجيل الدخول مرة أخرى للوصول إلى حسابك.",
+      "confirmText": "تسجيل الخروج"
+    }
+  },
+  "adminDashboard": {
+    "title": "لوحة تحكم الإدارة",
+    "welcome": "مرحباً بك، {{name}}",
+    "overview": "نظرة عامة",
+    "subtitle": "إدارة شاملة لمنصة التدريب الرقمي",
+    "stats": {
+      "totalCourses": "إجمالي الدورات",
+      "totalInstructors": "إجمالي المدربين",
+      "totalInstitutions": "إجمالي المؤسسات",
+      "totalUsers": "إجمالي المستخدمين",
+      "pendingRequests": "الطلبات المعلقة"
+    },
+    "upcomingCourses": {
+      "title": "الدورات القادمة",
+      "instructor": "المدرب",
+      "startDate": "تاريخ البداية",
+      "enrolledCount": "عدد المسجلين",
+      "viewAll": "عرض الكل"
+    },
+    "topCourses": {
+      "title": "أفضل الدورات",
+      "enrolledCount": "عدد المسجلين",
+      "percentage": "النسبة المئوية",
+      "viewAll": "عرض الكل"
+    },
+    "recentAttendees": {
+      "title": "المشاركين الأخيرين",
+      "name": "الاسم",
+      "course": "الدورة",
+      "completionDate": "تاريخ الإكمال",
+      "status": "الحالة",
+      "completed": "مكتمل",
+      "inProgress": "قيد التقدم",
+      "viewAll": "عرض الكل"
+    },
+    "enrollmentRequests": {
+      "title": "طلبات التسجيل",
+      "name": "الاسم",
+      "course": "الدورة",
+      "requestDate": "تاريخ الطلب",
+      "approve": "موافقة",
+      "reject": "رفض",
+      "viewAll": "عرض الكل"
+    },
+    "actions": {
+      "viewDetails": "عرض التفاصيل",
+      "edit": "تعديل",
+      "delete": "حذف",
+      "approve": "موافقة",
+      "reject": "رفض"
+    },
+    "analytics": "التحليلات",
+    "charts": {
+      "courseKpis": "أداء الدورات",
+      "departmentKpis": "أداء الأقسام",
+      "totalEnrollments": "إجمالي التسجيلات",
+      "completed": "مكتملة",
+      "revenue": "الإيرادات",
+      "hours": "الساعات",
+      "totalCourses": "إجمالي الدورات",
+      "activeUsers": "المستخدمون النشطون",
+      "loading": "جاري تحميل بيانات المخططات..."
+    }
+  },
+  "adminCourses": {
+    "title": "إدارة الدورات",
+    "subtitle": "إدارة شاملة لجميع الدورات التدريبية",
+    "addCourse": "إضافة دورة جديدة",
+    "searchPlaceholder": "البحث في الدورات...",
+    "filters": {
+      "title": "تصفية الدورات",
+      "category": "الفئة",
+      "level": "المستوى",
+      "status": "الحالة",
+      "clearFilters": "مسح المرشحات"
+    },
+    "table": {
+      "title": "عنوان الدورة",
+      "category": "الفئة",
+      "level": "المستوى",
+      "status": "الحالة",
+      "progress": "التقدم",
+      "resources": "الموارد",
+      "actions": "الإجراءات"
+    },
+    "actions": {
+      "view": "عرض",
+      "edit": "تعديل",
+      "delete": "حذف",
+      "publish": "نشر",
+      "unpublish": "إلغاء النشر",
+      "makeActive": "تفعيل",
+      "complete": "إكمال",
+      "attendanceQR": "QR الحضور",
+      "generateQR": "إنشاء QR"
+    },
+    "status": {
+      "draft": "مسودة",
+      "published": "منشور",
+      "inProgress": "قيد التقدم",
+      "completed": "مكتمل",
+      "archived": "مؤرشف"
+    },
+    "level": {
+      "beginner": "مبتدئ",
+      "intermediate": "متوسط",
+      "advanced": "متقدم"
+    },
+    "messages": {
+      "noCourses": "لا توجد دورات متاحة",
+      "loading": "جاري التحميل...",
+      "courseUpdated": "تم تحديث الدورة بنجاح",
+      "courseDeleted": "تم حذف الدورة بنجاح",
+      "coursePublished": "تم نشر الدورة بنجاح",
+      "courseUnpublished": "تم إلغاء نشر الدورة بنجاح",
+      "courseActivated": "تم تفعيل الدورة بنجاح",
+      "courseCompleted": "تم إكمال الدورة بنجاح"
+    },
+    "qrPopup": {
+      "title": "QR كود الحضور",
+      "course": "الدورة",
+      "autoReload": "إعادة تحميل تلقائي",
+      "manualReload": "إعادة تحميل يدوي",
+      "countdown": "إعادة تحميل خلال",
+      "seconds": "ثانية",
+      "close": "إغلاق"
+    }
   }
 }

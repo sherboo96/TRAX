@@ -4,6 +4,12 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { LoadingComponent } from '../../../../shared/components/loading/loading.component';
 import { ModalComponent } from '../../../../shared/components/modal/modal.component';
+import {
+  DataTableComponent,
+  TableColumn,
+  TableAction,
+  PaginationInfo,
+} from '../../../../shared/components/data-table/data-table.component';
 import { AuthService } from '../../../../core/services/auth.service';
 import { InstitutionService } from '../../../../core/services/institution.service';
 import { ToastrService } from 'ngx-toastr';
@@ -24,8 +30,8 @@ import { PaginationRequest } from '../../../../core/models/pagination.model';
     CommonModule,
     RouterModule,
     FormsModule,
-    LoadingComponent,
     ModalComponent,
+    DataTableComponent,
   ],
 })
 export class AdminInstitutionsComponent implements OnInit {
@@ -39,14 +45,64 @@ export class AdminInstitutionsComponent implements OnInit {
   totalItems: number = 0;
   totalPages: number = 1;
 
+  // Search and sorting properties
+  searchTerm: string = '';
+  sortField: string = 'nameEn';
+  sortDirection: 'asc' | 'desc' = 'asc';
+
+  // Table configuration
+  tableColumns: TableColumn[] = [
+    {
+      key: 'nameEn',
+      label: 'Name (English)',
+      sortable: true,
+      type: 'avatar',
+      width: '30%',
+    },
+    {
+      key: 'nameAr',
+      label: 'Name (Arabic)',
+      sortable: true,
+      type: 'text',
+      width: '25%',
+    },
+    {
+      key: 'actions',
+      label: 'Actions',
+      sortable: false,
+      type: 'actions',
+      align: 'right',
+      width: '30%',
+    },
+  ];
+
+  tableActions: TableAction[] = [
+    {
+      label: 'Edit',
+      icon: 'fas fa-edit',
+      color: 'info',
+      action: 'edit',
+    },
+    {
+      label: 'Delete',
+      icon: 'fas fa-trash',
+      color: 'danger',
+      action: 'delete',
+    },
+  ];
+
+  paginationInfo: PaginationInfo | null = null;
+
   // Modal properties
   showModal = false;
   showDeleteModal = false;
   isEditing = false;
   saving = false;
   deleting = false;
+  submitting = false;
   institutionToDelete: Institution | null = null;
   institutionToEdit: Institution | null = null;
+  selectedInstitution: Institution | null = null;
   formData: CreateInstitutionDto = { nameEn: '', nameAr: '' };
 
   constructor(
@@ -66,8 +122,8 @@ export class AdminInstitutionsComponent implements OnInit {
     const request: PaginationRequest = {
       page: this.currentPage,
       pageSize: this.pageSize,
-      order: 'ASC',
-      sortBy: 'id',
+      order: this.sortDirection.toUpperCase() as 'ASC' | 'DESC',
+      sortBy: this.sortField,
     };
 
     this.institutionService.getInstitutions(request).subscribe({
@@ -77,6 +133,14 @@ export class AdminInstitutionsComponent implements OnInit {
           this.totalItems = response.pagination.total;
           this.totalPages = Math.ceil(this.totalItems / this.pageSize);
           this.currentPage = response.pagination.currentPage;
+
+          // Update pagination info for the data table
+          this.paginationInfo = {
+            currentPage: this.currentPage,
+            pageSize: this.pageSize,
+            totalItems: this.totalItems,
+            totalPages: this.totalPages,
+          };
         } else {
           this.toastr.error(
             response.message || 'Failed to load institutions',
@@ -96,14 +160,17 @@ export class AdminInstitutionsComponent implements OnInit {
     return this.currentUser?.roleId === UserRole.ADMIN;
   }
 
+  // Math property for template access
+  Math = Math;
+
   // Pagination methods
   onPageChange(page: number): void {
     this.currentPage = page;
     this.loadInstitutions();
   }
 
-  onPageSizeChange(newPageSize: number): void {
-    this.pageSize = newPageSize;
+  onPageSizeChange(newPageSize: any): void {
+    this.pageSize = +newPageSize;
     this.currentPage = 1;
     this.loadInstitutions();
   }
@@ -215,6 +282,82 @@ export class AdminInstitutionsComponent implements OnInit {
 
   refreshInstitutions(): void {
     this.loadInstitutions();
+  }
+
+  // Search functionality
+  onSearch(): void {
+    this.currentPage = 1;
+    this.loadInstitutions();
+  }
+
+  // Sorting functionality
+  sort(field: string): void {
+    if (this.sortField === field) {
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortField = field;
+      this.sortDirection = 'asc';
+    }
+    this.currentPage = 1;
+    this.loadInstitutions();
+  }
+
+  // Pagination range for page buttons
+  get paginationRange(): number[] {
+    const range = [];
+    const start = Math.max(1, this.currentPage - 2);
+    const end = Math.min(this.totalPages, this.currentPage + 2);
+
+    for (let i = start; i <= end; i++) {
+      range.push(i);
+    }
+    return range;
+  }
+
+  // Data table event handlers
+  onTableSort(event: { field: string; direction: 'asc' | 'desc' }): void {
+    this.sortField = event.field;
+    this.sortDirection = event.direction;
+    this.currentPage = 1;
+    this.loadInstitutions();
+  }
+
+  onTableSearch(searchTerm: string): void {
+    this.searchTerm = searchTerm;
+    this.currentPage = 1;
+    this.loadInstitutions();
+  }
+
+  onTableRefresh(): void {
+    this.loadInstitutions();
+  }
+
+  onTableAdd(): void {
+    this.openAddModal();
+  }
+
+  onTablePageChange(page: number): void {
+    this.currentPage = page;
+    this.loadInstitutions();
+  }
+
+  onTablePageSizeChange(pageSize: number): void {
+    this.pageSize = pageSize;
+    this.currentPage = 1;
+    this.loadInstitutions();
+  }
+
+  onTableActionClick(event: { action: string; item: any }): void {
+    const institution = event.item as Institution;
+
+    switch (event.action) {
+      case 'edit':
+        this.openEditModal(institution);
+        break;
+      case 'delete':
+        this.openDeleteModal(institution);
+        break;
+    }
   }
 
   // Legacy methods for backward compatibility

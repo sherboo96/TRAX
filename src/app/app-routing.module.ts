@@ -24,6 +24,7 @@ import { AdminOrganizationsComponent } from './features/admin/components/admin-o
 import { AdminRolesComponent } from './features/admin/components/admin-roles/admin-roles.component';
 import { AddCourseComponent } from './features/admin/components/add-course/add-course.component';
 import { AdminSuggestedCoursesComponent } from './features/admin/components/admin-suggested-courses/admin-suggested-courses.component';
+import { AdminRequestsComponent } from './features/admin/components/admin-requests/admin-requests.component';
 import { CourseScanComponent } from './features/courses/components/course-scan/course-scan.component';
 
 export const routes: Routes = [
@@ -119,6 +120,12 @@ export const routes: Routes = [
   },
 
   {
+    path: 'admin/courses/edit/:id',
+    component: AddCourseComponent,
+    canActivate: [AuthGuard, RoleGuard],
+  },
+
+  {
     path: 'admin/courses/:id',
     component: CourseDetailsComponent,
     canActivate: [AuthGuard],
@@ -163,6 +170,12 @@ export const routes: Routes = [
   {
     path: 'admin/suggested-courses',
     component: AdminSuggestedCoursesComponent,
+    canActivate: [AuthGuard, RoleGuard],
+  },
+
+  {
+    path: 'admin/requests',
+    component: AdminRequestsComponent,
     canActivate: [AuthGuard, RoleGuard],
   },
 

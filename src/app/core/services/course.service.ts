@@ -57,6 +57,10 @@ export interface Course {
   isUserRegistered?: boolean;
   userRegistrationStatusId?: number;
   userRegistrationStatusName?: string;
+  // Additional properties for course creation
+  targetDepartmentIds?: number[];
+  instructorIds?: number[];
+  imageFile?: File;
 }
 
 export interface CourseFilterResponse extends PaginatedResponse<Course> {}
@@ -93,11 +97,161 @@ export class CourseService {
   }
 
   createCourse(course: Partial<Course>): Observable<Course> {
-    return this.http.post<Course>(this.apiUrl, course);
+    const formData = new FormData();
+
+    // Add all the course properties to FormData
+    if (course.title) formData.append('Title', course.title);
+    if (course.description) formData.append('Description', course.description);
+    if (course.location) formData.append('Location', course.location);
+    if (course.startDate) formData.append('StartDate', course.startDate);
+    if (course.endDate) formData.append('EndDate', course.endDate);
+    if (course.timeFrom) formData.append('TimeFrom', course.timeFrom);
+    if (course.timeTo) formData.append('TimeTo', course.timeTo);
+    if (course.availableSeats !== undefined)
+      formData.append('AvailableSeats', course.availableSeats.toString());
+    if (course.category !== undefined)
+      formData.append('Category', course.category.toString());
+    if (course.onlineRepeated !== undefined)
+      formData.append('OnlineRepeated', course.onlineRepeated.toString());
+    if (course.level !== undefined)
+      formData.append('Level', course.level.toString());
+    if (course.duration) formData.append('Duration', course.duration);
+    if (course.price !== undefined)
+      formData.append('Price', course.price.toString());
+    if (course.kpiWeight !== undefined)
+      formData.append('KPIWeight', course.kpiWeight.toString());
+    if (course.statusId !== undefined)
+      formData.append('StatusId', course.statusId.toString());
+    if (course.language) formData.append('Language', course.language);
+    if (course.certificate !== undefined)
+      formData.append('Certificate', course.certificate.toString());
+    if (course.registerationClosedAt)
+      formData.append('RegisterationClosedAt', course.registerationClosedAt);
+
+    // Add arrays
+    if (course.requirements && course.requirements.length > 0) {
+      course.requirements.forEach((req, index) => {
+        formData.append(`Requirements[${index}]`, req);
+      });
+    }
+
+    if (course.learningOutcomes && course.learningOutcomes.length > 0) {
+      course.learningOutcomes.forEach((outcome, index) => {
+        formData.append(`LearningOutcomes[${index}]`, outcome);
+      });
+    }
+
+    if (course.targetDepartmentIds && course.targetDepartmentIds.length > 0) {
+      course.targetDepartmentIds.forEach((id: number, index: number) => {
+        formData.append(`TargetDepartmentIds[${index}]`, id.toString());
+      });
+    }
+
+    if (course.instructorIds && course.instructorIds.length > 0) {
+      course.instructorIds.forEach((id: number, index: number) => {
+        formData.append(`InstructorIds[${index}]`, id.toString());
+      });
+    }
+
+    // Add image file if present
+    if (course.imageFile) {
+      formData.append('ImageFile', course.imageFile);
+      console.log(
+        'Image file added to FormData:',
+        course.imageFile.name,
+        course.imageFile.size,
+        'bytes'
+      );
+    } else {
+      console.log('No image file to upload');
+    }
+
+    // Debug: Log FormData contents
+    console.log('FormData contents:');
+    for (let pair of (formData as any).entries()) {
+      console.log(pair[0] + ': ' + pair[1]);
+    }
+
+    return this.http.post<Course>(this.apiUrl, formData);
   }
 
   updateCourse(id: number, course: Partial<Course>): Observable<Course> {
-    return this.http.put<Course>(`${this.apiUrl}/${id}`, course);
+    const formData = new FormData();
+
+    // Add all the course properties to FormData
+    if (course.title) formData.append('Title', course.title);
+    if (course.description) formData.append('Description', course.description);
+    if (course.location) formData.append('Location', course.location);
+    if (course.startDate) formData.append('StartDate', course.startDate);
+    if (course.endDate) formData.append('EndDate', course.endDate);
+    if (course.timeFrom) formData.append('TimeFrom', course.timeFrom);
+    if (course.timeTo) formData.append('TimeTo', course.timeTo);
+    if (course.availableSeats !== undefined)
+      formData.append('AvailableSeats', course.availableSeats.toString());
+    if (course.category !== undefined)
+      formData.append('Category', course.category.toString());
+    if (course.onlineRepeated !== undefined)
+      formData.append('OnlineRepeated', course.onlineRepeated.toString());
+    if (course.level !== undefined)
+      formData.append('Level', course.level.toString());
+    if (course.duration) formData.append('Duration', course.duration);
+    if (course.price !== undefined)
+      formData.append('Price', course.price.toString());
+    if (course.kpiWeight !== undefined)
+      formData.append('KPIWeight', course.kpiWeight.toString());
+    if (course.statusId !== undefined)
+      formData.append('StatusId', course.statusId.toString());
+    if (course.language) formData.append('Language', course.language);
+    if (course.certificate !== undefined)
+      formData.append('Certificate', course.certificate.toString());
+    if (course.registerationClosedAt)
+      formData.append('RegisterationClosedAt', course.registerationClosedAt);
+
+    // Add arrays
+    if (course.requirements && course.requirements.length > 0) {
+      course.requirements.forEach((req, index) => {
+        formData.append(`Requirements[${index}]`, req);
+      });
+    }
+
+    if (course.learningOutcomes && course.learningOutcomes.length > 0) {
+      course.learningOutcomes.forEach((outcome, index) => {
+        formData.append(`LearningOutcomes[${index}]`, outcome);
+      });
+    }
+
+    if (course.targetDepartmentIds && course.targetDepartmentIds.length > 0) {
+      course.targetDepartmentIds.forEach((id: number, index: number) => {
+        formData.append(`TargetDepartmentIds[${index}]`, id.toString());
+      });
+    }
+
+    if (course.instructorIds && course.instructorIds.length > 0) {
+      course.instructorIds.forEach((id: number, index: number) => {
+        formData.append(`InstructorIds[${index}]`, id.toString());
+      });
+    }
+
+    // Add image file if present
+    if (course.imageFile) {
+      formData.append('ImageFile', course.imageFile);
+      console.log(
+        'Image file added to FormData for update:',
+        course.imageFile.name,
+        course.imageFile.size,
+        'bytes'
+      );
+    } else {
+      console.log('No image file to update');
+    }
+
+    // Debug: Log FormData contents
+    console.log('Update FormData contents:');
+    for (let pair of (formData as any).entries()) {
+      console.log(pair[0] + ': ' + pair[1]);
+    }
+
+    return this.http.put<Course>(`${this.apiUrl}/${id}`, formData);
   }
 
   deleteCourse(id: number): Observable<void> {
@@ -169,6 +323,10 @@ export class CourseService {
 
   makeActive(courseId: number): Observable<any> {
     return this.http.patch<any>(`${this.apiUrl}/${courseId}/make-active`, {});
+  }
+
+  completeCourse(courseId: number): Observable<any> {
+    return this.http.patch<any>(`${this.apiUrl}/${courseId}/complete`, {});
   }
 
   getAttendanceQR(courseId: number): Observable<any> {

@@ -192,7 +192,7 @@
               {{ course.statusName }}
             </span>
             <button
-              *ngIf="isAdmin"
+              *ngIf="isAdmin && shouldShowPublishButtons(course)"
               (click)="toggleCourseStatus(course); $event.stopPropagation()"
               class="p-1.5 bg-white/90 hover:bg-white rounded-full shadow-sm transition-all duration-200 hover:scale-110"
               [title]="
@@ -235,7 +235,7 @@
               </svg>
             </button>
             <button
-              *ngIf="isAdmin && canMakeActive(course)"
+              *ngIf="isAdmin && shouldShowMakeActiveButton(course)"
               (click)="makeCourseActive(course); $event.stopPropagation()"
               class="p-1.5 bg-white/90 hover:bg-white rounded-full shadow-sm transition-all duration-200 hover:scale-110"
               title="Make Course Active"
@@ -255,7 +255,27 @@
               </svg>
             </button>
             <button
-              *ngIf="isAdmin"
+              *ngIf="isAdmin && shouldShowCompleteButton(course)"
+              (click)="completeCourse(course); $event.stopPropagation()"
+              class="p-1.5 bg-white/90 hover:bg-white rounded-full shadow-sm transition-all duration-200 hover:scale-110"
+              title="Complete Course"
+            >
+              <svg
+                class="w-3 h-3 text-green-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                ></path>
+              </svg>
+            </button>
+            <button
+              *ngIf="isAdmin && shouldShowQRButtons(course)"
               (click)="showAttendanceQR(course); $event.stopPropagation()"
               class="p-1.5 bg-white/90 hover:bg-white rounded-full shadow-sm transition-all duration-200 hover:scale-110"
               title="Show Attendance QR"

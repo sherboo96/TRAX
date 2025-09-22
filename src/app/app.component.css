@@ -9,9 +9,17 @@
   top: 0;
   left: 0;
   height: 100vh;
-  z-index: 50;
+  z-index: 30;
   transform: translateX(-100%);
   transition: transform 0.3s ease-in-out;
+  width: 256px;
+}
+
+/* RTL Mobile Sidebar Container */
+[dir="rtl"] .sidebar-container {
+  left: auto;
+  right: 0;
+  transform: translateX(100%);
 }
 
 /* Mobile sidebar open state */
@@ -23,6 +31,7 @@
 @media (min-width: 1024px) {
   .sidebar-container {
     transform: translateX(0);
+    z-index: 20;
   }
 
   .lg\:ml-70 {

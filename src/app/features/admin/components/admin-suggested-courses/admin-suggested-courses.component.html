@@ -1266,34 +1266,31 @@
           class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium"
           [ngClass]="{
             'bg-yellow-100 text-yellow-800 border border-yellow-200':
-              suggestedCourseToShow.registerationStatus?.nameEn === 'Pending',
+              suggestedCourseToShow.registerationStatus.nameEn === 'Pending',
             'bg-green-100 text-green-800 border border-green-200':
-              suggestedCourseToShow.registerationStatus?.nameEn === 'Approved',
+              suggestedCourseToShow.registerationStatus.nameEn === 'Approved',
             'bg-red-100 text-red-800 border border-red-200':
-              suggestedCourseToShow.registerationStatus?.nameEn === 'Rejected',
+              suggestedCourseToShow.registerationStatus.nameEn === 'Rejected',
             'bg-gray-100 text-gray-800 border border-gray-200':
-              suggestedCourseToShow.registerationStatus?.nameEn === 'Cancelled'
+              suggestedCourseToShow.registerationStatus.nameEn === 'Cancelled'
           }"
         >
           <span
             class="w-2 h-2 rounded-full mr-2"
             [ngClass]="{
               'bg-yellow-400':
-                suggestedCourseToShow.registerationStatus?.nameEn === 'Pending',
+                suggestedCourseToShow.registerationStatus.nameEn === 'Pending',
               'bg-green-400':
-                suggestedCourseToShow.registerationStatus?.nameEn ===
-                'Approved',
+                suggestedCourseToShow.registerationStatus.nameEn === 'Approved',
               'bg-red-400':
-                suggestedCourseToShow.registerationStatus?.nameEn ===
-                'Rejected',
+                suggestedCourseToShow.registerationStatus.nameEn === 'Rejected',
               'bg-gray-400':
-                suggestedCourseToShow.registerationStatus?.nameEn ===
-                'Cancelled'
+                suggestedCourseToShow.registerationStatus.nameEn === 'Cancelled'
             }"
           ></span>
-          {{ suggestedCourseToShow.registerationStatus?.nameEn || "Unknown" }}
+          {{ suggestedCourseToShow.registerationStatus.nameEn || "Unknown" }}
           <span class="ml-1 text-xs opacity-75"
-            >({{ suggestedCourseToShow.registerationStatus?.nameAr }})</span
+            >({{ suggestedCourseToShow.registerationStatus.nameAr }})</span
           >
         </span>
       </div>

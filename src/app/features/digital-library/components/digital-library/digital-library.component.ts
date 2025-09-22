@@ -6,7 +6,6 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { DepartmentService } from '../../../../core/services/department.service';
 import { User } from '../../../../core/models/user.model';
 import { Department } from '../../../../core/models/department.model';
-import { AiHelperComponent } from '../../../../shared/components/ai-helper/ai-helper.component';
 
 interface LibraryResource {
   id: number;
@@ -51,7 +50,7 @@ interface LibraryCollection {
   templateUrl: './digital-library.component.html',
   styleUrls: ['./digital-library.component.css'],
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, AiHelperComponent],
+  imports: [CommonModule, RouterModule, FormsModule],
 })
 export class DigitalLibraryComponent implements OnInit {
   currentUser: User | null = null;
@@ -422,7 +421,7 @@ export class DigitalLibraryComponent implements OnInit {
   getDepartmentNames(departmentIds: number[]): string[] {
     return departmentIds.map((id) => {
       const dept = this.departments.find((d) => d.id === id);
-      return dept ? dept.nameEn || dept.nameAr : 'Department';
+      return dept ? dept.nameEn || dept.nameAr || 'Department' : 'Department';
     });
   }
 

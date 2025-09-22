@@ -43,19 +43,7 @@ module.exports = {
           800: "#3d5a80",
           900: "#293241",
         },
-        // Neutral Colors
-        neutral: {
-          50: "#e0fbfc", // Light cyan
-          100: "#f5f5f5",
-          200: "#eeeeee",
-          300: "#e0e0e0",
-          400: "#bdbdbd",
-          500: "#9e9e9e",
-          600: "#757575",
-          700: "#616161",
-          800: "#424242",
-          900: "#293241", // Dark gray
-        },
+
         // Semantic Colors
         success: {
           50: "#f0fdf4",
