@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -7,7 +7,6 @@ import { APP_CONSTANTS } from '../../../../core/constants/app.constants';
 import { TranslationService } from '../../../../../locale/translation.service';
 import { TranslatePipe } from '../../../../../locale/translation.pipe';
 import { SupportedLanguage } from '../../../../../locale/translation.types';
-import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-introduction',
@@ -16,51 +15,30 @@ import { Subscription } from 'rxjs';
   standalone: true,
   imports: [CommonModule, RouterModule, FormsModule, TranslatePipe],
 })
-export class IntroductionComponent implements OnInit, OnDestroy {
+export class IntroductionComponent implements OnInit {
   currentSlide = 0;
-  autoplayInterval: any;
   isAuthenticated = false;
-  currentYear = new Date().getFullYear();
   appConstants = APP_CONSTANTS;
+  currentYear = new Date().getFullYear();
 
   // Translation properties
   currentLanguage: SupportedLanguage = 'en';
   isRTL = false;
   supportedLanguages: SupportedLanguage[] = [];
-  private subscription = new Subscription();
 
   slides = [
     {
+      image: '/assets/images/banner2.jpeg',
       titleKey: 'introduction.slides.welcome.title',
-      subtitleKey: 'introduction.slides.welcome.subtitle',
       descriptionKey: 'introduction.slides.welcome.description',
-      image: 'assets/images/logos/OTC.png',
-      icon: '🏭',
-      featuresKey: 'introduction.slides.welcome.features',
-    },
+    }
+  ];
+
+  partners = [
     {
-      titleKey: 'introduction.slides.mission.title',
-      subtitleKey: 'introduction.slides.mission.subtitle',
-      descriptionKey: 'introduction.slides.mission.description',
-      image: 'assets/images/logos/OTC.png',
-      icon: '🎯',
-      featuresKey: 'introduction.slides.mission.features',
-    },
-    {
-      titleKey: 'introduction.slides.programs.title',
-      subtitleKey: 'introduction.slides.programs.subtitle',
-      descriptionKey: 'introduction.slides.programs.description',
-      image: 'assets/images/logos/OTC.png',
-      icon: '📚',
-      featuresKey: 'introduction.slides.programs.features',
-    },
-    {
-      titleKey: 'introduction.slides.whyChoose.title',
-      subtitleKey: 'introduction.slides.whyChoose.subtitle',
-      descriptionKey: 'introduction.slides.whyChoose.description',
-      image: 'assets/images/logos/OTC.png',
-      icon: '⭐',
-      featuresKey: 'introduction.slides.whyChoose.features',
+      nameKey: 'PARTNER_HEALTH_SAFETY_NAME',
+      logo: '/assets/svgs/hsi-logo.svg',
+      descriptionKey: 'PARTNER_HEALTH_SAFETY_DESC',
     },
   ];
 
@@ -72,59 +50,32 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.isAuthenticated = this.authService.isAuthenticated();
     if (!this.isAuthenticated) {
-      this.startAutoplay();
+      this.startSlideShow();
     }
 
     // Initialize translation properties
     this.supportedLanguages = this.translationService.getSupportedLanguages();
     this.currentLanguage = this.translationService.getCurrentLanguage();
     this.isRTL = this.translationService.isRTL();
-
-    // Subscribe to language changes
-    this.subscription.add(
-      this.translationService.getCurrentLanguage$().subscribe((language) => {
-        this.currentLanguage = language;
-        this.isRTL = this.translationService.isRTL();
-      })
-    );
   }
 
-  ngOnDestroy(): void {
-    if (this.autoplayInterval) {
-      clearInterval(this.autoplayInterval);
-    }
-    this.subscription.unsubscribe();
-  }
-
-  startAutoplay(): void {
-    this.autoplayInterval = setInterval(() => {
+  startSlideShow(): void {
+    setInterval(() => {
       this.nextSlide();
-    }, 5000); // Change slide every 5 seconds
-  }
-
-  stopAutoplay(): void {
-    if (this.autoplayInterval) {
-      clearInterval(this.autoplayInterval);
-    }
+    }, 6000);
   }
 
   nextSlide(): void {
     this.currentSlide = (this.currentSlide + 1) % this.slides.length;
   }
 
-  previousSlide(): void {
+  prevSlide(): void {
     this.currentSlide =
       this.currentSlide === 0 ? this.slides.length - 1 : this.currentSlide - 1;
   }
 
   goToSlide(index: number): void {
     this.currentSlide = index;
-  }
-
-  onSlideInteraction(): void {
-    // Reset autoplay when user interacts with slides
-    this.stopAutoplay();
-    this.startAutoplay();
   }
 
   goToLogin(): void {
@@ -144,5 +95,24 @@ export class IntroductionComponent implements OnInit, OnDestroy {
 
   getLanguageDisplayName(language: SupportedLanguage): string {
     return language === 'en' ? 'English' : 'العربية';
+  }
+
+  // Navigation methods
+  scrollToSection(sectionId: string): void {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      const offsetTop = element.offsetTop - 80; // Account for fixed navbar height
+      window.scrollTo({
+        top: offsetTop,
+        behavior: 'smooth'
+      });
+    }
+  }
+
+  scrollToTop(): void {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
   }
 }

@@ -4,6 +4,7 @@ import {
   ViewChild,
   ElementRef,
   AfterViewInit,
+  OnDestroy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
@@ -17,6 +18,10 @@ import {
   DepartmentCoursesResponse,
 } from '../../../../core/services/course.service';
 import { environment } from '../../../../../environments/environment';
+import { TranslationService } from '../../../../../locale/translation.service';
+import { TranslatePipe } from '../../../../../locale/translation.pipe';
+import { SupportedLanguage } from '../../../../../locale/translation.types';
+import { Subscription } from 'rxjs';
 
 // Register Chart.js components
 Chart.register(...registerables);
@@ -83,9 +88,9 @@ interface UpcomingCourse {
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],
   standalone: true,
-  imports: [CommonModule, RouterModule, BaseChartDirective],
+  imports: [CommonModule, RouterModule, BaseChartDirective, TranslatePipe],
 })
-export class DashboardComponent implements OnInit, AfterViewInit {
+export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('weeklyChart') weeklyChart: any;
   @ViewChild('monthlyChart') monthlyChart: any;
   @ViewChild('progressChart') progressChart: any;
@@ -103,6 +108,11 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   isUpcomingCoursesCollapsed = false;
   upcomingCourses: UpcomingCourse[] = [];
   isLoadingUpcomingCourses = false;
+  
+  // Translation properties
+  currentLanguage: SupportedLanguage = 'en';
+  isRTL = false;
+  private subscription = new Subscription();
 
   learningStats: LearningStats = {
     totalHours: 127,
@@ -601,13 +611,30 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   constructor(
     private authService: AuthService,
     private courseService: CourseService,
-    private router: Router
+    private router: Router,
+    private translationService: TranslationService
   ) {}
 
   ngOnInit(): void {
     this.currentUser = this.authService.currentUserValue;
     this.loadUpcomingCourses();
     this.updateLearningStatsForUser();
+    
+    // Initialize translation properties
+    this.currentLanguage = this.translationService.getCurrentLanguage();
+    this.isRTL = this.translationService.isRTL();
+    
+    // Subscribe to language changes
+    this.subscription.add(
+      this.translationService.getCurrentLanguage$().subscribe((language) => {
+        this.currentLanguage = language;
+        this.isRTL = this.translationService.isRTL();
+      })
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
   }
 
   updateLearningStatsForUser(): void {

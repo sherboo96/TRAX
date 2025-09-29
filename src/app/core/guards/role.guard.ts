@@ -28,7 +28,7 @@ export class RoleGuard implements CanActivate {
 
     // Check if route requires admin role
     if (state.url.startsWith('/admin')) {
-      if (currentUser.roleId !== UserRole.ADMIN) {
+      if (currentUser.userType !== UserRole.ADMIN) {
         // Redirect non-admin users to their appropriate dashboard
         this.router.navigate([APP_CONSTANTS.ROUTES.DASHBOARD]);
         return false;
@@ -38,8 +38,8 @@ export class RoleGuard implements CanActivate {
     // Check if route requires moderator role (if needed in future)
     if (state.url.startsWith('/moderator')) {
       if (
-        currentUser.roleId !== UserRole.MODERATOR &&
-        currentUser.roleId !== UserRole.ADMIN
+        currentUser.userType !== UserRole.MODERATOR &&
+        currentUser.userType !== UserRole.ADMIN
       ) {
         this.router.navigate([APP_CONSTANTS.ROUTES.DASHBOARD]);
         return false;

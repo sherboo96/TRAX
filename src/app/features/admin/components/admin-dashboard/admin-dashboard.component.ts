@@ -119,7 +119,7 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   get isAdmin(): boolean {
-    return this.currentUser?.roleId === UserRole.ADMIN;
+    return this.currentUser?.userType === UserRole.ADMIN;
   }
 
   formatDate(dateString: string): string {

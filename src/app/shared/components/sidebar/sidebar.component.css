@@ -1,9 +1,11 @@
-/* Sidebar Styles - Minimal CSS since we're using Tailwind classes */
+/* Sidebar Styles - OTC Theme */
 
 /* Ensure sidebar doesn't block main content */
 .sidebar {
   z-index: 10;
   pointer-events: auto;
+  background: linear-gradient(135deg, #13546e 0%, #28818f 50%, #13546e 100%);
+  box-shadow: 0 4px 20px rgba(19, 84, 110, 0.3);
 }
 
 /* RTL sidebar positioning */
@@ -58,7 +60,7 @@
   }
 }
 
-/* Custom scrollbar */
+/* Custom scrollbar with OTC theme */
 .sidebar::-webkit-scrollbar {
   width: 4px;
 }
@@ -68,10 +70,53 @@
 }
 
 .sidebar::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(40, 129, 143, 0.6);
   border-radius: 2px;
 }
 
 .sidebar::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(40, 129, 143, 0.8);
+}
+
+/* OTC Theme Enhancements */
+.sidebar .nav-item:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  transform: translateX(4px);
+}
+
+[dir="rtl"] .sidebar .nav-item:hover {
+  transform: translateX(-4px);
+}
+
+/* Active state enhancement */
+.sidebar .nav-item.router-link-active {
+  background: rgba(19, 84, 110, 0.3) !important;
+  border-left: 4px solid #28818f !important;
+  box-shadow: inset 0 0 10px rgba(40, 129, 143, 0.2);
+}
+
+[dir="rtl"] .sidebar .nav-item.router-link-active {
+  border-left: none !important;
+  border-right: 4px solid #28818f !important;
+}
+
+/* Logo container enhancement */
+.sidebar .logo-container {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Toggle button enhancement */
+.sidebar .toggle-button {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.sidebar .toggle-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(19, 84, 110, 0.3);
 }

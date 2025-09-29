@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-gray-50">
+<div class="min-h-screen bg-gray-50" [class.rtl]="isRTL" [attr.dir]="isRTL ? 'rtl' : 'ltr'">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Upcoming Courses Badge -->
     <div class="mb-8">
@@ -28,9 +28,9 @@
                 </svg>
               </div>
               <div>
-                <h2 class="text-xl font-bold">Upcoming Courses</h2>
+                <h2 class="text-xl font-bold">{{ "dashboard.upcomingCourses.title" | translate }}</h2>
                 <p class="text-primary-100 text-sm">
-                  Don't miss these important sessions
+                  {{ "dashboard.upcomingCourses.subtitle" | translate }}
                 </p>
               </div>
             </div>
@@ -39,13 +39,13 @@
                 <div class="text-2xl font-bold">
                   {{ upcomingCourses.length }}
                 </div>
-                <div class="text-primary-100 text-sm">Sessions</div>
+                <div class="text-primary-100 text-sm">{{ "dashboard.upcomingCourses.sessions" | translate }}</div>
               </div>
               <button
                 (click)="loadUpcomingCourses()"
                 [disabled]="isLoadingUpcomingCourses"
                 class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center transition-all duration-200 hover:bg-white/30 disabled:opacity-50 disabled:cursor-not-allowed"
-                title="Refresh courses"
+                [title]="'dashboard.upcomingCourses.refresh' | translate"
               >
                 <svg
                   class="w-4 h-4 text-white"
@@ -91,7 +91,7 @@
               <div
                 class="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-500"
               ></div>
-              <span class="text-neutral-600">Loading upcoming courses...</span>
+              <span class="text-neutral-600">{{ "dashboard.upcomingCourses.loading" | translate }}</span>
             </div>
           </div>
 
@@ -116,10 +116,10 @@
               </svg>
             </div>
             <h3 class="text-lg font-medium text-neutral-900 mb-2">
-              No upcoming courses
+              {{ "dashboard.upcomingCourses.noCourses.title" | translate }}
             </h3>
             <p class="text-neutral-600">
-              There are no courses scheduled for your department at the moment.
+              {{ "dashboard.upcomingCourses.noCourses.message" | translate }}
             </p>
           </div>
 
@@ -229,7 +229,7 @@
                       clip-rule="evenodd"
                     ></path>
                   </svg>
-                  {{ course.duration }} hours
+                  {{ course.duration }} {{ "dashboard.upcomingCourses.hours" | translate }}
                 </div>
 
                 <!-- Available Seats -->
@@ -245,7 +245,7 @@
                       clip-rule="evenodd"
                     ></path>
                   </svg>
-                  {{ course.availableSeats }} seats available
+                  {{ course.availableSeats }} {{ "dashboard.upcomingCourses.seatsAvailable" | translate }}
                 </div>
 
                 <!-- Registration Status -->
@@ -311,8 +311,8 @@
                   {{
                     course.isUserRegistered &&
                     course.userRegistrationStatusName === "Approved"
-                      ? "View Details"
-                      : "Register in Course"
+                      ? ("dashboard.upcomingCourses.viewDetails" | translate)
+                      : ("dashboard.upcomingCourses.registerCourse" | translate)
                   }}
                 </button>
               </div>
@@ -322,442 +322,5 @@
       </div>
     </div>
 
-    <!-- KPI Circular Charts -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-      <!-- Weekly Goal KPI -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <div class="flex items-center justify-between mb-4">
-          <div class="flex items-center">
-            <div
-              class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3"
-            >
-              <i class="fas fa-calendar-week text-blue-600 text-lg"></i>
-            </div>
-            <div>
-              <h3 class="text-sm font-medium text-gray-600">Weekly Goal</h3>
-              <p class="text-xs text-gray-500">Hours completed</p>
-            </div>
-          </div>
-        </div>
-        <div class="flex items-center justify-center mb-4">
-          <div class="relative w-24 h-24">
-            <canvas #weeklyGoalChart></canvas>
-            <div class="absolute inset-0 flex items-center justify-center">
-              <div class="text-center">
-                <div class="text-2xl font-bold text-gray-800">
-                  {{ getWeeklyGoalRate() }}%
-                </div>
-                <div class="text-xs text-gray-500">
-                  {{ learningStats.weeklyHours }}/{{
-                    learningStats.weeklyGoal
-                  }}h
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="flex items-center justify-between text-sm">
-          <span class="text-gray-600"
-            >Target: {{ learningStats.weeklyGoal }}h</span
-          >
-          <span
-            class="font-medium"
-            [ngClass]="{
-              'text-green-600': getWeeklyGoalRate() >= 90,
-              'text-blue-600':
-                getWeeklyGoalRate() >= 70 && getWeeklyGoalRate() < 90,
-              'text-yellow-600':
-                getWeeklyGoalRate() >= 50 && getWeeklyGoalRate() < 70,
-              'text-red-600': getWeeklyGoalRate() < 50
-            }"
-          >
-            {{
-              getWeeklyGoalRate() >= 90
-                ? "Excellent"
-                : getWeeklyGoalRate() >= 70
-                ? "Good"
-                : getWeeklyGoalRate() >= 50
-                ? "Fair"
-                : "Needs Work"
-            }}
-          </span>
-        </div>
-      </div>
-
-      <!-- Monthly Goal KPI -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <div class="flex items-center justify-between mb-4">
-          <div class="flex items-center">
-            <div
-              class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-3"
-            >
-              <i class="fas fa-calendar-alt text-purple-600 text-lg"></i>
-            </div>
-            <div>
-              <h3 class="text-sm font-medium text-gray-600">Monthly Goal</h3>
-              <p class="text-xs text-gray-500">Hours completed</p>
-            </div>
-          </div>
-        </div>
-        <div class="flex items-center justify-center mb-4">
-          <div class="relative w-24 h-24">
-            <canvas #monthlyGoalChart></canvas>
-            <div class="absolute inset-0 flex items-center justify-center">
-              <div class="text-center">
-                <div class="text-2xl font-bold text-gray-800">
-                  {{ getMonthlyGoalRate() }}%
-                </div>
-                <div class="text-xs text-gray-500">
-                  {{ learningStats.monthlyHours }}/{{
-                    learningStats.monthlyGoal
-                  }}h
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="flex items-center justify-between text-sm">
-          <span class="text-gray-600"
-            >Target: {{ learningStats.monthlyGoal }}h</span
-          >
-          <span
-            class="font-medium"
-            [ngClass]="{
-              'text-green-600': getMonthlyGoalRate() >= 90,
-              'text-blue-600':
-                getMonthlyGoalRate() >= 70 && getMonthlyGoalRate() < 90,
-              'text-yellow-600':
-                getMonthlyGoalRate() >= 50 && getMonthlyGoalRate() < 70,
-              'text-red-600': getMonthlyGoalRate() < 50
-            }"
-          >
-            {{
-              getMonthlyGoalRate() >= 90
-                ? "Excellent"
-                : getMonthlyGoalRate() >= 70
-                ? "Good"
-                : getMonthlyGoalRate() >= 50
-                ? "Fair"
-                : "Needs Work"
-            }}
-          </span>
-        </div>
-      </div>
-
-      <!-- Completion Rate KPI -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <div class="flex items-center justify-between mb-4">
-          <div class="flex items-center">
-            <div
-              class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3"
-            >
-              <i class="fas fa-check-circle text-green-600 text-lg"></i>
-            </div>
-            <div>
-              <h3 class="text-sm font-medium text-gray-600">Completion</h3>
-              <p class="text-xs text-gray-500">Courses finished</p>
-            </div>
-          </div>
-        </div>
-        <div class="flex items-center justify-center mb-4">
-          <div class="relative w-24 h-24">
-            <canvas #completionChart></canvas>
-            <div class="absolute inset-0 flex items-center justify-center">
-              <div class="text-center">
-                <div class="text-2xl font-bold text-gray-800">
-                  {{ getCompletionRate() }}%
-                </div>
-                <div class="text-xs text-gray-500">
-                  {{ learningStats.completedCourses }}/{{
-                    learningStats.totalCourses
-                  }}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="flex items-center justify-between text-sm">
-          <span class="text-gray-600">Course completion</span>
-          <span
-            class="font-medium"
-            [ngClass]="{
-              'text-green-600': getCompletionRate() >= 90,
-              'text-blue-600':
-                getCompletionRate() >= 70 && getCompletionRate() < 90,
-              'text-yellow-600':
-                getCompletionRate() >= 50 && getCompletionRate() < 70,
-              'text-red-600': getCompletionRate() < 50
-            }"
-          >
-            {{
-              getCompletionRate() >= 90
-                ? "Excellent"
-                : getCompletionRate() >= 70
-                ? "Good"
-                : getCompletionRate() >= 50
-                ? "Fair"
-                : "Needs Work"
-            }}
-          </span>
-        </div>
-      </div>
-
-      <!-- Average Score KPI -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <div class="flex items-center justify-between mb-4">
-          <div class="flex items-center">
-            <div
-              class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center mr-3"
-            >
-              <i class="fas fa-star text-orange-600 text-lg"></i>
-            </div>
-            <div>
-              <h3 class="text-sm font-medium text-gray-600">Average Score</h3>
-              <p class="text-xs text-gray-500">Assessment results</p>
-            </div>
-          </div>
-        </div>
-        <div class="flex items-center justify-center mb-4">
-          <div class="relative w-24 h-24">
-            <canvas #averageScoreChart></canvas>
-            <div class="absolute inset-0 flex items-center justify-center">
-              <div class="text-center">
-                <div class="text-2xl font-bold text-gray-800">
-                  {{ learningStats.averageScore }}%
-                </div>
-                <div class="text-xs text-gray-500">Quiz average</div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="flex items-center justify-between text-sm">
-          <span class="text-gray-600">Assessment score</span>
-          <span
-            class="font-medium"
-            [ngClass]="{
-              'text-green-600': learningStats.averageScore >= 90,
-              'text-blue-600':
-                learningStats.averageScore >= 70 &&
-                learningStats.averageScore < 90,
-              'text-yellow-600':
-                learningStats.averageScore >= 50 &&
-                learningStats.averageScore < 70,
-              'text-red-600': learningStats.averageScore < 50
-            }"
-          >
-            {{
-              learningStats.averageScore >= 90
-                ? "Excellent"
-                : learningStats.averageScore >= 70
-                ? "Good"
-                : learningStats.averageScore >= 50
-                ? "Fair"
-                : "Needs Work"
-            }}
-          </span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Learning Charts Section -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-      <!-- Weekly Learning Curve -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4">
-          Weekly Learning Curve
-        </h3>
-        <div class="h-64">
-          <canvas
-            #weeklyChart
-            baseChart
-            [data]="weeklyChartData"
-            [options]="weeklyChartOptions"
-            [type]="'line'"
-          >
-          </canvas>
-        </div>
-      </div>
-
-      <!-- Monthly Progress -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4">
-          Monthly Learning Progress
-        </h3>
-        <div class="h-64">
-          <canvas
-            #monthlyChart
-            baseChart
-            [data]="monthlyChartData"
-            [options]="monthlyChartOptions"
-            [type]="'bar'"
-          >
-          </canvas>
-        </div>
-      </div>
-    </div>
-
-    <!-- Main Content Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <!-- Active Courses -->
-      <div class="lg:col-span-2">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200">
-          <div class="px-6 py-4 border-b border-gray-200">
-            <h2 class="text-lg font-semibold text-gray-900">
-              Continue Learning
-            </h2>
-            <p class="text-sm text-gray-500">Pick up where you left off</p>
-          </div>
-          <div class="p-6">
-            <!-- Empty State for Normal Users -->
-            <div
-              *ngIf="currentUser?.roleId !== 2 && activeCourses.length === 0"
-              class="text-center py-8"
-            >
-              <div
-                class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4"
-              >
-                <i class="fas fa-book-open text-gray-400 text-2xl"></i>
-              </div>
-              <h3 class="text-lg font-medium text-gray-900 mb-2">
-                No Active Courses
-              </h3>
-              <p class="text-gray-600 mb-4">
-                You haven't enrolled in any courses yet.
-              </p>
-              <button
-                (click)="navigateToCourses()"
-                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
-                <i class="fas fa-search mr-2"></i>
-                Browse Courses
-              </button>
-            </div>
-
-            <!-- Active Courses List -->
-            <div
-              *ngIf="currentUser?.roleId === 2 || activeCourses.length > 0"
-              class="space-y-4"
-            >
-              <div
-                *ngFor="let course of activeCourses"
-                class="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
-              >
-                <img
-                  [src]="course.image"
-                  [alt]="course.title"
-                  class="w-16 h-12 object-cover rounded-md"
-                />
-                <div class="flex-1 min-w-0">
-                  <h3 class="text-sm font-medium text-gray-900 truncate">
-                    {{ course.title }}
-                  </h3>
-                  <p class="text-xs text-gray-500">{{ course.category }}</p>
-                  <div
-                    class="mt-2 flex items-center space-x-4 text-xs text-gray-500"
-                  >
-                    <span
-                      >{{ course.completedLessons }}/{{
-                        course.totalLessons
-                      }}
-                      lessons</span
-                    >
-                    <span>{{ course.estimatedHours }}h estimated</span>
-                    <span>{{ course.lastAccessed }}</span>
-                  </div>
-                </div>
-                <div class="flex items-center space-x-3">
-                  <div class="text-right">
-                    <p class="text-sm font-medium text-gray-900">
-                      {{ course.progress }}%
-                    </p>
-                    <p class="text-xs text-gray-500">Complete</p>
-                  </div>
-                  <div
-                    class="w-16 h-2 bg-gray-200 rounded-full overflow-hidden"
-                  >
-                    <div
-                      class="h-full rounded-full transition-all duration-300"
-                      [ngClass]="getProgressColor(course.progress)"
-                      [style.width.%]="course.progress"
-                    ></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Sidebar -->
-      <div class="space-y-6">
-        <!-- Course Progress Chart -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h3 class="text-lg font-semibold text-gray-900 mb-4">
-            Course Progress
-          </h3>
-          <div class="h-48">
-            <canvas
-              #progressChart
-              baseChart
-              [data]="progressChartData"
-              [options]="progressChartOptions"
-              [type]="'doughnut'"
-            >
-            </canvas>
-          </div>
-        </div>
-
-        <!-- Recent Achievements -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h3 class="text-lg font-semibold text-gray-900 mb-4">
-            Recent Achievements
-          </h3>
-
-          <!-- Empty State for Normal Users -->
-          <div
-            *ngIf="currentUser?.roleId !== 2 && recentAchievements.length === 0"
-            class="text-center py-6"
-          >
-            <div
-              class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3"
-            >
-              <i class="fas fa-trophy text-gray-400 text-lg"></i>
-            </div>
-            <h4 class="text-sm font-medium text-gray-900 mb-1">
-              No Achievements Yet
-            </h4>
-            <p class="text-xs text-gray-500">
-              Complete courses to earn achievements
-            </p>
-          </div>
-
-          <!-- Achievements List -->
-          <div
-            *ngIf="currentUser?.roleId === 2 || recentAchievements.length > 0"
-            class="space-y-4"
-          >
-            <div
-              *ngFor="let achievement of recentAchievements"
-              class="flex items-start space-x-3"
-            >
-              <div
-                class="flex-shrink-0 w-8 h-8 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center text-sm"
-              >
-                {{ achievement.icon }}
-              </div>
-              <div class="flex-1 min-w-0">
-                <p class="text-sm font-medium text-gray-900">
-                  {{ achievement.title }}
-                </p>
-                <p class="text-xs text-gray-500">
-                  {{ achievement.description }}
-                </p>
-                <p class="text-xs text-gray-400 mt-1">{{ achievement.date }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 </div>

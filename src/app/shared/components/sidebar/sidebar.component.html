@@ -1,5 +1,5 @@
 <div
-  class="sidebar fixed top-0 h-screen bg-gradient-primary text-white transition-all duration-300 ease-in-out shadow-lg overflow-x-hidden flex flex-col"
+  class="sidebar fixed top-0 h-screen bg-gradient-to-br from-[#13546e] via-[#28818f] to-[#13546e] text-white transition-all duration-300 ease-in-out shadow-lg overflow-x-hidden flex flex-col"
   [class]="isCollapsed ? 'w-[64px] collapsed' : 'w-[256px]'"
   [class.left-0]="!isRTL"
   [class.right-0]="isRTL"
@@ -14,7 +14,7 @@
     <!-- Logo Container - Only show when not collapsed -->
     <div class="flex items-center gap-3" *ngIf="!isCollapsed">
       <div
-        class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center flex-shrink-0"
+        class="logo-container w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
       >
         <i class="fas fa-graduation-cap text-lg text-white"></i>
       </div>
@@ -29,7 +29,7 @@
     <!-- Toggle Button - Always visible -->
     <button
       (click)="toggleSidebar()"
-      class="bg-white/10 hover:bg-white/20 border-none text-white rounded-lg cursor-pointer transition-all duration-200 flex items-center justify-center hover:scale-105"
+      class="toggle-button border-none text-white rounded-lg cursor-pointer flex items-center justify-center focus:ring-2 focus:ring-[#13546e]/30"
       [class]="isCollapsed ? 'p-2' : 'p-2'"
       [attr.aria-label]="
         isCollapsed
@@ -46,7 +46,7 @@
     <!-- Dashboard -->
     <a
       [routerLink]="getDashboardRoute()"
-      routerLinkActive="bg-white/20 text-white font-medium"
+      routerLinkActive="bg-[#13546e]/30 text-white font-medium border-l-4 border-[#28818f]"
       class="nav-item flex items-center text-white/80 no-underline transition-all duration-200 rounded-lg mb-1 hover:bg-white/10 hover:text-white relative"
       [class.hover:translate-x-1]="!isRTL"
       [class.hover:-translate-x-1]="isRTL"
@@ -83,7 +83,7 @@
       </div>
       <a
         routerLink="/admin/courses"
-        routerLinkActive="bg-white/20 text-white font-medium"
+        routerLinkActive="bg-[#13546e]/30 text-white font-medium border-l-4 border-[#28818f]"
         class="nav-item flex items-center py-3 text-white/80 no-underline transition-all duration-200 rounded-lg mb-1 hover:bg-white/10 hover:text-white"
         [class.hover:translate-x-1]="!isRTL"
         [class.hover:-translate-x-1]="isRTL"
@@ -108,7 +108,7 @@
       <!-- Learning Path - Hidden -->
       <!-- <a
         routerLink="/admin/learning-paths"
-        routerLinkActive="bg-white/20 text-white font-medium"
+        routerLinkActive="bg-[#13546e]/30 text-white font-medium border-l-4 border-[#28818f]"
         class="nav-item flex items-center py-3 text-white/80 no-underline transition-all duration-200 rounded-lg mb-1 hover:bg-white/10 hover:text-white hover:translate-x-1"
         [class]="isCollapsed ? 'px-3' : 'px-6 ml-2'"
         [title]="isCollapsed ? 'Learning Paths' : ''"
@@ -138,7 +138,7 @@
       <!-- Digital Library - Hidden -->
       <!-- <a
         routerLink="/admin/digital-library"
-        routerLinkActive="bg-white/20 text-white font-medium"
+        routerLinkActive="bg-[#13546e]/30 text-white font-medium border-l-4 border-[#28818f]"
         class="nav-item flex items-center py-3 text-white/80 no-underline transition-all duration-200 rounded-lg mb-1 hover:bg-white/10 hover:text-white hover:translate-x-1"
         [class]="isCollapsed ? 'px-3' : 'px-6 ml-2'"
         [title]="isCollapsed ? 'Digital Library' : ''"
@@ -168,7 +168,7 @@
       <!-- Suggested Courses -->
       <a
         routerLink="/admin/suggested-courses"
-        routerLinkActive="bg-white/20 text-white font-medium"
+        routerLinkActive="bg-[#13546e]/30 text-white font-medium border-l-4 border-[#28818f]"
         class="nav-item flex items-center py-3 text-white/80 no-underline transition-all duration-200 rounded-lg mb-1 hover:bg-white/10 hover:text-white"
         [class.hover:translate-x-1]="!isRTL"
         [class.hover:-translate-x-1]="isRTL"
@@ -192,7 +192,7 @@
       <!-- Course Requests -->
       <a
         routerLink="/admin/requests"
-        routerLinkActive="bg-white/20 text-white font-medium"
+        routerLinkActive="bg-[#13546e]/30 text-white font-medium border-l-4 border-[#28818f]"
         class="nav-item flex items-center py-3 text-white/80 no-underline transition-all duration-200 rounded-lg mb-1 hover:bg-white/10 hover:text-white"
         [class.hover:translate-x-1]="!isRTL"
         [class.hover:-translate-x-1]="isRTL"
@@ -222,7 +222,7 @@
         <!-- Users Management -->
         <a
           routerLink="/admin/users"
-          routerLinkActive="bg-white/20 text-white font-medium"
+          routerLinkActive="bg-[#13546e]/30 text-white font-medium border-l-4 border-[#28818f]"
           class="nav-item flex items-center py-3 px-4 text-white/80 no-underline transition-all duration-200 rounded-lg hover:bg-white/10 hover:text-white"
           [class.hover:translate-x-1]="!isRTL"
           [class.hover:-translate-x-1]="isRTL"
@@ -246,7 +246,7 @@
         <!-- Department -->
         <a
           routerLink="/admin/departments"
-          routerLinkActive="bg-white/20 text-white font-medium"
+          routerLinkActive="bg-[#13546e]/30 text-white font-medium border-l-4 border-[#28818f]"
           class="nav-item flex items-center py-3 px-4 text-white/80 no-underline transition-all duration-200 rounded-lg hover:bg-white/10 hover:text-white"
           [class.hover:translate-x-1]="!isRTL"
           [class.hover:-translate-x-1]="isRTL"
@@ -270,7 +270,7 @@
         <!-- Organizations -->
         <a
           routerLink="/admin/organizations"
-          routerLinkActive="bg-white/20 text-white font-medium"
+          routerLinkActive="bg-[#13546e]/30 text-white font-medium border-l-4 border-[#28818f]"
           class="nav-item flex items-center py-3 px-4 text-white/80 no-underline transition-all duration-200 rounded-lg hover:bg-white/10 hover:text-white"
           [class.hover:translate-x-1]="!isRTL"
           [class.hover:-translate-x-1]="isRTL"
@@ -305,7 +305,7 @@
         <!-- Instructors Management -->
         <a
           routerLink="/admin/instructors"
-          routerLinkActive="bg-white/20 text-white font-medium"
+          routerLinkActive="bg-[#13546e]/30 text-white font-medium border-l-4 border-[#28818f]"
           class="nav-item flex items-center py-3 px-4 text-white/80 no-underline transition-all duration-200 rounded-lg hover:bg-white/10 hover:text-white"
           [class.hover:translate-x-1]="!isRTL"
           [class.hover:-translate-x-1]="isRTL"
@@ -329,7 +329,7 @@
         <!-- Institutions Management -->
         <a
           routerLink="/admin/institutions"
-          routerLinkActive="bg-white/20 text-white font-medium"
+          routerLinkActive="bg-[#13546e]/30 text-white font-medium border-l-4 border-[#28818f]"
           class="nav-item flex items-center py-3 px-4 text-white/80 no-underline transition-all duration-200 rounded-lg hover:bg-white/10 hover:text-white"
           [class.hover:translate-x-1]="!isRTL"
           [class.hover:-translate-x-1]="isRTL"
@@ -362,7 +362,7 @@
         <!-- Roles Management -->
         <a
           routerLink="/admin/roles"
-          routerLinkActive="bg-white/20 text-white font-medium"
+          routerLinkActive="bg-[#13546e]/30 text-white font-medium border-l-4 border-[#28818f]"
           class="nav-item flex items-center py-3 px-4 text-white/80 no-underline transition-all duration-200 rounded-lg hover:bg-white/10 hover:text-white"
           [class.hover:translate-x-1]="!isRTL"
           [class.hover:-translate-x-1]="isRTL"
@@ -390,7 +390,7 @@
       <!-- Courses -->
       <!-- <a
         routerLink="/courses"
-        routerLinkActive="bg-white/20 text-white font-medium"
+        routerLinkActive="bg-[#13546e]/30 text-white font-medium border-l-4 border-[#28818f]"
         class="nav-item flex items-center py-4 px-3 text-white/80 no-underline transition-all duration-200 rounded-lg mb-1 hover:bg-white/10 hover:text-white hover:translate-x-1"
         [title]="isCollapsed ? 'Courses' : ''"
         (click)="onNavigationClick()"
@@ -419,7 +419,7 @@
       <!-- Digital Library -->
       <!-- <a
         routerLink="/digital-library"
-        routerLinkActive="bg-white/20 text-white font-medium"
+        routerLinkActive="bg-[#13546e]/30 text-white font-medium border-l-4 border-[#28818f]"
         class="nav-item flex items-center py-4 px-3 text-white/80 no-underline transition-all duration-200 rounded-lg mb-1 hover:bg-white/10 hover:text-white hover:translate-x-1"
         [title]="isCollapsed ? 'Digital Library' : ''"
         (click)="onNavigationClick()"

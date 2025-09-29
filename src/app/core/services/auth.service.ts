@@ -162,7 +162,7 @@ export class AuthService {
   // Method to check if user has admin role
   isAdmin(): boolean {
     const user = this.currentUserValue;
-    return user?.roleId === UserRole.ADMIN;
+    return user?.userType === UserRole.ADMIN;
   }
 
   // Method to check if user has moderator role

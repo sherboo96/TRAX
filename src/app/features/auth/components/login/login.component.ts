@@ -77,16 +77,28 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    console.log('[LoginComponent] ngOnInit called');
+    console.log('[LoginComponent] Translation service:', this.translationService);
+    
+    // Test translation service
+    const testTranslation = this.translationService.translate('login.title', { appName: 'Test' });
+    console.log('[LoginComponent] Test translation result:', testTranslation);
+    
     // Initialize translation properties
     this.supportedLanguages = this.translationService.getSupportedLanguages();
     this.currentLanguage = this.translationService.getCurrentLanguage();
     this.isRTL = this.translationService.isRTL();
+
+    console.log('[LoginComponent] Current language:', this.currentLanguage);
+    console.log('[LoginComponent] Is RTL:', this.isRTL);
+    console.log('[LoginComponent] Supported languages:', this.supportedLanguages);
 
     // Subscribe to language changes
     this.subscription.add(
       this.translationService.getCurrentLanguage$().subscribe((language) => {
         this.currentLanguage = language;
         this.isRTL = this.translationService.isRTL();
+        console.log('[LoginComponent] Language changed to:', language);
       })
     );
   }
@@ -150,17 +162,14 @@ export class LoginComponent implements OnInit, OnDestroy {
           console.log('Login successful, response:', response);
           this.loading = false;
 
-          if (this.currentUser?.userType === 1) {
-            this.showUserTypeModal = true;
-          } else {
-            this.onUserTypeConfirm(UserRole.USER);
-          }
-          // If user has a roleId, navigate to dashboard
+          // Check if user has a roleId, if so navigate directly to dashboard
           if (response.result.user.roleId) {
             const dashboardRoute = this.authService.getDashboardRoute();
             this.router.navigate([dashboardRoute]);
+          } else {
+            // If no roleId, show user type modal for user to select their role
+            this.showUserTypeModal = true;
           }
-          // If no roleId, the user type modal will be shown automatically
         },
         error: (error) => {
           console.error('Login error in component:', error);
@@ -208,6 +217,8 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   getLanguageDisplayName(language: SupportedLanguage): string {
-    return language === 'en' ? 'English' : 'العربية';
+    return language === 'en' 
+      ? this.translationService.translate('LANGUAGE_ENGLISH')
+      : this.translationService.translate('LANGUAGE_ARABIC');
   }
 }

@@ -27,6 +27,7 @@ import { TranslationService } from '../locale/translation.service';
 })
 export class AppComponent implements OnInit, OnDestroy {
   title = APP_CONSTANTS.APP_NAME;
+  appConstants = APP_CONSTANTS;
   isLoading = false;
   currentUser: User | null = null;
   isSidebarCollapsed = false;
