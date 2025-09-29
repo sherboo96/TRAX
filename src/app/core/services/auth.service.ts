@@ -1,16 +1,15 @@
-import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
-import { map, tap, catchError } from 'rxjs/operators';
+import { Injectable } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
+import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
+import { catchError, tap } from 'rxjs/operators';
+import { APP_CONSTANTS } from '../constants/app.constants';
 import {
-  User,
-  LoginRequest,
-  LoginResponse,
   ApiLoginResponse,
+  LoginRequest,
+  User,
   UserRole,
 } from '../models/user.model';
-import { APP_CONSTANTS } from '../constants/app.constants';
 
 @Injectable({
   providedIn: 'root',
@@ -154,6 +153,8 @@ export class AuthService {
         return APP_CONSTANTS.ROUTES.DASHBOARD;
       case UserRole.MODERATOR:
         return APP_CONSTANTS.ROUTES.DASHBOARD;
+      case UserRole.MODERATOR_TYPE_3:
+        return APP_CONSTANTS.ROUTES.MODERATOR_DASHBOARD;
       default:
         return APP_CONSTANTS.ROUTES.DASHBOARD;
     }
@@ -168,7 +169,10 @@ export class AuthService {
   // Method to check if user has moderator role
   isModerator(): boolean {
     const user = this.currentUserValue;
-    return user?.roleId === UserRole.MODERATOR;
+    return (
+      user?.userType === UserRole.MODERATOR ||
+      user?.userType === UserRole.MODERATOR_TYPE_3
+    );
   }
 
   private handleLoginError(error: HttpErrorResponse): void {

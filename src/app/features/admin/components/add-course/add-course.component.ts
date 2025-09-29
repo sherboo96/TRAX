@@ -1,26 +1,26 @@
-import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpClientModule } from '@angular/common/http';
+import { Component, OnInit } from '@angular/core';
 import {
+  AbstractControl,
+  FormArray,
+  FormBuilder,
+  FormControl,
+  FormGroup,
   FormsModule,
   ReactiveFormsModule,
-  FormBuilder,
-  FormGroup,
-  FormControl,
   Validators,
-  FormArray,
-  AbstractControl,
 } from '@angular/forms';
-import { Router, ActivatedRoute } from '@angular/router';
-import { HttpClientModule } from '@angular/common/http';
-import { CourseService } from '../../../../core/services/course.service';
-import { InstructorService } from '../../../../core/services/instructor.service';
-import { DepartmentService } from '../../../../core/services/department.service';
-import { AuthService } from '../../../../core/services/auth.service';
-import { User, UserRole } from '../../../../core/models/user.model';
-import { Instructor } from '../../../../core/models/instructor.model';
-import { Department } from '../../../../core/models/department.model';
-import { AiHelperComponent } from '../../../../shared/components/ai-helper/ai-helper.component';
+import { ActivatedRoute, Router } from '@angular/router';
 import { environment } from '../../../../../environments/environment';
+import { Department } from '../../../../core/models/department.model';
+import { Instructor } from '../../../../core/models/instructor.model';
+import { User, UserRole } from '../../../../core/models/user.model';
+import { AuthService } from '../../../../core/services/auth.service';
+import { CourseService } from '../../../../core/services/course.service';
+import { DepartmentService } from '../../../../core/services/department.service';
+import { InstructorService } from '../../../../core/services/instructor.service';
+import { AiHelperComponent } from '../../../../shared/components/ai-helper/ai-helper.component';
 
 // Add this helper function at the top of the class (after imports, before the class definition)
 function atLeastOneNonEmptyValidator(control: AbstractControl) {
@@ -353,7 +353,14 @@ export class AddCourseComponent implements OnInit {
   }
 
   get isAdmin(): boolean {
-    return this.currentUser?.roleId === UserRole.ADMIN;
+    return this.currentUser?.userType === UserRole.ADMIN;
+  }
+
+  get isModerator(): boolean {
+    return (
+      this.currentUser?.userType === UserRole.MODERATOR ||
+      this.currentUser?.userType === UserRole.MODERATOR_TYPE_3
+    );
   }
 
   // Form array getters
@@ -694,7 +701,10 @@ export class AddCourseComponent implements OnInit {
           // Show success message
           if (response.statusCode === 200 || response.statusCode === 201) {
             // Navigate back to courses list with success state
-            this.router.navigate(['/admin/courses'], {
+            const coursesRoute = this.isAdmin
+              ? '/admin/courses'
+              : '/moderator/courses';
+            this.router.navigate([coursesRoute], {
               queryParams: {
                 message: `Course ${
                   this.isEditMode ? 'updated' : 'created'
@@ -811,7 +821,8 @@ export class AddCourseComponent implements OnInit {
 
   // Cancel and go back
   onCancel(): void {
-    this.router.navigate(['/admin/courses']);
+    const coursesRoute = this.isAdmin ? '/admin/courses' : '/moderator/courses';
+    this.router.navigate([coursesRoute]);
   }
 
   // Image upload methods

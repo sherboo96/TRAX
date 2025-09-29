@@ -1,31 +1,32 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { AuthGuard } from './core/guards/auth.guard';
-import { AuthRedirectGuard } from './core/guards/auth-redirect.guard';
-import { IntroductionGuard } from './core/guards/introduction.guard';
-import { RoleGuard } from './core/guards/role.guard';
 import { APP_CONSTANTS } from './core/constants/app.constants';
-import { DashboardComponent } from './features/dashboard/components/dashboard/dashboard.component';
-import { LoginComponent } from './features/auth/components/login/login.component';
+import { AuthRedirectGuard } from './core/guards/auth-redirect.guard';
+import { AuthGuard } from './core/guards/auth.guard';
+import { IntroductionGuard } from './core/guards/introduction.guard';
+import { ModeratorGuard } from './core/guards/moderator.guard';
+import { RoleGuard } from './core/guards/role.guard';
+import { AddCourseComponent } from './features/admin/components/add-course/add-course.component';
+import { AdminCoursesComponent } from './features/admin/components/admin-courses/admin-courses.component';
+import { AdminDashboardComponent } from './features/admin/components/admin-dashboard/admin-dashboard.component';
+import { AdminDepartmentsComponent } from './features/admin/components/admin-departments/admin-departments.component';
+import { AdminInstitutionsComponent } from './features/admin/components/admin-institutions/admin-institutions.component';
+import { AdminInstructorsComponent } from './features/admin/components/admin-instructors/admin-instructors.component';
+import { AdminOrganizationsComponent } from './features/admin/components/admin-organizations/admin-organizations.component';
+import { AdminRequestsComponent } from './features/admin/components/admin-requests/admin-requests.component';
+import { AdminRolesComponent } from './features/admin/components/admin-roles/admin-roles.component';
+import { AdminSuggestedCoursesComponent } from './features/admin/components/admin-suggested-courses/admin-suggested-courses.component';
+import { AdminUsersComponent } from './features/admin/components/admin-users/admin-users.component';
 import { IntroductionComponent } from './features/auth/components/introduction/introduction.component';
-import { ProfileComponent } from './features/profile/components/profile/profile.component';
-import { SettingsComponent } from './features/settings/components/settings/settings.component';
-import { CoursesComponent } from './features/courses/components/courses/courses.component';
+import { LoginComponent } from './features/auth/components/login/login.component';
 import { CourseDetailsComponent } from './features/courses/components/course-details/course-details.component';
+import { CourseScanComponent } from './features/courses/components/course-scan/course-scan.component';
+import { CoursesComponent } from './features/courses/components/courses/courses.component';
+import { DashboardComponent } from './features/dashboard/components/dashboard/dashboard.component';
 import { DigitalLibraryComponent } from './features/digital-library/components/digital-library/digital-library.component';
 import { ResourceDetailsComponent } from './features/digital-library/components/resource-details/resource-details.component';
-import { AdminDashboardComponent } from './features/admin/components/admin-dashboard/admin-dashboard.component';
-import { AdminCoursesComponent } from './features/admin/components/admin-courses/admin-courses.component';
-import { AdminInstructorsComponent } from './features/admin/components/admin-instructors/admin-instructors.component';
-import { AdminInstitutionsComponent } from './features/admin/components/admin-institutions/admin-institutions.component';
-import { AdminUsersComponent } from './features/admin/components/admin-users/admin-users.component';
-import { AdminDepartmentsComponent } from './features/admin/components/admin-departments/admin-departments.component';
-import { AdminOrganizationsComponent } from './features/admin/components/admin-organizations/admin-organizations.component';
-import { AdminRolesComponent } from './features/admin/components/admin-roles/admin-roles.component';
-import { AddCourseComponent } from './features/admin/components/add-course/add-course.component';
-import { AdminSuggestedCoursesComponent } from './features/admin/components/admin-suggested-courses/admin-suggested-courses.component';
-import { AdminRequestsComponent } from './features/admin/components/admin-requests/admin-requests.component';
-import { CourseScanComponent } from './features/courses/components/course-scan/course-scan.component';
+import { ProfileComponent } from './features/profile/components/profile/profile.component';
+import { SettingsComponent } from './features/settings/components/settings/settings.component';
 
 export const routes: Routes = [
   // Default route - redirect to introduction
@@ -177,6 +178,49 @@ export const routes: Routes = [
     path: 'admin/requests',
     component: AdminRequestsComponent,
     canActivate: [AuthGuard, RoleGuard],
+  },
+
+  // Moderator routes - require authentication AND moderator role (userType 3)
+  {
+    path: 'moderator/dashboard',
+    component: AdminDashboardComponent,
+    canActivate: [AuthGuard, ModeratorGuard],
+  },
+
+  {
+    path: 'moderator/courses',
+    component: AdminCoursesComponent,
+    canActivate: [AuthGuard, ModeratorGuard],
+  },
+
+  {
+    path: 'moderator/instructors',
+    component: AdminInstructorsComponent,
+    canActivate: [AuthGuard, ModeratorGuard],
+  },
+
+  {
+    path: 'moderator/institutions',
+    component: AdminInstitutionsComponent,
+    canActivate: [AuthGuard, ModeratorGuard],
+  },
+
+  {
+    path: 'moderator/courses/add',
+    component: AddCourseComponent,
+    canActivate: [AuthGuard, ModeratorGuard],
+  },
+
+  {
+    path: 'moderator/courses/edit/:id',
+    component: AddCourseComponent,
+    canActivate: [AuthGuard, ModeratorGuard],
+  },
+
+  {
+    path: 'moderator/courses/:id',
+    component: CourseDetailsComponent,
+    canActivate: [AuthGuard, ModeratorGuard],
   },
 
   // Catch all route - redirect to introduction

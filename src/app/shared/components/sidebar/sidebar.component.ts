@@ -1,20 +1,20 @@
+import { CommonModule } from '@angular/common';
 import {
   Component,
-  OnInit,
-  OnDestroy,
-  Output,
   EventEmitter,
+  OnDestroy,
+  OnInit,
+  Output,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { TranslatePipe } from '../../../../locale/translation.pipe';
+import { TranslationService } from '../../../../locale/translation.service';
+import { APP_CONSTANTS } from '../../../core/constants/app.constants';
+import { User } from '../../../core/models/user.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { SidebarService } from '../../services/sidebar.service';
-import { User } from '../../../core/models/user.model';
-import { APP_CONSTANTS } from '../../../core/constants/app.constants';
 import { ConfirmModalComponent } from '../confirm-modal/confirm-modal.component';
-import { TranslationService } from '../../../../locale/translation.service';
-import { TranslatePipe } from '../../../../locale/translation.pipe';
-import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-sidebar',
@@ -71,6 +71,10 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   isAdmin(): boolean {
     return this.authService.isAdmin();
+  }
+
+  isModerator(): boolean {
+    return this.authService.isModerator();
   }
 
   getDashboardRoute(): string {

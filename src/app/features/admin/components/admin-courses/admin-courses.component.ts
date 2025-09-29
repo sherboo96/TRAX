@@ -1,21 +1,21 @@
-import { Component, OnInit, ViewChild, TemplateRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';
-import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
+import { Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
+import { environment } from '../../../../../environments/environment';
+import { TranslatePipe } from '../../../../../locale/translation.pipe';
+import { TranslationService } from '../../../../../locale/translation.service';
+import { User, UserRole } from '../../../../core/models/user.model';
 import { AuthService } from '../../../../core/services/auth.service';
 import {
-  CourseService,
   Course,
   CourseFilterRequest,
+  CourseService,
 } from '../../../../core/services/course.service';
-import { User, UserRole } from '../../../../core/models/user.model';
 import { AiHelperComponent } from '../../../../shared/components/ai-helper/ai-helper.component';
 import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
-import { TranslationService } from '../../../../../locale/translation.service';
-import { TranslatePipe } from '../../../../../locale/translation.pipe';
-import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-admin-courses',
@@ -162,11 +162,22 @@ export class AdminCoursesComponent implements OnInit {
   }
 
   get isAdmin(): boolean {
-    return this.currentUser?.roleId === UserRole.ADMIN;
+    return this.currentUser?.userType === UserRole.ADMIN;
+  }
+
+  get isModerator(): boolean {
+    return (
+      this.currentUser?.userType === UserRole.MODERATOR ||
+      this.currentUser?.userType === UserRole.MODERATOR_TYPE_3
+    );
   }
 
   addCourse(): void {
-    this.router.navigate(['/admin/courses/add']);
+    if (this.isAdmin) {
+      this.router.navigate(['/admin/courses/add']);
+    } else if (this.isModerator) {
+      this.router.navigate(['/moderator/courses/add']);
+    }
   }
 
   toggleSearchFilters(): void {
@@ -174,7 +185,11 @@ export class AdminCoursesComponent implements OnInit {
   }
 
   editCourse(courseId: number): void {
-    this.router.navigate(['/admin/courses/edit', courseId]);
+    if (this.isAdmin) {
+      this.router.navigate(['/admin/courses/edit', courseId]);
+    } else if (this.isModerator) {
+      this.router.navigate(['/moderator/courses/edit', courseId]);
+    }
   }
 
   deleteCourse(courseId: number): void {
@@ -185,7 +200,11 @@ export class AdminCoursesComponent implements OnInit {
   // Navigation method
   navigateToCourseDetails(course: Course): void {
     if (course && course.id) {
-      this.router.navigate(['/admin/courses', course.id]);
+      if (this.isAdmin) {
+        this.router.navigate(['/admin/courses', course.id]);
+      } else if (this.isModerator) {
+        this.router.navigate(['/moderator/courses', course.id]);
+      }
     }
   }
 

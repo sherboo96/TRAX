@@ -38,6 +38,7 @@ export enum UserRole {
   ADMIN = 1,
   USER = 0,
   MODERATOR = 2,
+  MODERATOR_TYPE_3 = 3,
 }
 
 export interface LoginRequest {
