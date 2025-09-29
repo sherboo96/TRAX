@@ -3,7 +3,9 @@
     <!-- Header -->
     <div class="mb-8 flex justify-between items-start">
       <div>
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ "adminCourses.title" | translate }}</h1>
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">
+          {{ "adminCourses.title" | translate }}
+        </h1>
         <p class="text-gray-600">
           {{ "adminCourses.subtitle" | translate }}
         </p>
@@ -33,13 +35,19 @@
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6">
       <!-- Collapsible Header -->
       <div class="flex items-center justify-between mb-4">
-        <h3 class="text-lg font-semibold text-gray-800">{{ "adminCourses.searchFilters" | translate }}</h3>
+        <h3 class="text-lg font-semibold text-gray-800">
+          {{ "adminCourses.searchFilters" | translate }}
+        </h3>
         <button
           (click)="toggleSearchFilters()"
           class="flex items-center text-primary-600 hover:text-primary-700 transition-colors"
         >
           <span class="mr-2 text-sm font-medium">
-            {{ isSearchExpanded ? ("adminCourses.collapse" | translate) : ("adminCourses.expand" | translate) }}
+            {{
+              isSearchExpanded
+                ? ("adminCourses.collapse" | translate)
+                : ("adminCourses.expand" | translate)
+            }}
           </span>
           <svg
             class="w-5 h-5 transition-transform duration-200"
@@ -61,7 +69,9 @@
       <!-- Status Filter - Always Visible -->
       <div class="mb-4">
         <div class="flex items-center justify-between mb-2">
-          <label class="block text-sm font-medium text-gray-700">{{ "adminCourses.status" | translate }}</label>
+          <label class="block text-sm font-medium text-gray-700">{{
+            "adminCourses.status" | translate
+          }}</label>
           <button
             *ngIf="
               searchTerm ||
@@ -188,7 +198,7 @@
               [class]="getStatusColor(course.statusId)"
               class="px-3 py-1.5 rounded-full text-xs font-semibold shadow-sm"
             >
-              {{ course.statusName }}
+              {{ getStatusText(course.statusId) }}
             </span>
             <button
               *ngIf="isAdmin && shouldShowPublishButtons(course)"
@@ -458,7 +468,7 @@
       <div class="flex items-center justify-between mb-6">
         <h3 class="text-xl font-bold text-gray-900 flex items-center">
           <i class="fas fa-qrcode text-purple-600 mr-3"></i>
-          Attendance QR Code
+          {{ "adminCourses.attendanceQrTitle" | translate }}
         </h3>
         <div class="flex items-center gap-3">
           <!-- Auto-reload Toggle -->
@@ -470,11 +480,13 @@
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             "
             class="px-3 py-1 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
-            title="Toggle Auto-reload"
+            [title]="'adminCourses.autoReloadToggleTitle' | translate"
           >
             <i class="fas fa-sync-alt text-xs"></i>
             <span class="text-xs">{{
-              isAutoReloadEnabled ? "ON" : "OFF"
+              isAutoReloadEnabled
+                ? ("adminCourses.autoReloadOn" | translate)
+                : ("adminCourses.autoReloadOff" | translate)
             }}</span>
           </button>
 
@@ -493,7 +505,7 @@
         <div
           class="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"
         ></div>
-        <p class="text-gray-600">Loading QR code...</p>
+        <p class="text-gray-600">{{ "adminCourses.loadingQr" | translate }}</p>
       </div>
 
       <!-- QR Code Content -->
@@ -510,7 +522,11 @@
               class="fas fa-spinner fa-spin mr-2"
             ></i>
             <i *ngIf="!attendanceQRLoading" class="fas fa-sync-alt mr-2"></i>
-            {{ attendanceQRLoading ? ("adminCourses.reloading" | translate) : ("adminCourses.reloadQR" | translate) }}
+            {{
+              attendanceQRLoading
+                ? ("adminCourses.reloading" | translate)
+                : ("adminCourses.reloadQR" | translate)
+            }}
           </button>
         </div>
 
@@ -545,7 +561,9 @@
             <div class="flex items-center gap-3">
               <i class="fas fa-clock text-lg"></i>
               <div class="text-center">
-                <div class="text-sm font-medium">Next refresh in</div>
+                <div class="text-sm font-medium">
+                  {{ "adminCourses.nextRefresh" | translate }}
+                </div>
                 <div class="text-2xl font-bold">{{ qrCountdown }}s</div>
               </div>
               <div
@@ -557,30 +575,44 @@
 
         <!-- Course Info -->
         <div class="text-left bg-gray-50 rounded-lg p-4 mb-4">
-          <h4 class="font-semibold text-gray-900 mb-2">Course Information</h4>
+          <h4 class="font-semibold text-gray-900 mb-2">
+            {{ "adminCourses.courseInformation" | translate }}
+          </h4>
           <div class="space-y-2 text-sm text-gray-700">
             <div>
-              <span class="font-medium">Course:</span>
+              <span class="font-medium">{{
+                "adminCourses.courseInfo.course" | translate
+              }}</span>
               {{ selectedCourseForQR?.title }}
             </div>
             <div *ngIf="attendanceQRData.courseId">
-              <span class="font-medium">Course ID:</span>
+              <span class="font-medium">{{
+                "adminCourses.courseInfo.courseId" | translate
+              }}</span>
               {{ attendanceQRData.courseId }}
             </div>
             <div *ngIf="attendanceQRData.mimeType">
-              <span class="font-medium">File Type:</span>
+              <span class="font-medium">{{
+                "adminCourses.courseInfo.fileType" | translate
+              }}</span>
               {{ attendanceQRData.mimeType }}
             </div>
             <div *ngIf="attendanceQRData.size">
-              <span class="font-medium">File Size:</span>
+              <span class="font-medium">{{
+                "adminCourses.courseInfo.fileSize" | translate
+              }}</span>
               {{ (attendanceQRData.size / 1024).toFixed(1) }} KB
             </div>
             <div *ngIf="attendanceQRData.validUntil">
-              <span class="font-medium">Valid Until:</span>
+              <span class="font-medium">{{
+                "adminCourses.courseInfo.validUntil" | translate
+              }}</span>
               {{ attendanceQRData.validUntil | date : "medium" }}
             </div>
             <div *ngIf="attendanceQRData.createdAt">
-              <span class="font-medium">Generated:</span>
+              <span class="font-medium">{{
+                "adminCourses.courseInfo.generated" | translate
+              }}</span>
               {{ attendanceQRData.createdAt | date : "medium" }}
             </div>
           </div>
@@ -588,10 +620,11 @@
 
         <!-- Instructions -->
         <div class="text-sm text-gray-600 bg-blue-50 rounded-lg p-4">
-          <h4 class="font-semibold text-blue-900 mb-2">Instructions</h4>
+          <h4 class="font-semibold text-blue-900 mb-2">
+            {{ "adminCourses.instructions" | translate }}
+          </h4>
           <p class="text-blue-800">
-            Students can scan this QR code to mark their attendance for this
-            course. The QR code should be displayed during class sessions.
+            {{ "adminCourses.instructionsText" | translate }}
           </p>
         </div>
       </div>
@@ -602,12 +635,14 @@
         class="text-center py-8"
       >
         <i class="fas fa-exclamation-triangle text-red-500 text-4xl mb-4"></i>
-        <p class="text-gray-600">Failed to load QR code</p>
+        <p class="text-gray-600">
+          {{ "adminCourses.qrCodeError" | translate }}
+        </p>
         <button
           (click)="showAttendanceQR(selectedCourseForQR!)"
           class="mt-4 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors"
         >
-          Try Again
+          {{ "adminCourses.tryAgain" | translate }}
         </button>
       </div>
 
@@ -617,7 +652,7 @@
           (click)="closeAttendanceQRPopup()"
           class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg transition-colors"
         >
-          Close
+          {{ "common.close" | translate }}
         </button>
       </div>
     </div>

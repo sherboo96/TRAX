@@ -9,7 +9,8 @@
     <div *ngIf="showSearch" class="flex items-center w-1/3">
       <div class="relative w-full">
         <div
-          class="absolute inset-y-0 left-0 flex items-center pl-2 pointer-events-none"
+          class="absolute inset-y-0 flex items-center pointer-events-none"
+          [ngClass]="{ 'left-0 pl-2': !isRtl, 'right-0 pr-2': isRtl }"
         >
           <i class="fas fa-search text-gray-400 text-sm"></i>
         </div>
@@ -17,33 +18,34 @@
           type="text"
           [(ngModel)]="searchTerm"
           (keyup)="onSearch()"
-          placeholder="Search..."
-          class="form-control w-full border border-gray-300 rounded-lg py-1.5 pl-8 pr-3 text-sm focus:ring focus:ring-opacity-50"
+          [placeholder]="'dataTable.searchPlaceholder' | translate"
+          class="form-control w-full border border-gray-300 rounded-lg py-1.5 text-sm focus:ring focus:ring-opacity-50"
+          [ngClass]="{ 'pl-8 pr-3': !isRtl, 'pr-8 pl-3': isRtl }"
         />
       </div>
     </div>
 
     <!-- Action Buttons -->
-    <div class="flex items-center space-x-2">
+    <div class="flex items-center gap-2">
       <!-- Add Button -->
       <button
         (click)="onAdd()"
-        class="bg-primary-600 hover:bg-primary-700 text-white px-3 py-1.5 rounded-lg flex items-center space-x-1.5 transition-colors duration-200 text-sm"
-        title="Add New Item"
+        class="bg-primary-600 hover:bg-primary-700 text-white px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors duration-200 text-sm"
+        [title]="'common.addNew' | translate"
       >
         <i class="fas fa-plus h-3 w-3"></i>
-        <span>Add</span>
+        <span>{{ "common.add" | translate }}</span>
       </button>
 
       <!-- Refresh Button -->
       <button
         *ngIf="showRefresh"
         (click)="onRefresh()"
-        class="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1.5 rounded-lg flex items-center space-x-1.5 transition-colors duration-200 text-sm"
-        title="Refresh Data"
+        class="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors duration-200 text-sm"
+        [title]="'common.refresh' | translate"
       >
         <i class="fas fa-sync-alt h-3 w-3"></i>
-        <span>Refresh</span>
+        <span>{{ "common.refresh" | translate }}</span>
       </button>
     </div>
   </div>
@@ -87,18 +89,19 @@
             [class.cursor-pointer]="column.sortable"
             [class.hover:bg-gray-100]="column.sortable"
             [class.select-none]="column.sortable"
-            [class.text-left]="column.align !== 'right'"
+            [class.text-left]="!isRtl && column.align !== 'right'"
             [class.text-center]="column.align === 'center'"
-            [class.text-right]="column.align === 'right'"
+            [class.text-right]="isRtl || column.align === 'right'"
             [style.width]="column.width"
             (click)="column.sortable ? onSort(column.key) : null"
           >
             <div
-              class="flex items-center space-x-1"
+              class="flex items-center gap-1"
               [class.justify-center]="column.align === 'center'"
-              [class.justify-end]="column.align === 'right'"
+              [class.justify-end]="isRtl || column.align === 'right'"
+              [class.flex-row-reverse]="isRtl && column.align !== 'center'"
             >
-              <span>{{ column.label }}</span>
+              <span>{{ column.label | translate }}</span>
               <i
                 *ngIf="column.sortable"
                 class="fas fa-sort text-gray-400"
@@ -119,9 +122,9 @@
           <td
             *ngFor="let column of columns"
             [class]="'px-6 py-4 whitespace-nowrap text-sm'"
-            [class.text-left]="column.align !== 'right'"
+            [class.text-left]="!isRtl && column.align !== 'right'"
             [class.text-center]="column.align === 'center'"
-            [class.text-right]="column.align === 'right'"
+            [class.text-right]="isRtl || column.align === 'right'"
           >
             <!-- Avatar Type -->
             <div *ngIf="column.type === 'avatar'" class="flex items-center">
@@ -144,7 +147,7 @@
                   </span>
                 </div>
               </div>
-              <div class="ml-4">
+              <div [ngClass]="{ 'ml-4': !isRtl, 'mr-4': isRtl }">
                 <div class="text-sm font-medium text-gray-900">
                   {{ getCellValue(item, column) }}
                 </div>
@@ -171,20 +174,23 @@
             <!-- Actions Type -->
             <div
               *ngIf="column.type === 'actions'"
-              class="flex items-center justify-end space-x-2"
+              class="flex items-center justify-end gap-2 actions-row"
             >
               <ng-container *ngFor="let action of actions">
                 <button
                   *ngIf="!action.show || action.show(item)"
                   (click)="onActionClick(action.action, item)"
                   [class]="
-                    'inline-flex items-center px-3 py-1.5 border rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-opacity-50 ' +
+                    'inline-flex items-center px-3 py-1.5 border rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-opacity-50 focus:color-white' +
                     getActionColorClass(action.color)
                   "
-                  [title]="action.label"
+                  [title]="(action.label | translate) || ''"
                 >
-                  <i class="{{ action.icon }} mr-1"></i>
-                  <span class="text-xs">{{ action.label }}</span>
+                  <i
+                    class="{{ action.icon }}"
+                    [ngClass]="{ 'mr-1': !isRtl, 'ml-1': isRtl }"
+                  ></i>
+                  <span class="text-xs">{{ action.label | translate }}</span>
                 </button>
               </ng-container>
             </div>
@@ -209,48 +215,69 @@
   >
     <div class="text-sm text-gray-500 mb-2 sm:mb-0">
       <div>
-        Showing {{ (pagination.currentPage - 1) * pagination.pageSize + 1 }} to
+        {{ "dataTable.footer.showing" | translate }}
+        {{ (pagination.currentPage - 1) * pagination.pageSize + 1 }}
+        {{ "dataTable.footer.to" | translate }}
         {{
           Math.min(
             pagination.currentPage * pagination.pageSize,
             pagination.totalItems
           )
         }}
-        of {{ pagination.totalItems }} entries
+        {{ "dataTable.footer.of" | translate }}
+        {{ pagination.totalItems }}
+        {{ "dataTable.footer.entries" | translate }}
         <span *ngIf="searchTerm.trim()" class="text-blue-600">
-          (filtered)
+          ({{ "dataTable.footer.filtered" | translate }})
         </span>
       </div>
     </div>
-    <div class="flex items-center space-x-2">
+    <div class="flex items-center gap-2">
       <select
         [(ngModel)]="pagination.pageSize"
         (ngModelChange)="onPageSizeChange($event)"
         class="text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-primary-500"
       >
-        <option [value]="5">5 per page</option>
-        <option [value]="10">10 per page</option>
-        <option [value]="20">20 per page</option>
-        <option [value]="50">50 per page</option>
+        <option [value]="5">
+          5 {{ "dataTable.footer.perPage" | translate }}
+        </option>
+        <option [value]="10">
+          10 {{ "dataTable.footer.perPage" | translate }}
+        </option>
+        <option [value]="20">
+          20 {{ "dataTable.footer.perPage" | translate }}
+        </option>
+        <option [value]="50">
+          50 {{ "dataTable.footer.perPage" | translate }}
+        </option>
       </select>
-      <div class="flex space-x-1">
+      <div class="flex gap-1">
         <button
           class="px-3 py-1 rounded border border-gray-300 text-sm hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
           [disabled]="pagination.currentPage === 1"
           (click)="onPageChange(1)"
-          title="First Page"
+          [title]="'dataTable.footer.firstPage' | translate"
         >
-          <i class="fas fa-angle-double-left"></i>
+          <i
+            class="fas"
+            [ngClass]="{
+              'fa-angle-double-left': !isRtl,
+              'fa-angle-double-right': isRtl
+            }"
+          ></i>
         </button>
         <button
           class="px-3 py-1 rounded border border-gray-300 text-sm hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
           [disabled]="pagination.currentPage === 1"
           (click)="onPageChange(pagination.currentPage - 1)"
-          title="Previous Page"
+          [title]="'dataTable.footer.prevPage' | translate"
         >
-          <i class="fas fa-chevron-left"></i>
+          <i
+            class="fas"
+            [ngClass]="{ 'fa-chevron-left': !isRtl, 'fa-chevron-right': isRtl }"
+          ></i>
         </button>
-        <div class="flex space-x-1">
+        <div class="flex gap-1">
           <button
             *ngFor="let page of getPaginationRange()"
             (click)="onPageChange(page)"
@@ -269,17 +296,26 @@
           class="px-3 py-1 rounded border border-gray-300 text-sm hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
           [disabled]="pagination.currentPage === pagination.totalPages"
           (click)="onPageChange(pagination.currentPage + 1)"
-          title="Next Page"
+          [title]="'dataTable.footer.nextPage' | translate"
         >
-          <i class="fas fa-chevron-right"></i>
+          <i
+            class="fas"
+            [ngClass]="{ 'fa-chevron-right': !isRtl, 'fa-chevron-left': isRtl }"
+          ></i>
         </button>
         <button
           class="px-3 py-1 rounded border border-gray-300 text-sm hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
           [disabled]="pagination.currentPage === pagination.totalPages"
           (click)="onPageChange(pagination.totalPages)"
-          title="Last Page"
+          [title]="'dataTable.footer.lastPage' | translate"
         >
-          <i class="fas fa-angle-double-right"></i>
+          <i
+            class="fas"
+            [ngClass]="{
+              'fa-angle-double-right': !isRtl,
+              'fa-angle-double-left': isRtl
+            }"
+          ></i>
         </button>
       </div>
     </div>

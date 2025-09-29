@@ -1,7 +1,9 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { environment } from '../../../../environments/environment';
+import { TranslatePipe } from '../../../../locale/translation.pipe';
+import { TranslationService } from '../../../../locale/translation.service';
 
 export interface TableColumn {
   key: string;
@@ -32,7 +34,7 @@ export interface PaginationInfo {
   templateUrl: './data-table.component.html',
   styleUrls: ['./data-table.component.css'],
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TranslatePipe],
 })
 export class DataTableComponent implements OnInit {
   @Input() columns: TableColumn[] = [];
@@ -62,6 +64,8 @@ export class DataTableComponent implements OnInit {
 
   sortField: string = '';
   sortDirection: 'asc' | 'desc' = 'asc';
+
+  constructor(private translationService: TranslationService) {}
 
   ngOnInit(): void {
     // Initialize sort field from first sortable column
@@ -108,17 +112,22 @@ export class DataTableComponent implements OnInit {
   getActionColorClass(color: string): string {
     const colorMap: { [key: string]: string } = {
       primary:
-        'border-primary-600 text-primary-600 hover:bg-primary-600 focus:ring-primary-600',
+        'border-primary-600 text-primary-600 hover:bg-primary-600 hover:text-white focus:ring-primary-600',
       secondary:
-        'border-gray-600 text-gray-600 hover:bg-gray-600 focus:ring-gray-600',
+        'border-gray-600 text-gray-600 hover:bg-gray-600 hover:text-white focus:ring-gray-600',
       success:
-        'border-green-600 text-green-600 hover:bg-green-600 focus:ring-green-600',
+        'border-green-600 text-green-600 hover:bg-green-600 hover:text-white focus:ring-green-600',
       warning:
-        'border-yellow-600 text-yellow-600 hover:bg-yellow-600 focus:ring-yellow-600',
-      danger: 'border-red-600 text-red-600 hover:bg-red-600 focus:ring-red-600',
-      info: 'border-blue-600 text-blue-600 hover:bg-blue-600 focus:ring-blue-600',
+        'border-yellow-600 text-yellow-600 hover:bg-yellow-600 hover:text-white focus:ring-yellow-600',
+      danger:
+        'border-red-600 text-red-600 hover:bg-red-600 hover:text-white focus:ring-red-600',
+      info: 'border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white focus:ring-blue-600',
     };
     return colorMap[color] || colorMap['primary'];
+  }
+
+  get isRtl(): boolean {
+    return this.translationService.isRTL();
   }
 
   getPaginationRange(): number[] {

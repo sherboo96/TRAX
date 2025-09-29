@@ -12,6 +12,7 @@ import { AdminDashboardComponent } from './features/admin/components/admin-dashb
 import { AdminDepartmentsComponent } from './features/admin/components/admin-departments/admin-departments.component';
 import { AdminInstitutionsComponent } from './features/admin/components/admin-institutions/admin-institutions.component';
 import { AdminInstructorsComponent } from './features/admin/components/admin-instructors/admin-instructors.component';
+import { AdminLocationsComponent } from './features/admin/components/admin-locations/admin-locations.component';
 import { AdminOrganizationsComponent } from './features/admin/components/admin-organizations/admin-organizations.component';
 import { AdminRequestsComponent } from './features/admin/components/admin-requests/admin-requests.component';
 import { AdminRolesComponent } from './features/admin/components/admin-roles/admin-roles.component';
@@ -163,6 +164,12 @@ export const routes: Routes = [
   },
 
   {
+    path: 'admin/locations',
+    component: AdminLocationsComponent,
+    canActivate: [AuthGuard, RoleGuard],
+  },
+
+  {
     path: 'admin/roles',
     component: AdminRolesComponent,
     canActivate: [AuthGuard, RoleGuard],
@@ -202,6 +209,12 @@ export const routes: Routes = [
   {
     path: 'moderator/institutions',
     component: AdminInstitutionsComponent,
+    canActivate: [AuthGuard, ModeratorGuard],
+  },
+
+  {
+    path: 'moderator/locations',
+    component: AdminLocationsComponent,
     canActivate: [AuthGuard, ModeratorGuard],
   },
 

@@ -1,9 +1,9 @@
-import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
+import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { PaginatedResponse } from '../models/pagination.model';
-import { map } from 'rxjs/operators';
 
 export interface CourseFilterRequest {
   title?: string;
@@ -32,6 +32,7 @@ export interface Course {
   title: string;
   description: string;
   location: string;
+  locationId?: number; // optional for create/update
   startDate: string;
   endDate: string;
   timeFrom: string;
@@ -102,7 +103,12 @@ export class CourseService {
     // Add all the course properties to FormData
     if (course.title) formData.append('Title', course.title);
     if (course.description) formData.append('Description', course.description);
-    if (course.location) formData.append('Location', course.location);
+    // Prefer sending LocationId when provided (numeric foreign key)
+    if (course.locationId !== undefined && course.locationId !== null) {
+      formData.append('LocationId', course.locationId.toString());
+    } else if (course.location) {
+      formData.append('Location', course.location);
+    }
     if (course.startDate) formData.append('StartDate', course.startDate);
     if (course.endDate) formData.append('EndDate', course.endDate);
     if (course.timeFrom) formData.append('TimeFrom', course.timeFrom);
@@ -181,7 +187,12 @@ export class CourseService {
     // Add all the course properties to FormData
     if (course.title) formData.append('Title', course.title);
     if (course.description) formData.append('Description', course.description);
-    if (course.location) formData.append('Location', course.location);
+    // Prefer sending LocationId when provided (numeric foreign key)
+    if (course.locationId !== undefined && course.locationId !== null) {
+      formData.append('LocationId', course.locationId.toString());
+    } else if (course.location) {
+      formData.append('Location', course.location);
+    }
     if (course.startDate) formData.append('StartDate', course.startDate);
     if (course.endDate) formData.append('EndDate', course.endDate);
     if (course.timeFrom) formData.append('TimeFrom', course.timeFrom);

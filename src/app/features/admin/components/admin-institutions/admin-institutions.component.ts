@@ -1,25 +1,25 @@
-import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { LoadingComponent } from '../../../../shared/components/loading/loading.component';
-import { ModalComponent } from '../../../../shared/components/modal/modal.component';
-import {
-  DataTableComponent,
-  TableColumn,
-  TableAction,
-  PaginationInfo,
-} from '../../../../shared/components/data-table/data-table.component';
-import { AuthService } from '../../../../core/services/auth.service';
-import { InstitutionService } from '../../../../core/services/institution.service';
+import { RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { User, UserRole } from '../../../../core/models/user.model';
+import { TranslatePipe } from '../../../../../locale/translation.pipe';
 import {
-  Institution,
   CreateInstitutionDto,
+  Institution,
   UpdateInstitutionDto,
 } from '../../../../core/models/institution.model';
 import { PaginationRequest } from '../../../../core/models/pagination.model';
+import { User, UserRole } from '../../../../core/models/user.model';
+import { AuthService } from '../../../../core/services/auth.service';
+import { InstitutionService } from '../../../../core/services/institution.service';
+import {
+  DataTableComponent,
+  PaginationInfo,
+  TableAction,
+  TableColumn,
+} from '../../../../shared/components/data-table/data-table.component';
+import { ModalComponent } from '../../../../shared/components/modal/modal.component';
 
 @Component({
   selector: 'app-admin-institutions',
@@ -32,6 +32,7 @@ import { PaginationRequest } from '../../../../core/models/pagination.model';
     FormsModule,
     ModalComponent,
     DataTableComponent,
+    TranslatePipe,
   ],
 })
 export class AdminInstitutionsComponent implements OnInit {
@@ -54,21 +55,21 @@ export class AdminInstitutionsComponent implements OnInit {
   tableColumns: TableColumn[] = [
     {
       key: 'nameEn',
-      label: 'Name (English)',
+      label: 'institutions.columns.nameEn',
       sortable: true,
       type: 'avatar',
       width: '30%',
     },
     {
       key: 'nameAr',
-      label: 'Name (Arabic)',
+      label: 'institutions.columns.nameAr',
       sortable: true,
       type: 'text',
       width: '25%',
     },
     {
       key: 'actions',
-      label: 'Actions',
+      label: 'common.actions',
       sortable: false,
       type: 'actions',
       align: 'right',
@@ -78,13 +79,13 @@ export class AdminInstitutionsComponent implements OnInit {
 
   tableActions: TableAction[] = [
     {
-      label: 'Edit',
+      label: 'common.edit',
       icon: 'fas fa-edit',
       color: 'info',
       action: 'edit',
     },
     {
-      label: 'Delete',
+      label: 'common.delete',
       icon: 'fas fa-trash',
       color: 'danger',
       action: 'delete',

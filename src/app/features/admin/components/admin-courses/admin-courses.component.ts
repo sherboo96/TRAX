@@ -98,8 +98,7 @@ export class AdminCoursesComponent implements OnInit {
 
   private initializeFilterOptions(): void {
     this.categories = [
-      this.translationService.translate('adminCourses.filters.category') +
-        ' - All',
+      this.translationService.translate('adminCourses.filters.categoryAll'),
       'Technology',
       'Business',
       'Design',
@@ -108,16 +107,14 @@ export class AdminCoursesComponent implements OnInit {
     ];
 
     this.levels = [
-      this.translationService.translate('adminCourses.filters.level') +
-        ' - All',
+      this.translationService.translate('adminCourses.filters.levelAll'),
       this.translationService.translate('adminCourses.level.beginner'),
       this.translationService.translate('adminCourses.level.intermediate'),
       this.translationService.translate('adminCourses.level.advanced'),
     ];
 
     this.statuses = [
-      this.translationService.translate('adminCourses.filters.status') +
-        ' - All',
+      this.translationService.translate('adminCourses.filters.statusAll'),
       this.translationService.translate('adminCourses.status.draft'),
       this.translationService.translate('adminCourses.status.published'),
       this.translationService.translate('adminCourses.status.inProgress'),
@@ -319,7 +316,11 @@ export class AdminCoursesComponent implements OnInit {
     }
 
     // Add category filter
-    if (this.selectedCategory && !this.selectedCategory.includes('All')) {
+    if (
+      this.selectedCategory &&
+      this.selectedCategory !==
+        this.translationService.translate('adminCourses.filters.categoryAll')
+    ) {
       const categoryMap: { [key: string]: number } = {
         Technology: 1,
         Business: 2,
@@ -331,7 +332,11 @@ export class AdminCoursesComponent implements OnInit {
     }
 
     // Add level filter
-    if (this.selectedLevel && !this.selectedLevel.includes('All')) {
+    if (
+      this.selectedLevel &&
+      this.selectedLevel !==
+        this.translationService.translate('adminCourses.filters.levelAll')
+    ) {
       const levelMap: { [key: string]: number } = {
         [this.translationService.translate('adminCourses.level.beginner')]: 1,
         [this.translationService.translate(
@@ -343,7 +348,11 @@ export class AdminCoursesComponent implements OnInit {
     }
 
     // Add status filter
-    if (this.selectedStatus && !this.selectedStatus.includes('All')) {
+    if (
+      this.selectedStatus &&
+      this.selectedStatus !==
+        this.translationService.translate('adminCourses.filters.statusAll')
+    ) {
       const statusMap: { [key: string]: number } = {
         [this.translationService.translate('adminCourses.status.draft')]: 1,
         [this.translationService.translate('adminCourses.status.published')]: 2,

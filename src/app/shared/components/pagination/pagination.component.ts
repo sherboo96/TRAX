@@ -1,5 +1,6 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { TranslatePipe } from '../../../../locale/translation.pipe';
 
 export interface PaginationInfo {
   currentPage: number;
@@ -10,28 +11,38 @@ export interface PaginationInfo {
 @Component({
   selector: 'app-pagination',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslatePipe],
   template: `
     <div class="flex items-center justify-between">
-      <div class="flex items-center space-x-4">
+      <div class="flex items-center gap-4">
         <span class="text-sm text-gray-700">
-          Showing {{ startItem }} to {{ endItem }} of
-          {{ pagination.total }} results
+          {{ 'dataTable.footer.showing' | translate }} {{ startItem }}
+          {{ 'dataTable.footer.to' | translate }} {{ endItem }}
+          {{ 'dataTable.footer.of' | translate }} {{ pagination.total }}
+          {{ 'dataTable.footer.entries' | translate }}
         </span>
         <select
           (change)="onPageSizeChange($event)"
           [value]="pagination.pageSize"
           class="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         >
-          <option value="10">10 per page</option>
-          <option value="25">25 per page</option>
-          <option value="50">50 per page</option>
-          <option value="100">100 per page</option>
+          <option value="10">
+            10 {{ 'dataTable.footer.perPage' | translate }}
+          </option>
+          <option value="25">
+            25 {{ 'dataTable.footer.perPage' | translate }}
+          </option>
+          <option value="50">
+            50 {{ 'dataTable.footer.perPage' | translate }}
+          </option>
+          <option value="100">
+            100 {{ 'dataTable.footer.perPage' | translate }}
+          </option>
         </select>
       </div>
 
       <div class="flex justify-center items-center">
-        <nav class="flex items-center space-x-3 bg-white rounded-xl">
+        <nav class="flex items-center gap-3 bg-white rounded-xl">
           <button
             class="px-4 py-2 text-sm font-semibold text-gray-600 bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200 rounded-lg hover:from-gray-100 hover:to-gray-200 hover:text-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105"
             [disabled]="pagination.currentPage === 1"
@@ -50,10 +61,10 @@ export interface PaginationInfo {
                 d="M15 19l-7-7 7-7"
               ></path>
             </svg>
-            Previous
+            {{ 'dataTable.footer.prevPage' | translate }}
           </button>
 
-          <div class="flex items-center space-x-2">
+          <div class="flex items-center gap-2">
             <button
               *ngFor="let page of getPageNumbers()"
               class="px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200 transform hover:scale-105"
@@ -73,7 +84,7 @@ export interface PaginationInfo {
             [disabled]="pagination.currentPage === totalPages"
             (click)="nextPage()"
           >
-            Next
+            {{ 'dataTable.footer.nextPage' | translate }}
             <svg
               class="w-4 h-4 ml-2 inline"
               fill="none"

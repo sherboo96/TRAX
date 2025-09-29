@@ -6,6 +6,17 @@
 @tailwind utilities;
 
 /* You can add global styles to this file, and also import other style files */
+/* RTL global adjustments */
+:root[dir="rtl"] {
+  /* Flip Tailwind space-x utilities globally in RTL */
+  --tw-space-x-reverse: 1;
+}
+
+[dir="rtl"] body {
+  /* Arabic-friendly font stack fallback */
+  font-family: "Cairo", "Tajawal", "Noto Naskh Arabic", "Segoe UI", Tahoma,
+    Arial, Helvetica, sans-serif;
+}
 
 /* Apply Poppins as default font */
 body {

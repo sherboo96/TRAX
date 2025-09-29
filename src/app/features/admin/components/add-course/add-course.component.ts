@@ -13,13 +13,20 @@ import {
 } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { environment } from '../../../../../environments/environment';
+import { TranslatePipe } from '../../../../../locale/translation.pipe';
+import { TranslationService } from '../../../../../locale/translation.service';
 import { Department } from '../../../../core/models/department.model';
 import { Instructor } from '../../../../core/models/instructor.model';
+import {
+  Location,
+  LocationCategory,
+} from '../../../../core/models/location.model';
 import { User, UserRole } from '../../../../core/models/user.model';
 import { AuthService } from '../../../../core/services/auth.service';
 import { CourseService } from '../../../../core/services/course.service';
 import { DepartmentService } from '../../../../core/services/department.service';
 import { InstructorService } from '../../../../core/services/instructor.service';
+import { LocationService } from '../../../../core/services/location.service';
 import { AiHelperComponent } from '../../../../shared/components/ai-helper/ai-helper.component';
 
 // Add this helper function at the top of the class (after imports, before the class definition)
@@ -58,6 +65,7 @@ function nonEmptyValidator(control: AbstractControl) {
     ReactiveFormsModule,
     HttpClientModule,
     AiHelperComponent,
+    TranslatePipe,
   ],
 })
 export class AddCourseComponent implements OnInit {
@@ -78,12 +86,14 @@ export class AddCourseComponent implements OnInit {
   // Real data from APIs
   instructors: Instructor[] = [];
   departments: Department[] = [];
+  locations: Location[] = [];
+  loadingLocations = false;
 
   // Form options - CourseCategory enum values
   categories = [
-    { id: 1, name: 'On Site', icon: '🏢' },
-    { id: 2, name: 'Online', icon: '💻' },
-    { id: 3, name: 'In a Place', icon: '📍' },
+    { id: 1, name: 'OnSite', icon: '🏢' },
+    { id: 2, name: 'OutSite', icon: '🏬' },
+    { id: 3, name: 'Online Video', icon: '🎥' },
     { id: 4, name: 'Abroad', icon: '✈️' },
   ];
 
@@ -108,17 +118,27 @@ export class AddCourseComponent implements OnInit {
 
   // Form sections for better organization
   formSections = [
-    { id: 'basic', title: 'Basic Information', icon: '📋', completed: false },
+    {
+      id: 'basic',
+      title: 'adminAddCourse.sections.basic',
+      icon: '📋',
+      completed: false,
+    },
     {
       id: 'schedule',
-      title: 'Schedule & Duration',
+      title: 'adminAddCourse.sections.schedule',
       icon: '📅',
       completed: false,
     },
-    { id: 'details', title: 'Course Details', icon: '⚙️', completed: false },
+    {
+      id: 'details',
+      title: 'adminAddCourse.sections.details',
+      icon: '⚙️',
+      completed: false,
+    },
     {
       id: 'content',
-      title: 'Content & Assignments',
+      title: 'adminAddCourse.sections.content',
       icon: '📚',
       completed: false,
     },
@@ -136,24 +156,25 @@ export class AddCourseComponent implements OnInit {
     private departmentService: DepartmentService,
     private authService: AuthService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private locationService: LocationService,
+    private translationService: TranslationService
   ) {
     this.courseForm = this.fb.group({
       title: ['', [Validators.required, Validators.minLength(3)]],
       description: ['', [Validators.required, Validators.minLength(10)]],
-      location: ['', Validators.required],
+      locationId: ['', Validators.required],
       startDate: ['', Validators.required],
       endDate: ['', Validators.required],
       timeFrom: ['', Validators.required],
       timeTo: ['', Validators.required],
-      availableSeats: [1000, [Validators.required, Validators.min(1)]],
+      availableSeats: [15, [Validators.required, Validators.min(1)]],
       category: [1, Validators.required],
       onlineRepeated: [true],
       level: [1, Validators.required],
       duration: ['', Validators.required],
       price: [0, [Validators.required, Validators.min(0)]],
       kpiWeight: [0, [Validators.required, Validators.min(0)]],
-      status: [1, Validators.required],
       requirements: this.fb.array([]),
       learningOutcomes: this.fb.array([]),
       language: ['en', Validators.required],
@@ -161,6 +182,10 @@ export class AddCourseComponent implements OnInit {
       targetDepartmentIds: this.fb.array([]),
       instructorIds: this.fb.array([]),
     });
+  }
+
+  get isRtl(): boolean {
+    return this.translationService.isRTL();
   }
 
   ngOnInit(): void {
@@ -180,12 +205,51 @@ export class AddCourseComponent implements OnInit {
 
     this.loadInstructors();
     this.loadDepartments();
+    this.setupCategoryLocationCascade();
 
     // Subscribe to form value changes to ensure data persistence
     this.courseForm.valueChanges.subscribe(() => {
       // Update section completion on any form change
       this.updateSectionCompletion();
     });
+  }
+
+  private setupCategoryLocationCascade(): void {
+    const categoryControl = this.courseForm.get('category');
+    if (categoryControl) {
+      // Initial load
+      if (categoryControl.value) {
+        this.loadLocationsByCategory(categoryControl.value as number);
+      }
+      categoryControl.valueChanges.subscribe((catId: number) => {
+        this.courseForm.patchValue({ locationId: '' }, { emitEvent: false });
+        this.loadLocationsByCategory(catId);
+      });
+    }
+  }
+
+  private loadLocationsByCategory(catId: number): void {
+    if (!catId) {
+      this.locations = [];
+      return;
+    }
+    this.loadingLocations = true;
+    this.locationService
+      .getByCategory(catId as unknown as LocationCategory)
+      .subscribe({
+        next: (res) => {
+          if (res.statusCode === 200) {
+            this.locations = res.result || [];
+          } else {
+            this.locations = [];
+          }
+          this.loadingLocations = false;
+        },
+        error: () => {
+          this.locations = [];
+          this.loadingLocations = false;
+        },
+      });
   }
 
   private initializeForm(): void {
@@ -228,7 +292,7 @@ export class AddCourseComponent implements OnInit {
     this.courseForm.patchValue({
       title: course.title || '',
       description: course.description || '',
-      location: course.location || '',
+      locationId: course.locationId || '',
       startDate: course.startDate
         ? new Date(course.startDate).toISOString().split('T')[0]
         : '',
@@ -244,6 +308,7 @@ export class AddCourseComponent implements OnInit {
       duration: course.duration || '',
       price: course.price || 0,
       kpiWeight: course.kpiWeight || 0,
+      // status always defaults to Draft on create
       status: course.statusId || 1,
       language: course.language || 'en',
       certificate: course.certificate || false,
@@ -600,7 +665,7 @@ export class AddCourseComponent implements OnInit {
         return !!(
           controls['title'].valid &&
           controls['description'].valid &&
-          controls['location'].valid &&
+          controls['locationId'].valid &&
           controls['category'].valid
         );
       case 'schedule':
@@ -615,7 +680,7 @@ export class AddCourseComponent implements OnInit {
       case 'details':
         return !!(
           controls['level'].valid &&
-          controls['status'].valid &&
+          // status removed from form; keep other validations
           controls['price'].valid &&
           controls['kpiWeight'].valid &&
           controls['language'].valid
@@ -647,7 +712,7 @@ export class AddCourseComponent implements OnInit {
       const coursePayload = {
         title: formValue.title,
         description: formValue.description,
-        location: formValue.location,
+        locationId: parseInt(formValue.locationId),
         startDate: new Date(formValue.startDate).toISOString(),
         endDate: new Date(formValue.endDate).toISOString(),
         timeFrom: formValue.timeFrom,
@@ -659,7 +724,7 @@ export class AddCourseComponent implements OnInit {
         duration: formValue.duration,
         price: formValue.price,
         kpiWeight: formValue.kpiWeight,
-        statusId: formValue.status, // API expects statusId, not status
+        statusId: 1, // default to Draft
         requirements: formValue.requirements.filter(
           (req: string) => req.trim() !== ''
         ),
@@ -911,6 +976,28 @@ export class AddCourseComponent implements OnInit {
 
   getLanguageFlag(code: string): string {
     return this.languages.find((lang) => lang.code === code)?.flag || '';
+  }
+
+  // Build i18n key for categories without relying on a custom pipe
+  getCategoryI18nKey(name: string): string {
+    if (!name) return '';
+    // Normalize common variants to our i18n keys
+    const normalized = name
+      .replace(/\s+/g, '')
+      .replace(/[\W_]/g, '')
+      .toLowerCase();
+    switch (normalized) {
+      case 'onsite':
+        return 'onSite';
+      case 'outsite':
+        return 'outSite';
+      case 'onlinevideo':
+        return 'onlineVideo';
+      case 'abroad':
+        return 'abroad';
+      default:
+        return name; // fallback
+    }
   }
 
   // Validation helpers

@@ -1,14 +1,16 @@
+import { CommonModule, Location } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { AuthService } from '../../../../core/services/auth.service';
-import { User } from '../../../../core/models/user.model';
-import { CourseService } from '../../../../core/services/course.service';
-import { QrScannerComponent } from '../../../../shared/components/qr-scanner/qr-scanner.component';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { AiHelperComponent } from '../../../../shared/components/ai-helper/ai-helper.component';
 import { environment } from '../../../../../environments/environment';
+import { TranslatePipe } from '../../../../../locale/translation.pipe';
+import { TranslationService } from '../../../../../locale/translation.service';
+import { User } from '../../../../core/models/user.model';
+import { AuthService } from '../../../../core/services/auth.service';
+import { CourseService } from '../../../../core/services/course.service';
+import { AiHelperComponent } from '../../../../shared/components/ai-helper/ai-helper.component';
+import { QrScannerComponent } from '../../../../shared/components/qr-scanner/qr-scanner.component';
 
 interface CourseResource {
   id: number;
@@ -37,6 +39,8 @@ interface Course {
   title: string;
   description: string;
   location: string;
+  locationId?: number;
+  templateUrl?: string;
   startDate: string;
   endDate: string;
   timeFrom: string;
@@ -116,6 +120,7 @@ interface AttendanceResponse {
     FormsModule,
     QrScannerComponent,
     AiHelperComponent,
+    TranslatePipe,
   ],
 })
 export class CourseDetailsComponent implements OnInit {
@@ -161,8 +166,18 @@ export class CourseDetailsComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private courseService: CourseService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private translationService: TranslationService,
+    private location: Location
   ) {}
+
+  get isRtl(): boolean {
+    return this.translationService.isRTL();
+  }
+
+  goBack(): void {
+    this.location.back();
+  }
 
   ngOnInit(): void {
     this.currentUser = this.authService.currentUserValue;
@@ -212,6 +227,8 @@ export class CourseDetailsComponent implements OnInit {
       title: apiCourse.title,
       description: apiCourse.description,
       location: apiCourse.location,
+      locationId: apiCourse.locationId,
+      templateUrl: apiCourse.templateUrl,
       startDate: apiCourse.startDate,
       endDate: apiCourse.endDate,
       timeFrom: apiCourse.timeFrom,
@@ -1323,5 +1340,19 @@ export class CourseDetailsComponent implements OnInit {
   onCourseQRImageError(event: any): void {
     console.error('Course QR image failed to load:', event);
     this.toastr.error('Failed to load course QR code image');
+  }
+
+  // Get template download URL
+  getTemplateDownloadUrl(): string | null {
+    if (!this.course?.templateUrl) return null;
+    return `${this.imageBaseUrl}${this.course.templateUrl}`;
+  }
+
+  // Download template
+  downloadTemplate(): void {
+    const templateUrl = this.getTemplateDownloadUrl();
+    if (templateUrl) {
+      window.open(templateUrl, '_blank');
+    }
   }
 }

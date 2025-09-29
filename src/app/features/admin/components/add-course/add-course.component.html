@@ -27,13 +27,17 @@
           </div>
           <div>
             <h1 class="text-3xl font-bold text-gray-900">
-              {{ isEditMode ? "Edit Course" : "Create New Course" }}
+              {{
+                isEditMode
+                  ? ("adminAddCourse.header.editTitle" | translate)
+                  : ("adminAddCourse.header.createTitle" | translate)
+              }}
             </h1>
             <p class="text-gray-500 mt-1">
               {{
                 isEditMode
-                  ? "Update and modify your course details"
-                  : "Design and configure your course with our comprehensive form"
+                  ? ("adminAddCourse.header.editSubtitle" | translate)
+                  : ("adminAddCourse.header.createSubtitle" | translate)
               }}
             </p>
           </div>
@@ -43,7 +47,8 @@
           class="inline-flex items-center px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 shadow-sm"
         >
           <svg
-            class="w-4 h-4 mr-2"
+            class="w-4 h-4"
+            [ngClass]="isRtl ? 'ml-2' : 'mr-2'"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -52,10 +57,14 @@
               stroke-linecap="round"
               stroke-linejoin="round"
               stroke-width="2"
-              d="M10 19l-7-7m0 0l7-7m-7 7h18"
+              [attr.d]="
+                isRtl
+                  ? 'M14 5l7 7m0 0l-7 7m7-7H3'
+                  : 'M10 19l-7-7m0 0l7-7m-7 7h18'
+              "
             ></path>
           </svg>
-          Back to Courses
+          {{ "adminAddCourse.header.back" | translate }}
         </button>
       </div>
     </div>
@@ -65,10 +74,13 @@
       <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
         <div class="flex items-center justify-between mb-4">
           <h3 class="text-lg font-semibold text-gray-900">
-            Course Creation Progress
+            {{ "adminAddCourse.progress.title" | translate }}
           </h3>
           <div class="text-sm text-gray-500">
-            Step {{ getCurrentStepIndex() + 1 }} of {{ formSections.length }}
+            {{ "adminAddCourse.progress.step" | translate }}
+            {{ getCurrentStepIndex() + 1 }}
+            {{ "adminAddCourse.progress.of" | translate }}
+            {{ formSections.length }}
           </div>
         </div>
         <div class="flex items-center space-x-2">
@@ -104,7 +116,7 @@
                   "
                   class="text-xs font-medium"
                 >
-                  {{ section.title }}
+                  {{ section.title | translate }}
                 </p>
               </div>
             </div>
@@ -134,10 +146,10 @@
             </div>
             <div>
               <h2 class="text-2xl font-bold text-gray-900">
-                Basic Information
+                {{ "adminAddCourse.sections.basic" | translate }}
               </h2>
               <p class="text-gray-500 mt-1">
-                Start by providing the essential details about your course
+                {{ "adminAddCourse.sections.basicSubtitle" | translate }}
               </p>
             </div>
           </div>
@@ -149,13 +161,15 @@
             <label
               for="title"
               class="block text-sm font-semibold text-gray-700 mb-3"
-              >Course Title *</label
+              >{{ "adminAddCourse.form.title.label" | translate }}</label
             >
             <input
               type="text"
               id="title"
               formControlName="title"
-              placeholder="Enter a compelling course title"
+              placeholder="{{
+                'adminAddCourse.form.title.placeholder' | translate
+              }}"
               class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
               [class.border-red-300]="isFieldInvalid('title')"
             />
@@ -171,9 +185,9 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
             <!-- Category -->
             <div class="bg-gray-50 rounded-xl p-6">
-              <label class="block text-sm font-semibold text-gray-700 mb-4"
-                >Category *</label
-              >
+              <label class="block text-sm font-semibold text-gray-700 mb-4">{{
+                "adminAddCourse.form.category.label" | translate
+              }}</label>
               <div class="grid grid-cols-2 gap-3">
                 <button
                   *ngFor="let category of categories"
@@ -187,16 +201,19 @@
                   class="flex items-center p-4 border-2 rounded-xl transition-all duration-200"
                 >
                   <span class="text-xl mr-3">{{ category.icon }}</span>
-                  <span class="font-medium text-sm">{{ category.name }}</span>
+                  <span class="font-medium text-sm">{{
+                    "locations.categories." + getCategoryI18nKey(category.name)
+                      | translate
+                  }}</span>
                 </button>
               </div>
             </div>
 
             <!-- Language -->
             <div class="bg-gray-50 rounded-xl p-6">
-              <label class="block text-sm font-semibold text-gray-700 mb-4"
-                >Language *</label
-              >
+              <label class="block text-sm font-semibold text-gray-700 mb-4">{{
+                "adminAddCourse.form.language.label" | translate
+              }}</label>
               <div class="grid grid-cols-2 gap-3">
                 <button
                   *ngFor="let lang of languages"
@@ -210,7 +227,9 @@
                   class="flex items-center p-4 border-2 rounded-xl transition-all duration-200"
                 >
                   <span class="text-lg mr-3">{{ lang.flag }}</span>
-                  <span class="font-medium text-sm">{{ lang.name }}</span>
+                  <span class="font-medium text-sm">{{
+                    "locale." + lang.code | translate
+                  }}</span>
                 </button>
               </div>
             </div>
@@ -221,13 +240,15 @@
             <label
               for="description"
               class="block text-sm font-semibold text-gray-700 mb-3"
-              >Description *</label
+              >{{ "adminAddCourse.form.description.label" | translate }}</label
             >
             <textarea
               id="description"
               formControlName="description"
               rows="4"
-              placeholder="Provide a detailed description of your course..."
+              placeholder="{{
+                'adminAddCourse.form.description.placeholder' | translate
+              }}"
               class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 resize-none"
               [class.border-red-300]="isFieldInvalid('description')"
             ></textarea>
@@ -239,26 +260,47 @@
             </div>
           </div>
 
-          <!-- Location -->
+          <!-- Location (dependent on Category) -->
           <div class="bg-gray-50 rounded-xl p-6">
             <label
-              for="location"
+              for="locationId"
               class="block text-sm font-semibold text-gray-700 mb-3"
-              >Location *</label
+              >{{ "adminAddCourse.form.location.label" | translate }}</label
             >
-            <input
-              type="text"
-              id="location"
-              formControlName="location"
-              placeholder="e.g., Main Campus, Online, Room 101"
-              class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-              [class.border-red-300]="isFieldInvalid('location')"
-            />
+            <div class="relative">
+              <select
+                id="locationId"
+                formControlName="locationId"
+                class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 appearance-none"
+                [disabled]="loadingLocations || locations.length === 0"
+                [class.border-red-300]="isFieldInvalid('locationId')"
+              >
+                <option value="" disabled selected>
+                  {{
+                    loadingLocations
+                      ? ("adminAddCourse.form.location.loading" | translate)
+                      : locations.length
+                      ? ("adminAddCourse.form.location.placeholder" | translate)
+                      : ("adminAddCourse.form.location.empty" | translate)
+                  }}
+                </option>
+                <option *ngFor="let loc of locations" [value]="loc.id">
+                  {{
+                    isRtl ? loc.nameAr || loc.nameEn : loc.nameEn || loc.nameAr
+                  }}
+                </option>
+              </select>
+              <div
+                class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400"
+              >
+                <i class="fas fa-chevron-down"></i>
+              </div>
+            </div>
             <div
-              *ngIf="isFieldInvalid('location')"
+              *ngIf="isFieldInvalid('locationId')"
               class="mt-2 text-sm text-red-600"
             >
-              {{ getFieldError("location") }}
+              {{ getFieldError("locationId") }}
             </div>
           </div>
 
@@ -267,7 +309,7 @@
             <label
               for="courseImage"
               class="block text-sm font-semibold text-gray-700 mb-3"
-              >Course Image</label
+              >{{ "adminAddCourse.form.image.label" | translate }}</label
             >
             <div class="space-y-4">
               <!-- Image Preview -->
@@ -322,7 +364,9 @@
                       for="courseImage"
                       class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500"
                     >
-                      <span>Upload an image</span>
+                      <span>{{
+                        "adminAddCourse.form.image.upload" | translate
+                      }}</span>
                       <input
                         id="courseImage"
                         name="courseImage"
@@ -332,10 +376,12 @@
                         class="sr-only"
                       />
                     </label>
-                    <span class="pl-1">or drag and drop</span>
+                    <span class="pl-1">{{
+                      "adminAddCourse.form.image.orDrag" | translate
+                    }}</span>
                   </div>
                   <p class="text-xs text-gray-500">
-                    PNG, JPG, GIF, WebP up to 5MB
+                    {{ "adminAddCourse.form.image.hint" | translate }}
                   </p>
                 </div>
               </div>
@@ -359,7 +405,7 @@
                       d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
                     ></path>
                   </svg>
-                  Change Image
+                  {{ "adminAddCourse.form.image.change" | translate }}
                   <input
                     id="courseImageChange"
                     name="courseImageChange"
@@ -386,10 +432,10 @@
             </div>
             <div>
               <h2 class="text-2xl font-bold text-gray-900">
-                Schedule & Duration
+                {{ "adminAddCourse.sections.schedule" | translate }}
               </h2>
               <p class="text-gray-500 mt-1">
-                Set the timing and duration for your course
+                {{ "adminAddCourse.sections.scheduleSubtitle" | translate }}
               </p>
             </div>
           </div>
@@ -401,7 +447,7 @@
             <label
               for="startDate"
               class="block text-sm font-semibold text-gray-700 mb-3"
-              >Start Date *</label
+              >{{ "adminAddCourse.form.startDate.label" | translate }}</label
             >
             <input
               type="date"
@@ -423,7 +469,7 @@
             <label
               for="endDate"
               class="block text-sm font-semibold text-gray-700 mb-3"
-              >End Date *</label
+              >{{ "adminAddCourse.form.endDate.label" | translate }}</label
             >
             <input
               type="date"
@@ -445,7 +491,7 @@
             <label
               for="timeFrom"
               class="block text-sm font-semibold text-gray-700 mb-3"
-              >Start Time *</label
+              >{{ "adminAddCourse.form.timeFrom.label" | translate }}</label
             >
             <input
               type="time"
@@ -467,7 +513,7 @@
             <label
               for="timeTo"
               class="block text-sm font-semibold text-gray-700 mb-3"
-              >End Time *</label
+              >{{ "adminAddCourse.form.timeTo.label" | translate }}</label
             >
             <input
               type="time"
@@ -489,13 +535,15 @@
             <label
               for="duration"
               class="block text-sm font-semibold text-gray-700 mb-3"
-              >Duration *</label
+              >{{ "adminAddCourse.form.duration.label" | translate }}</label
             >
             <input
               type="text"
               id="duration"
               formControlName="duration"
-              placeholder="e.g., 2 hours, 3 days, 1 week"
+              placeholder="{{
+                'adminAddCourse.form.duration.placeholder' | translate
+              }}"
               class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
               [class.border-red-300]="isFieldInvalid('duration')"
             />
@@ -512,7 +560,7 @@
             <label
               for="availableSeats"
               class="block text-sm font-semibold text-gray-700 mb-3"
-              >Available Seats *</label
+              >{{ "adminAddCourse.form.seats.label" | translate }}</label
             >
             <input
               type="number"
@@ -542,9 +590,11 @@
               <span class="text-2xl">⚙️</span>
             </div>
             <div>
-              <h2 class="text-2xl font-bold text-gray-900">Course Details</h2>
+              <h2 class="text-2xl font-bold text-gray-900">
+                {{ "adminAddCourse.sections.details" | translate }}
+              </h2>
               <p class="text-gray-500 mt-1">
-                Configure the course settings and pricing
+                {{ "adminAddCourse.sections.detailsSubtitle" | translate }}
               </p>
             </div>
           </div>
@@ -553,9 +603,9 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
           <!-- Level -->
           <div class="bg-gray-50 rounded-xl p-6">
-            <label class="block text-sm font-semibold text-gray-700 mb-4"
-              >Level *</label
-            >
+            <label class="block text-sm font-semibold text-gray-700 mb-4">{{
+              "adminAddCourse.form.level.label" | translate
+            }}</label>
             <div class="space-y-3">
               <button
                 *ngFor="let level of levels"
@@ -574,35 +624,12 @@
             </div>
           </div>
 
-          <!-- Status -->
-          <div class="bg-gray-50 rounded-xl p-6">
-            <label class="block text-sm font-semibold text-gray-700 mb-4"
-              >Status *</label
-            >
-            <div class="space-y-3">
-              <button
-                *ngFor="let status of statuses"
-                type="button"
-                (click)="courseForm.patchValue({ status: status.id })"
-                [class]="
-                  courseForm.get('status')?.value === status.id
-                    ? 'bg-blue-500 text-white border-blue-500 shadow-lg'
-                    : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300'
-                "
-                class="flex items-center w-full p-4 border-2 rounded-xl transition-all duration-200"
-              >
-                <span class="text-xl mr-3">{{ status.icon }}</span>
-                <span class="font-medium">{{ status.name }}</span>
-              </button>
-            </div>
-          </div>
-
           <!-- Price -->
           <div class="bg-gray-50 rounded-xl p-6">
             <label
               for="price"
               class="block text-sm font-semibold text-gray-700 mb-3"
-              >Price *</label
+              >{{ "adminAddCourse.form.price.label" | translate }}</label
             >
             <div class="relative">
               <div
@@ -634,7 +661,7 @@
             <label
               for="kpiWeight"
               class="block text-sm font-semibold text-gray-700 mb-3"
-              >KPI Weight *</label
+              >{{ "adminAddCourse.form.kpi.label" | translate }}</label
             >
             <div class="relative">
               <div
@@ -665,7 +692,7 @@
           <div class="md:col-span-2">
             <div class="bg-gray-50 p-6 rounded-xl">
               <h3 class="text-lg font-semibold text-gray-800 mb-4">
-                Course Options
+                {{ "adminAddCourse.options.title" | translate }}
               </h3>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div
@@ -681,7 +708,7 @@
                     for="onlineRepeated"
                     class="ml-3 text-sm font-medium text-gray-700"
                   >
-                    Online/Repeated Course
+                    {{ "adminAddCourse.options.onlineRepeated" | translate }}
                   </label>
                 </div>
                 <div
@@ -697,7 +724,7 @@
                     for="certificate"
                     class="ml-3 text-sm font-medium text-gray-700"
                   >
-                    Certificate Available
+                    {{ "adminAddCourse.options.certificate" | translate }}
                   </label>
                 </div>
               </div>
@@ -717,11 +744,10 @@
             </div>
             <div>
               <h2 class="text-2xl font-bold text-gray-900">
-                Content & Assignments
+                {{ "adminAddCourse.sections.content" | translate }}
               </h2>
               <p class="text-gray-500 mt-1">
-                Define course content, requirements, and assign instructors and
-                departments
+                {{ "adminAddCourse.sections.contentSubtitle" | translate }}
               </p>
             </div>
           </div>
@@ -732,7 +758,7 @@
           <div class="bg-gray-50 p-6 rounded-xl">
             <div class="flex items-center justify-between mb-4">
               <h3 class="text-lg font-semibold text-gray-800">
-                Course Requirements
+                {{ "adminAddCourse.content.requirements.title" | translate }}
               </h3>
               <button
                 type="button"
@@ -740,7 +766,8 @@
                 class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
               >
                 <svg
-                  class="w-4 h-4 mr-2"
+                  class="w-4 h-4"
+                  [ngClass]="isRtl ? 'ml-2' : 'mr-2'"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -752,7 +779,7 @@
                     d="M12 6v6m0 0v6m0-6h6m-6 0H6"
                   ></path>
                 </svg>
-                Add Requirement
+                {{ "adminAddCourse.content.requirements.add" | translate }}
               </button>
             </div>
             <div class="space-y-4">
@@ -764,7 +791,10 @@
                   <input
                     type="text"
                     [formControl]="getRequirementControl(i)"
-                    placeholder="Enter a requirement (e.g., Basic programming knowledge)"
+                    placeholder="{{
+                      'adminAddCourse.content.requirements.placeholder'
+                        | translate
+                    }}"
                     class="w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                     [class.border-red-300]="
                       requirement.invalid && requirement.touched
@@ -774,7 +804,7 @@
                     *ngIf="requirement.invalid && requirement.touched"
                     class="mt-2 text-sm text-red-600"
                   >
-                    Requirement is required
+                    {{ "adminAddCourse.validation.required" | translate }}
                   </div>
                 </div>
                 <button
@@ -805,7 +835,7 @@
           <div class="bg-gray-50 p-6 rounded-xl">
             <div class="flex items-center justify-between mb-4">
               <h3 class="text-lg font-semibold text-gray-800">
-                Learning Outcomes
+                {{ "adminAddCourse.content.outcomes.title" | translate }}
               </h3>
               <button
                 type="button"
@@ -813,7 +843,8 @@
                 class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
               >
                 <svg
-                  class="w-4 h-4 mr-2"
+                  class="w-4 h-4"
+                  [ngClass]="isRtl ? 'ml-2' : 'mr-2'"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -825,7 +856,7 @@
                     d="M12 6v6m0 0v6m0-6h6m-6 0H6"
                   ></path>
                 </svg>
-                Add Learning Outcome
+                {{ "adminAddCourse.content.outcomes.add" | translate }}
               </button>
             </div>
             <div class="space-y-4">
@@ -837,7 +868,9 @@
                   <input
                     type="text"
                     [formControl]="getLearningOutcomeControl(i)"
-                    placeholder="Enter a learning outcome (e.g., Students will be able to build a web application)"
+                    placeholder="{{
+                      'adminAddCourse.content.outcomes.placeholder' | translate
+                    }}"
                     class="w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                     [class.border-red-300]="outcome.invalid && outcome.touched"
                   />
@@ -845,7 +878,7 @@
                     *ngIf="outcome.invalid && outcome.touched"
                     class="mt-2 text-sm text-red-600"
                   >
-                    Learning outcome is required
+                    {{ "adminAddCourse.validation.required" | translate }}
                   </div>
                 </div>
                 <button
@@ -875,14 +908,17 @@
           <!-- Instructors -->
           <div class="bg-gray-50 p-6 rounded-xl">
             <div class="flex items-center justify-between mb-4">
-              <h3 class="text-lg font-semibold text-gray-800">Instructors</h3>
+              <h3 class="text-lg font-semibold text-gray-800">
+                {{ "adminAddCourse.content.instructors.title" | translate }}
+              </h3>
               <button
                 type="button"
                 (click)="addInstructor()"
                 class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
               >
                 <svg
-                  class="w-4 h-4 mr-2"
+                  class="w-4 h-4"
+                  [ngClass]="isRtl ? 'ml-2' : 'mr-2'"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -894,7 +930,7 @@
                     d="M12 6v6m0 0v6m0-6h6m-6 0H6"
                   ></path>
                 </svg>
-                Add Instructor
+                {{ "adminAddCourse.content.instructors.add" | translate }}
               </button>
             </div>
 
@@ -905,7 +941,9 @@
               <div
                 class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"
               ></div>
-              <span class="ml-3 text-gray-600">Loading instructors...</span>
+              <span class="ml-3 text-gray-600">{{
+                "adminAddCourse.content.instructors.loading" | translate
+              }}</span>
             </div>
 
             <div *ngIf="!loadingInstructors" class="space-y-4">
@@ -921,16 +959,21 @@
                       instructor.invalid && instructor.touched
                     "
                   >
-                    <option value="">Select an instructor</option>
+                    <option value="">
+                      {{
+                        "adminAddCourse.content.instructors.placeholder"
+                          | translate
+                      }}
+                    </option>
                     <option *ngFor="let inst of instructors" [value]="inst.id">
-                      {{ inst.fullName }} - {{ inst.specialty }}
+                      {{ inst.nameEn }}
                     </option>
                   </select>
                   <div
                     *ngIf="instructor.invalid && instructor.touched"
                     class="mt-2 text-sm text-red-600"
                   >
-                    Instructor is required
+                    {{ "adminAddCourse.validation.required" | translate }}
                   </div>
                 </div>
                 <button
@@ -961,7 +1004,7 @@
           <div class="bg-gray-50 p-6 rounded-xl">
             <div class="flex items-center justify-between mb-4">
               <h3 class="text-lg font-semibold text-gray-800">
-                Target Departments
+                {{ "adminAddCourse.content.departments.title" | translate }}
               </h3>
               <button
                 type="button"
@@ -969,7 +1012,8 @@
                 class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
               >
                 <svg
-                  class="w-4 h-4 mr-2"
+                  class="w-4 h-4"
+                  [ngClass]="isRtl ? 'ml-2' : 'mr-2'"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -981,7 +1025,7 @@
                     d="M12 6v6m0 0v6m0-6h6m-6 0H6"
                   ></path>
                 </svg>
-                Add Department
+                {{ "adminAddCourse.content.departments.add" | translate }}
               </button>
             </div>
 
@@ -992,7 +1036,9 @@
               <div
                 class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"
               ></div>
-              <span class="ml-3 text-gray-600">Loading departments...</span>
+              <span class="ml-3 text-gray-600">{{
+                "adminAddCourse.content.departments.loading" | translate
+              }}</span>
             </div>
 
             <div *ngIf="!loadingDepartments" class="space-y-4">
@@ -1011,7 +1057,12 @@
                       department.invalid && department.touched
                     "
                   >
-                    <option value="">Select a department</option>
+                    <option value="">
+                      {{
+                        "adminAddCourse.content.departments.placeholder"
+                          | translate
+                      }}
+                    </option>
                     <option *ngFor="let dept of departments" [value]="dept.id">
                       {{ dept.nameEn || dept.nameAr }} ({{
                         (dept.organization && dept.organization.nameEn) ||
@@ -1024,7 +1075,7 @@
                     *ngIf="department.invalid && department.touched"
                     class="mt-2 text-sm text-red-600"
                   >
-                    Department is required
+                    {{ "adminAddCourse.validation.required" | translate }}
                   </div>
                 </div>
                 <button
@@ -1063,7 +1114,8 @@
             class="inline-flex items-center px-6 py-3 border border-gray-200 rounded-xl text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 shadow-sm"
           >
             <svg
-              class="w-5 h-5 mr-2"
+              class="w-5 h-5"
+              [ngClass]="isRtl ? 'ml-2' : 'mr-2'"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -1072,10 +1124,10 @@
                 stroke-linecap="round"
                 stroke-linejoin="round"
                 stroke-width="2"
-                d="M15 19l-7-7 7-7"
+                [attr.d]="isRtl ? 'M9 5l7 7-7 7' : 'M15 19l-7-7 7-7'"
               ></path>
             </svg>
-            Previous
+            {{ "adminAddCourse.nav.prev" | translate }}
           </button>
           <div class="flex items-center space-x-4">
             <button
@@ -1084,9 +1136,10 @@
               *ngIf="currentSection !== 'content'"
               class="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 shadow-sm"
             >
-              Next
+              {{ "adminAddCourse.nav.next" | translate }}
               <svg
-                class="w-5 h-5 ml-2"
+                class="w-5 h-5"
+                [ngClass]="isRtl ? 'mr-2' : 'ml-2'"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -1095,7 +1148,7 @@
                   stroke-linecap="round"
                   stroke-linejoin="round"
                   stroke-width="2"
-                  d="M9 5l7 7-7 7"
+                  [attr.d]="isRtl ? 'M15 19l-7-7 7-7' : 'M9 5l7 7-7 7'"
                 ></path>
               </svg>
             </button>
@@ -1107,7 +1160,8 @@
             >
               <svg
                 *ngIf="submitting"
-                class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                class="animate-spin h-4 w-4 text-white"
+                [ngClass]="isRtl ? '-mr-1 ml-2' : '-ml-1 mr-2'"
                 fill="none"
                 viewBox="0 0 24 24"
               >
@@ -1128,11 +1182,11 @@
               {{
                 submitting
                   ? isEditMode
-                    ? "Updating Course..."
-                    : "Creating Course..."
+                    ? ("adminAddCourse.submit.updating" | translate)
+                    : ("adminAddCourse.submit.creating" | translate)
                   : isEditMode
-                  ? "Update Course"
-                  : "Create Course"
+                  ? ("adminAddCourse.submit.update" | translate)
+                  : ("adminAddCourse.submit.create" | translate)
               }}
             </button>
           </div>

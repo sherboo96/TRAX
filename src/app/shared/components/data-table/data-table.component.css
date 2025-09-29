@@ -1,3 +1,13 @@
+/* Enhance action button hover/focus states */
+.actions-row button:hover {
+  transform: translateY(-1px);
+}
+.actions-row button:active {
+  transform: translateY(0);
+}
+.actions-row button {
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
 /* Spinner styles */
 .spinner-container {
   display: flex;

@@ -1,0 +1,208 @@
+<!-- Page Header -->
+<div class="m-4 flex justify-between items-center">
+  <div>
+    <h1 class="text-2xl font-bold text-gray-900">
+      {{ "locations.pageTitle" | translate }}
+    </h1>
+    <p class="text-gray-600">{{ "locations.pageSubtitle" | translate }}</p>
+  </div>
+</div>
+
+<div class="p-4">
+  <app-data-table
+    [columns]="tableColumns"
+    [data]="locations"
+    [actions]="tableActions"
+    [pagination]="paginationInfo"
+    [loading]="loading"
+    (sort)="onTableSort($event)"
+    (search)="onTableSearch($event)"
+    (refresh)="onTableRefresh()"
+    (add)="onTableAdd()"
+    (pageChange)="onTablePageChange($event)"
+    (pageSizeChange)="onTablePageSizeChange($event)"
+    (actionClick)="onTableActionClick($event)"
+  ></app-data-table>
+
+  <app-modal
+    [show]="showModal"
+    [title]="
+      (isEditing ? 'locations.editTitle' : 'locations.addTitle') | translate
+    "
+    (close)="closeModal()"
+  >
+    <h3 class="text-lg font-semibold mb-4"></h3>
+
+    <form (ngSubmit)="saveLocation()">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium mb-1">{{
+            "locations.form.nameEn" | translate
+          }}</label>
+          <input
+            class="w-full border p-2 rounded"
+            [(ngModel)]="formData.nameEn"
+            name="nameEn"
+            required
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">{{
+            "locations.form.nameAr" | translate
+          }}</label>
+          <input
+            class="w-full border p-2 rounded"
+            [(ngModel)]="formData.nameAr"
+            name="nameAr"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">{{
+            "locations.form.addressEn" | translate
+          }}</label>
+          <input
+            class="w-full border p-2 rounded"
+            [(ngModel)]="formData.addressEn"
+            name="addressEn"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">{{
+            "locations.form.addressAr" | translate
+          }}</label>
+          <input
+            class="w-full border p-2 rounded"
+            [(ngModel)]="formData.addressAr"
+            name="addressAr"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">{{
+            "locations.city" | translate
+          }}</label>
+          <input
+            class="w-full border p-2 rounded"
+            [(ngModel)]="formData.city"
+            name="city"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">{{
+            "locations.country" | translate
+          }}</label>
+          <input
+            class="w-full border p-2 rounded"
+            [(ngModel)]="formData.country"
+            name="country"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">{{
+            "locations.category" | translate
+          }}</label>
+          <select
+            class="w-full border p-2 rounded"
+            [(ngModel)]="formData.category"
+            name="category"
+          >
+            <option *ngFor="let c of categories" [ngValue]="c.value">
+              {{ c.labelKey | translate }}
+            </option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">{{
+            "locations.form.templateOptional" | translate
+          }}</label>
+          <input
+            type="file"
+            class="w-full border p-2 rounded"
+            (change)="onTemplateSelected($event)"
+          />
+          <div
+            class="text-xs text-gray-500 mt-1"
+            *ngIf="locationToEdit?.templateUrl"
+          >
+            {{ "locations.form.currentTemplate" | translate }}
+            <a
+              [href]="locationToEdit?.templateUrl"
+              target="_blank"
+              class="text-blue-600 underline"
+              >{{ "locations.form.openTemplate" | translate }}</a
+            >
+          </div>
+        </div>
+        <div class="flex items-center">
+          <input
+            id="isActive"
+            type="checkbox"
+            class="mr-2"
+            [(ngModel)]="formData.isActive"
+            name="isActive"
+          />
+          <label for="isActive">{{ "common.status" | translate }}</label>
+        </div>
+      </div>
+
+      <div class="mt-6 flex justify-end gap-2">
+        <button
+          type="button"
+          class="px-4 py-2 bg-gray-200 rounded"
+          (click)="closeModal()"
+        >
+          {{ "common.cancel" | translate }}
+        </button>
+        <button
+          type="submit"
+          class="px-4 py-2 text-white rounded flex items-center gap-2"
+          [ngClass]="{ 'bg-blue-600': !isEditing, 'bg-amber-600': isEditing }"
+          [disabled]="saving"
+        >
+          <i
+            class="fas"
+            [ngClass]="{ 'fa-plus': !isEditing, 'fa-save': isEditing }"
+          ></i>
+          {{
+            saving
+              ? isEditing
+                ? ("common.updating" | translate)
+                : ("common.saving" | translate)
+              : isEditing
+              ? ("common.update" | translate)
+              : ("common.add" | translate)
+          }}
+        </button>
+      </div>
+    </form>
+  </app-modal>
+
+  <app-modal
+    [show]="showDeleteModal"
+    [title]="'locations.deleteTitle' | translate"
+    (close)="closeDeleteModal()"
+  >
+    <h3 class="text-lg font-semibold mb-4"></h3>
+    <p>{{ "locations.deleteConfirm" | translate }}</p>
+    <div class="mt-6 flex justify-end gap-2">
+      <button
+        type="button"
+        class="px-4 py-2 bg-gray-200 rounded"
+        (click)="closeDeleteModal()"
+      >
+        {{ "common.cancel" | translate }}
+      </button>
+      <button
+        type="button"
+        class="px-4 py-2 bg-red-600 text-white rounded"
+        (click)="deleteLocation()"
+        [disabled]="deleting"
+      >
+        {{
+          deleting
+            ? ("common.deleting" | translate)
+            : ("common.delete" | translate)
+        }}
+      </button>
+    </div>
+  </app-modal>
+</div>

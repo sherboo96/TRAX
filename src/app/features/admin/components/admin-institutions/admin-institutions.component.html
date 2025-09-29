@@ -1,8 +1,10 @@
 <!-- Page Header -->
 <div class="m-4 flex justify-between items-center">
   <div>
-    <h1 class="text-2xl font-bold text-gray-900">Institutions</h1>
-    <p class="text-gray-600">Manage institutions in the system</p>
+    <h1 class="text-2xl font-bold text-gray-900">
+      {{ "institutions.pageTitle" | translate }}
+    </h1>
+    <p class="text-gray-600">{{ "institutions.pageSubtitle" | translate }}</p>
   </div>
 </div>
 
@@ -11,7 +13,7 @@
   [columns]="tableColumns"
   [data]="institutions"
   [loading]="loading"
-  [emptyMessage]="'No institutions found'"
+  [emptyMessage]="'institutions.empty' | translate"
   [emptyIcon]="'fas fa-university'"
   [actions]="tableActions"
   [pagination]="paginationInfo"
@@ -31,7 +33,9 @@
 <!-- Add/Edit Institution Modal -->
 <app-modal
   [show]="showModal"
-  [title]="isEditing ? 'Edit Institution' : 'Add Institution'"
+  [title]="
+    (isEditing ? 'institutions.editTitle' : 'institutions.addTitle') | translate
+  "
   (close)="closeModal()"
 >
   <form (ngSubmit)="saveInstitution()" #institutionForm="ngForm">
@@ -42,7 +46,7 @@
           for="nameEn"
           class="block text-sm font-medium text-gray-700 mb-1"
         >
-          Name (English) *
+          {{ "institutions.form.nameEn" | translate }} *
         </label>
         <input
           type="text"
@@ -51,7 +55,7 @@
           [(ngModel)]="formData.nameEn"
           required
           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-          placeholder="Enter English name"
+          [placeholder]="'institutions.form.nameEnPlaceholder' | translate"
         />
       </div>
 
@@ -61,7 +65,7 @@
           for="nameAr"
           class="block text-sm font-medium text-gray-700 mb-1"
         >
-          Name (Arabic) *
+          {{ "institutions.form.nameAr" | translate }} *
         </label>
         <input
           type="text"
@@ -70,19 +74,19 @@
           [(ngModel)]="formData.nameAr"
           required
           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-          placeholder="Enter Arabic name"
+          [placeholder]="'institutions.form.nameArPlaceholder' | translate"
         />
       </div>
     </div>
 
     <!-- Modal Actions -->
-    <div class="flex justify-end space-x-3 mt-6">
+    <div class="flex justify-end gap-3 mt-6">
       <button
         type="button"
         (click)="closeModal()"
         class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors duration-200"
       >
-        Cancel
+        {{ "common.cancel" | translate }}
       </button>
       <button
         type="submit"
@@ -90,13 +94,21 @@
         class="px-4 py-2 text-sm font-medium text-white bg-primary-600 border border-transparent rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
       >
         <span *ngIf="!submitting">
-          {{ isEditing ? "Update" : "Create" }}
+          {{
+            isEditing
+              ? ("common.update" | translate)
+              : ("common.add" | translate)
+          }}
         </span>
         <span *ngIf="submitting" class="flex items-center">
           <div
             class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"
           ></div>
-          {{ isEditing ? "Updating..." : "Creating..." }}
+          {{
+            isEditing
+              ? ("common.updating" | translate)
+              : ("institutions.creating" | translate)
+          }}
         </span>
       </button>
     </div>
@@ -106,7 +118,7 @@
 <!-- Delete Confirmation Modal -->
 <app-modal
   [show]="showDeleteModal"
-  title="Delete Institution"
+  [title]="'institutions.deleteTitle' | translate"
   (close)="closeDeleteModal()"
 >
   <div class="text-center">
@@ -115,11 +127,11 @@
     >
       <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
     </div>
-    <h3 class="text-lg font-medium text-gray-900 mb-2">Are you sure?</h3>
+    <h3 class="text-lg font-medium text-gray-900 mb-2">
+      {{ "institutions.deleteConfirmTitle" | translate }}
+    </h3>
     <p class="text-sm text-gray-500 mb-6">
-      This action cannot be undone. This will permanently delete the institution
-      <strong>{{ selectedInstitution?.nameEn }}</strong
-      >.
+      {{ "institutions.deleteConfirmMessage" | translate }}
     </p>
     <div class="flex justify-center space-x-3">
       <button
@@ -127,7 +139,7 @@
         (click)="closeDeleteModal()"
         class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors duration-200"
       >
-        Cancel
+        {{ "common.cancel" | translate }}
       </button>
       <button
         type="button"
@@ -135,12 +147,12 @@
         [disabled]="submitting"
         class="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
       >
-        <span *ngIf="!submitting">Delete</span>
+        <span *ngIf="!submitting">{{ "common.delete" | translate }}</span>
         <span *ngIf="submitting" class="flex items-center">
           <div
             class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"
           ></div>
-          Deleting...
+          {{ "common.deleting" | translate }}
         </span>
       </button>
     </div>

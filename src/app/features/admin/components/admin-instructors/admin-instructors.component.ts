@@ -1,27 +1,28 @@
-import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ModalComponent } from '../../../../shared/components/modal/modal.component';
-import {
-  DataTableComponent,
-  TableColumn,
-  TableAction,
-  PaginationInfo,
-} from '../../../../shared/components/data-table/data-table.component';
-import { AuthService } from '../../../../core/services/auth.service';
-import { InstructorService } from '../../../../core/services/instructor.service';
-import { InstitutionService } from '../../../../core/services/institution.service';
+import { RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { User, UserRole } from '../../../../core/models/user.model';
+import { environment } from '../../../../../environments/environment';
+import { TranslatePipe } from '../../../../../locale/translation.pipe';
+import { Institution } from '../../../../core/models/institution.model';
 import {
-  Instructor,
   CreateInstructorDto,
+  Instructor,
   UpdateInstructorDto,
 } from '../../../../core/models/instructor.model';
-import { Institution } from '../../../../core/models/institution.model';
 import { PaginationRequest } from '../../../../core/models/pagination.model';
-import { environment } from '../../../../../environments/environment';
+import { User, UserRole } from '../../../../core/models/user.model';
+import { AuthService } from '../../../../core/services/auth.service';
+import { InstitutionService } from '../../../../core/services/institution.service';
+import { InstructorService } from '../../../../core/services/instructor.service';
+import {
+  DataTableComponent,
+  PaginationInfo,
+  TableAction,
+  TableColumn,
+} from '../../../../shared/components/data-table/data-table.component';
+import { ModalComponent } from '../../../../shared/components/modal/modal.component';
 
 @Component({
   selector: 'app-admin-instructors',
@@ -34,6 +35,7 @@ import { environment } from '../../../../../environments/environment';
     FormsModule,
     ModalComponent,
     DataTableComponent,
+    TranslatePipe,
   ],
 })
 export class AdminInstructorsComponent implements OnInit {
@@ -59,42 +61,42 @@ export class AdminInstructorsComponent implements OnInit {
   tableColumns: TableColumn[] = [
     {
       key: 'nameEn',
-      label: 'Instructor',
+      label: 'instructors.columns.instructor',
       sortable: true,
       type: 'avatar',
       width: '25%',
     },
     {
       key: 'email',
-      label: 'Email',
+      label: 'instructors.columns.email',
       sortable: true,
       type: 'text',
       width: '20%',
     },
     {
       key: 'phone',
-      label: 'Phone',
+      label: 'instructors.columns.phone',
       sortable: false,
       type: 'text',
       width: '15%',
     },
     {
       key: 'specialty',
-      label: 'Specialty',
+      label: 'instructors.columns.specialty',
       sortable: true,
       type: 'text',
       width: '15%',
     },
     {
-      key: 'institutionId',
-      label: 'Institution',
+      key: 'institutionDisplay',
+      label: 'instructors.columns.institution',
       sortable: false,
       type: 'text',
       width: '15%',
     },
     {
       key: 'actions',
-      label: 'Actions',
+      label: 'common.actions',
       sortable: false,
       type: 'actions',
       align: 'right',
@@ -104,13 +106,13 @@ export class AdminInstructorsComponent implements OnInit {
 
   tableActions: TableAction[] = [
     {
-      label: 'Edit',
+      label: 'common.edit',
       icon: 'fas fa-edit',
       color: 'info',
       action: 'edit',
     },
     {
-      label: 'Delete',
+      label: 'common.delete',
       icon: 'fas fa-trash',
       color: 'danger',
       action: 'delete',
@@ -191,7 +193,12 @@ export class AdminInstructorsComponent implements OnInit {
     this.instructorService.getInstructors(paginationRequest).subscribe({
       next: (response) => {
         if (response.statusCode === 200) {
-          this.instructors = response.result;
+          this.instructors = response.result.map((ins: Instructor) => ({
+            ...ins,
+            institutionDisplay: this.getInstitutionName(
+              Number(ins.institutionId)
+            ),
+          }));
           this.totalItems = response.pagination.total;
           this.totalPages = Math.ceil(this.totalItems / this.pageSize);
           this.currentPage = response.pagination.currentPage;

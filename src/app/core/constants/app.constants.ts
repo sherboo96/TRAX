@@ -2,7 +2,7 @@ export const APP_CONSTANTS = {
   APP_NAME: 'OTC',
   VERSION: '1.0.0',
   ORGANIZATION: 'trax.com',
-  API_BASE_URL: 'https://otc.moo.gov.kw/backend/api',
+  API_BASE_URL: 'http://localhost:5000/api',
   STORAGE_KEYS: {
     AUTH_TOKEN: 'auth_token',
     USER_DATA: 'user_data',

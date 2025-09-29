@@ -7,11 +7,14 @@
         <ol class="inline-flex items-center space-x-1 md:space-x-3">
           <li class="inline-flex items-center">
             <a
-              routerLink="/admin/courses"
-              class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors"
+              (click)="goBack()"
+              class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors cursor-pointer"
             >
-              <i class="fas fa-arrow-left mr-2"></i>
-              Back to Courses
+              <i
+                class="fas"
+                [ngClass]="isRtl ? 'fa-arrow-right ml-2' : 'fa-arrow-left mr-2'"
+              ></i>
+              {{ "adminCourses.title" | translate }}
             </a>
           </li>
         </ol>
@@ -66,7 +69,10 @@
             <div class="flex items-center">
               <i class="fas fa-star text-yellow-400 mr-1"></i>
               <span class="font-medium">{{ course.kpiWeight }}</span>
-              <span class="ml-1">({{ course.availableSeats }} students)</span>
+              <span class="ml-1"
+                >({{ course.availableSeats }}
+                {{ "adminCourses.enrolled" | translate }})</span
+              >
             </div>
             <div class="flex items-center">
               <i class="fas fa-clock mr-2 text-green-500"></i>
@@ -74,7 +80,10 @@
             </div>
             <div class="flex items-center">
               <i class="fas fa-calendar mr-2 text-purple-500"></i>
-              <span>Updated {{ course.lastUpdated }}</span>
+              <span
+                >{{ "common.updated" | translate }}
+                {{ course.lastUpdated }}</span
+              >
             </div>
           </div>
 
@@ -90,7 +99,7 @@
               [class]="getStatusColor(course.statusId)"
               class="px-3 py-1 rounded-full text-sm font-medium"
             >
-              {{ course.statusName }}
+              {{ getStatusText(course.statusId) }}
             </span>
             <span
               class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm font-medium"
@@ -102,7 +111,16 @@
               class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium"
             >
               <i class="fas fa-certificate mr-1"></i>
-              Certificate
+              {{ "courses.details.certificate" | translate }}
+            </span>
+            <span
+              *ngIf="course.templateUrl"
+              (click)="downloadTemplate()"
+              class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium cursor-pointer hover:bg-blue-200 transition-colors"
+              title="{{ 'courses.details.downloadTemplate' | translate }}"
+            >
+              <i class="fas fa-download mr-1"></i>
+              {{ "courses.details.template" | translate }}
             </span>
             <span
               *ngIf="course.statusId === 2 && course.registerationClosedAt"
@@ -111,7 +129,7 @@
                 ' px-3 py-1 rounded-full text-sm font-medium'
               "
             >
-              Registration Closes:
+              {{ "courses.details.registrationCloses" | translate }}
               {{ course.registerationClosedAt | date : "mediumDate" }}
             </span>
           </div>
@@ -252,8 +270,11 @@
               "
               class="whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm transition-all duration-200 flex-shrink-0"
             >
-              <i class="fas fa-info-circle mr-2"></i>
-              Overview
+              <i
+                class="fas fa-info-circle"
+                [ngClass]="isRtl ? 'ml-2' : 'mr-2'"
+              ></i>
+              {{ "courseDetails.tabs.overview" | translate }}
             </button>
             <button
               (click)="setActiveTab('curriculum')"
@@ -265,8 +286,8 @@
               class="whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm transition-all duration-200 flex-shrink-0"
               *ngIf="currentUser?.userType === 1"
             >
-              <i class="fas fa-book mr-2"></i>
-              Curriculum
+              <i class="fas fa-book" [ngClass]="isRtl ? 'ml-2' : 'mr-2'"></i>
+              {{ "courseDetails.tabs.curriculum" | translate }}
             </button>
             <button
               (click)="setActiveTab('instructor')"
@@ -277,8 +298,11 @@
               "
               class="whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm transition-all duration-200 flex-shrink-0"
             >
-              <i class="fas fa-chalkboard-teacher mr-2"></i>
-              Instructor
+              <i
+                class="fas fa-chalkboard-teacher"
+                [ngClass]="isRtl ? 'ml-2' : 'mr-2'"
+              ></i>
+              {{ "courseDetails.tabs.instructor" | translate }}
             </button>
             <button
               (click)="setActiveTab('enrollments')"
@@ -321,8 +345,11 @@
                 <h3
                   class="text-xl font-semibold text-gray-900 mb-6 flex items-center"
                 >
-                  <i class="fas fa-graduation-cap text-blue-500 mr-3"></i>
-                  What you'll learn
+                  <i
+                    class="fas fa-graduation-cap text-blue-500"
+                    [ngClass]="isRtl ? 'ml-3' : 'mr-3'"
+                  ></i>
+                  {{ "courseDetails.overview.whatYoullLearn" | translate }}
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div
@@ -342,8 +369,11 @@
                 <h3
                   class="text-xl font-semibold text-gray-900 mb-6 flex items-center"
                 >
-                  <i class="fas fa-list-check text-purple-500 mr-3"></i>
-                  Requirements
+                  <i
+                    class="fas fa-list-check text-purple-500"
+                    [ngClass]="isRtl ? 'ml-3' : 'mr-3'"
+                  ></i>
+                  {{ "courseDetails.overview.requirements" | translate }}
                 </h3>
                 <ul class="space-y-3">
                   <li
@@ -363,8 +393,11 @@
                 <h3
                   class="text-xl font-semibold text-gray-900 mb-6 flex items-center"
                 >
-                  <i class="fas fa-file-text text-green-500 mr-3"></i>
-                  Description
+                  <i
+                    class="fas fa-file-text text-green-500"
+                    [ngClass]="isRtl ? 'ml-3' : 'mr-3'"
+                  ></i>
+                  {{ "courseDetails.overview.description" | translate }}
                 </h3>
                 <div
                   class="prose max-w-none text-gray-700 bg-gray-50 p-6 rounded-lg"
@@ -383,14 +416,19 @@
                 <h3
                   class="text-xl font-semibold text-gray-900 flex items-center"
                 >
-                  <i class="fas fa-book text-blue-500 mr-3"></i>
-                  Course Content
+                  <i
+                    class="fas fa-book text-blue-500"
+                    [ngClass]="isRtl ? 'ml-3' : 'mr-3'"
+                  ></i>
+                  {{ "courseDetails.curriculum.title" | translate }}
                 </h3>
                 <div
                   class="text-sm text-gray-600 bg-gray-100 px-3 py-1 rounded-full"
                 >
-                  {{ getTotalResources() }} resources •
-                  {{ getTotalDuration() }} total length
+                  {{ getTotalResources() }}
+                  {{ "courseDetails.curriculum.resources" | translate }} •
+                  {{ getTotalDuration() }}
+                  {{ "courseDetails.curriculum.totalLength" | translate }}
                 </div>
               </div>
 
@@ -420,13 +458,19 @@
                         <span
                           class="text-sm text-gray-500 bg-white px-2 py-1 rounded-full"
                         >
-                          <i class="fas fa-clock mr-1"></i>
+                          <i
+                            class="fas fa-clock"
+                            [ngClass]="isRtl ? 'ml-1' : 'mr-1'"
+                          ></i>
                           {{ module.duration }}
                         </span>
                         <span
                           class="text-sm text-gray-500 bg-white px-2 py-1 rounded-full"
                         >
-                          <i class="fas fa-file mr-1"></i>
+                          <i
+                            class="fas fa-file"
+                            [ngClass]="isRtl ? 'ml-1' : 'mr-1'"
+                          ></i>
                           {{ module.resources.length }} resources
                         </span>
                         <i
@@ -504,14 +548,20 @@
                     class="text-blue-600 hover:text-blue-700 font-medium bg-blue-50 hover:bg-blue-100 px-6 py-2 rounded-lg transition-all duration-200"
                   >
                     <i
-                      class="fas fa-chevron-down mr-2"
+                      class="fas fa-chevron-down"
+                      [ngClass]="isRtl ? 'ml-2' : 'mr-2'"
                       *ngIf="!showAllModules"
                     ></i>
                     <i
-                      class="fas fa-chevron-up mr-2"
+                      class="fas fa-chevron-up"
+                      [ngClass]="isRtl ? 'ml-2' : 'mr-2'"
                       *ngIf="showAllModules"
                     ></i>
-                    {{ showAllModules ? "Show Less" : "Show More" }}
+                    {{
+                      showAllModules
+                        ? ("courseDetails.curriculum.showLess" | translate)
+                        : ("courseDetails.curriculum.showMore" | translate)
+                    }}
                   </button>
                 </div>
               </div>
@@ -522,8 +572,11 @@
               <h3
                 class="text-xl font-semibold text-gray-900 mb-6 flex items-center"
               >
-                <i class="fas fa-chalkboard-teacher text-blue-500 mr-3"></i>
-                About the Instructor
+                <i
+                  class="fas fa-chalkboard-teacher text-blue-500"
+                  [ngClass]="isRtl ? 'ml-3' : 'mr-3'"
+                ></i>
+                {{ "courseDetails.instructor.title" | translate }}
               </h3>
               <div class="bg-gray-50 p-6 rounded-xl border border-gray-200">
                 <div class="flex items-start space-x-6">
@@ -564,16 +617,34 @@
                             class="flex items-center space-x-6 text-sm text-gray-500"
                           >
                             <span class="flex items-center">
-                              <i class="fas fa-users mr-2"></i>
-                              {{ course.availableSeats }} students
+                              <i
+                                class="fas fa-users"
+                                [ngClass]="isRtl ? 'ml-2' : 'mr-2'"
+                              ></i>
+                              {{ course.availableSeats }}
+                              {{
+                                "courseDetails.instructor.students" | translate
+                              }}
                             </span>
                             <span class="flex items-center">
-                              <i class="fas fa-star mr-2"></i>
-                              {{ course.kpiWeight }} rating
+                              <i
+                                class="fas fa-star"
+                                [ngClass]="isRtl ? 'ml-2' : 'mr-2'"
+                              ></i>
+                              {{ course.kpiWeight }}
+                              {{
+                                "courseDetails.instructor.rating" | translate
+                              }}
                             </span>
                             <span class="flex items-center">
-                              <i class="fas fa-play-circle mr-2"></i>
-                              {{ getTotalResources() }} courses
+                              <i
+                                class="fas fa-play-circle"
+                                [ngClass]="isRtl ? 'ml-2' : 'mr-2'"
+                              ></i>
+                              {{ getTotalResources() }}
+                              {{
+                                "courseDetails.instructor.courses" | translate
+                              }}
                             </span>
                           </div>
                         </div>
@@ -897,7 +968,13 @@
                         [disabled]="attendancePage <= 1"
                         class="px-3 py-1 text-sm border border-gray-300 rounded-md bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-500"
                       >
-                        Previous
+                        <i
+                          class="fas"
+                          [ngClass]="
+                            isRtl ? 'fa-arrow-right ml-2' : 'fa-arrow-left mr-2'
+                          "
+                        ></i>
+                        {{ "dataTable.footer.prevPage" | translate }}
                       </button>
                       <span class="text-sm text-gray-700">
                         Page {{ attendancePage }} of
@@ -913,7 +990,13 @@
                         "
                         class="px-3 py-1 text-sm border border-gray-300 rounded-md bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-500"
                       >
-                        Next
+                        {{ "dataTable.footer.nextPage" | translate }}
+                        <i
+                          class="fas"
+                          [ngClass]="
+                            isRtl ? 'fa-arrow-left mr-2' : 'fa-arrow-right ml-2'
+                          "
+                        ></i>
                       </button>
                     </div>
                   </div>
@@ -945,64 +1028,87 @@
             <h3
               class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2"
             >
-              <span>📋</span> Course Details
+              <span>📋</span> {{ "courseDetails.card.title" | translate }}
             </h3>
             <hr class="mb-6" />
             <ul class="space-y-4 text-sm text-gray-700">
               <li class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                 <span class="text-lg">📍</span>
                 <span
-                  ><span class="font-medium">Location:</span>
+                  ><span class="font-medium">{{
+                    "courseDetails.card.location" | translate
+                  }}</span>
                   {{ course.location }}</span
                 >
               </li>
               <li class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                 <span class="text-lg">🗓️</span>
                 <span
-                  ><span class="font-medium">Start:</span>
+                  ><span class="font-medium">{{
+                    "courseDetails.card.start" | translate
+                  }}</span>
                   {{ course.startDate | date : "mediumDate" }}</span
                 >
               </li>
               <li class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                 <span class="text-lg">🗓️</span>
                 <span
-                  ><span class="font-medium">End:</span>
+                  ><span class="font-medium">{{
+                    "courseDetails.card.end" | translate
+                  }}</span>
                   {{ course.endDate | date : "mediumDate" }}</span
                 >
               </li>
               <li class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                 <span class="text-lg">⏰</span>
                 <span
-                  ><span class="font-medium">Time:</span>
+                  ><span class="font-medium">{{
+                    "courseDetails.card.time" | translate
+                  }}</span>
                   {{ course.timeFrom }} - {{ course.timeTo }}</span
                 >
               </li>
               <li class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                 <span class="text-lg">👥</span>
                 <span
-                  ><span class="font-medium">Seats:</span>
+                  ><span class="font-medium">{{
+                    "courseDetails.card.seats" | translate
+                  }}</span>
                   {{ course.availableSeats }}</span
                 >
               </li>
               <li class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                 <span class="text-lg">🏷️</span>
                 <span
-                  ><span class="font-medium">Category:</span>
+                  ><span class="font-medium">{{
+                    "courseDetails.card.category" | translate
+                  }}</span>
                   {{ getCategoryText(course.category) }}</span
                 >
               </li>
               <li class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                 <span class="text-lg">🔁</span>
                 <span
-                  ><span class="font-medium">Online/Repeated:</span>
-                  {{ course.onlineRepeated ? "Yes" : "No" }}</span
+                  ><span class="font-medium">{{
+                    "courseDetails.card.onlineRepeated" | translate
+                  }}</span>
+                  {{
+                    course.onlineRepeated
+                      ? ("common.yes" | translate)
+                      : ("common.no" | translate)
+                  }}</span
                 >
               </li>
               <li class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                 <span class="text-lg">⚖️</span>
                 <span
-                  ><span class="font-medium">KPI Weight:</span>
-                  {{ course.kpiWeight || "Not set" }}</span
+                  ><span class="font-medium">{{
+                    "courseDetails.card.kpiWeight" | translate
+                  }}</span>
+                  {{
+                    course.kpiWeight ||
+                      ("courseDetails.card.notSet" | translate)
+                  }}</span
                 >
               </li>
             </ul>
@@ -1093,13 +1199,16 @@
             >
               <div class="bg-red-50 border border-red-200 rounded-lg p-4">
                 <div class="flex items-center">
-                  <i class="fas fa-times-circle text-red-600 mr-3 text-lg"></i>
-                  <span class="text-sm font-medium text-red-800"
-                    >Enrollment Rejected</span
-                  >
+                  <i
+                    class="fas fa-times-circle text-red-600 text-lg"
+                    [ngClass]="isRtl ? 'ml-3' : 'mr-3'"
+                  ></i>
+                  <span class="text-sm font-medium text-red-800">
+                    {{ "courses.details.enrollmentRejectedTitle" | translate }}
+                  </span>
                 </div>
                 <p class="text-xs text-red-600 mt-2">
-                  Your enrollment was not approved. You can try enrolling again.
+                  {{ "courses.details.enrollmentRejectedMessage" | translate }}
                 </p>
               </div>
             </div>
