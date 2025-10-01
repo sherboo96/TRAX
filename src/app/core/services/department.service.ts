@@ -1,17 +1,21 @@
+import {
+  HttpClient,
+  HttpErrorResponse,
+  HttpParams,
+} from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { ToastrService } from 'ngx-toastr';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
-import { ToastrService } from 'ngx-toastr';
+import { DepartmentTreeNode } from '../models/department-tree.model';
 import {
-  Department,
   CreateDepartmentDto,
-  UpdateDepartmentDto,
+  Department,
   DepartmentResponse,
   PaginatedDepartmentResponse,
+  UpdateDepartmentDto,
 } from '../models/department.model';
-import { DepartmentTreeNode } from '../models/department-tree.model';
 
 @Injectable({
   providedIn: 'root',
@@ -30,21 +34,29 @@ export class DepartmentService {
       isDepartment?: boolean;
       isInspector?: boolean;
       isUpperManagement?: boolean;
+      mainTypes?: string[];
     }
   ): Observable<PaginatedDepartmentResponse> {
-    let params: any = {
-      page: page.toString(),
-      pageSize: pageSize.toString(),
-    };
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('pageSize', pageSize.toString());
 
     if (filters) {
-      if (filters.order) params.order = filters.order;
+      if (filters.order) params = params.set('order', filters.order);
       if (filters.isDepartment !== undefined)
-        params.IsDepartment = filters.isDepartment.toString();
+        params = params.set('IsDepartment', filters.isDepartment.toString());
       if (filters.isInspector !== undefined)
-        params.IsInspector = filters.isInspector.toString();
+        params = params.set('IsInspector', filters.isInspector.toString());
       if (filters.isUpperManagement !== undefined)
-        params.isUpperManagment = filters.isUpperManagement.toString();
+        params = params.set(
+          'isUpperManagment',
+          filters.isUpperManagement.toString()
+        );
+      if (filters.mainTypes && filters.mainTypes.length > 0) {
+        filters.mainTypes.forEach((mt) => {
+          params = params.append('mainTypes', mt);
+        });
+      }
     }
 
     return this.http

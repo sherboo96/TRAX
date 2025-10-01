@@ -1,5 +1,5 @@
 export const environment = {
-  production: false,
-  apiUrl: 'http://localhost:5029/api',
-  imageBaseUrl: 'http://localhost:5029',
+  production: true,
+  apiUrl: 'https://otc.moo.gov.kw/backend/api',
+  imageBaseUrl: 'https://otc.moo.gov.kw/backend',
 };

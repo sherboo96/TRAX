@@ -226,9 +226,9 @@ export class CourseDetailsComponent implements OnInit {
       id: apiCourse.id,
       title: apiCourse.title,
       description: apiCourse.description,
-      location: apiCourse.location,
+      location: apiCourse.location?.nameEn || apiCourse.location || '',
       locationId: apiCourse.locationId,
-      templateUrl: apiCourse.templateUrl,
+      templateUrl: apiCourse.location?.templateUrl || apiCourse.templateUrl,
       startDate: apiCourse.startDate,
       endDate: apiCourse.endDate,
       timeFrom: apiCourse.timeFrom,
@@ -643,22 +643,28 @@ export class CourseDetailsComponent implements OnInit {
   approveEnrollment(userId: number): void {
     if (!this.course) return;
 
-    if (confirm('Are you sure you want to approve this enrollment?')) {
+    if (
+      confirm(this.translationService.translate('enrollments.confirmApprove'))
+    ) {
       this.courseService.approveRegistration(this.course.id, userId).subscribe({
         next: (response: any) => {
           if (response.statusCode === 200) {
-            this.toastr.success('Enrollment approved successfully!');
+            this.toastr.success(
+              this.translationService.translate('enrollments.approvedSuccess')
+            );
             this.loadEnrollments(); // Reload enrollments
           } else {
             this.toastr.error(
-              response.message || 'Failed to approve enrollment'
+              response.message ||
+                this.translationService.translate('enrollments.approveFailed')
             );
           }
         },
         error: (error: any) => {
           console.error('Error approving enrollment:', error);
           this.toastr.error(
-            error.error?.message || 'Failed to approve enrollment'
+            error.error?.message ||
+              this.translationService.translate('enrollments.approveFailed')
           );
         },
       });
@@ -668,22 +674,28 @@ export class CourseDetailsComponent implements OnInit {
   rejectEnrollment(userId: number): void {
     if (!this.course) return;
 
-    if (confirm('Are you sure you want to reject this enrollment?')) {
+    if (
+      confirm(this.translationService.translate('enrollments.confirmReject'))
+    ) {
       this.courseService.rejectRegistration(this.course.id, userId).subscribe({
         next: (response: any) => {
           if (response.statusCode === 200) {
-            this.toastr.success('Enrollment rejected successfully!');
+            this.toastr.success(
+              this.translationService.translate('enrollments.rejectedSuccess')
+            );
             this.loadEnrollments(); // Reload enrollments
           } else {
             this.toastr.error(
-              response.message || 'Failed to reject enrollment'
+              response.message ||
+                this.translationService.translate('enrollments.rejectFailed')
             );
           }
         },
         error: (error: any) => {
           console.error('Error rejecting enrollment:', error);
           this.toastr.error(
-            error.error?.message || 'Failed to reject enrollment'
+            error.error?.message ||
+              this.translationService.translate('enrollments.rejectFailed')
           );
         },
       });
@@ -699,7 +711,12 @@ export class CourseDetailsComponent implements OnInit {
   // Course Management Methods
   editCourse(): void {
     if (this.course) {
-      this.router.navigate(['/admin/courses/edit', this.course.id]);
+      // Navigate to appropriate edit route based on user role
+      if (this.authService.isAdmin()) {
+        this.router.navigate(['/admin/courses/edit', this.course.id]);
+      } else if (this.authService.isModerator()) {
+        this.router.navigate(['/moderator/courses/edit', this.course.id]);
+      }
     }
   }
 
@@ -710,7 +727,8 @@ export class CourseDetailsComponent implements OnInit {
       next: (response: any) => {
         if (response.statusCode === 200) {
           this.toastr.success(
-            response.message || 'Course published successfully!'
+            response.message ||
+              this.translationService.translate('courses.publishSuccess')
           );
           // Update the course status locally
           if (this.course) {
@@ -718,12 +736,18 @@ export class CourseDetailsComponent implements OnInit {
             this.course.statusName = 'Published';
           }
         } else {
-          this.toastr.error(response.message || 'Failed to publish course');
+          this.toastr.error(
+            response.message ||
+              this.translationService.translate('courses.publishFailed')
+          );
         }
       },
       error: (error: any) => {
         console.error('Error publishing course:', error);
-        this.toastr.error(error.error?.message || 'Failed to publish course');
+        this.toastr.error(
+          error.error?.message ||
+            this.translationService.translate('courses.publishFailed')
+        );
       },
     });
   }
@@ -735,7 +759,8 @@ export class CourseDetailsComponent implements OnInit {
       next: (response: any) => {
         if (response.statusCode === 200) {
           this.toastr.success(
-            response.message || 'Course unpublished successfully!'
+            response.message ||
+              this.translationService.translate('courses.unpublishSuccess')
           );
           // Update the course status locally
           if (this.course) {
@@ -743,12 +768,18 @@ export class CourseDetailsComponent implements OnInit {
             this.course.statusName = 'Draft';
           }
         } else {
-          this.toastr.error(response.message || 'Failed to unpublish course');
+          this.toastr.error(
+            response.message ||
+              this.translationService.translate('courses.unpublishFailed')
+          );
         }
       },
       error: (error: any) => {
         console.error('Error unpublishing course:', error);
-        this.toastr.error(error.error?.message || 'Failed to unpublish course');
+        this.toastr.error(
+          error.error?.message ||
+            this.translationService.translate('courses.unpublishFailed')
+        );
       },
     });
   }
@@ -760,7 +791,8 @@ export class CourseDetailsComponent implements OnInit {
       next: (response: any) => {
         if (response.statusCode === 200) {
           this.toastr.success(
-            response.message || 'Course made active successfully!'
+            response.message ||
+              this.translationService.translate('courses.makeActiveSuccess')
           );
           // Update the course status locally
           if (this.course) {
@@ -768,13 +800,17 @@ export class CourseDetailsComponent implements OnInit {
             this.course.statusName = 'In Progress';
           }
         } else {
-          this.toastr.error(response.message || 'Failed to make course active');
+          this.toastr.error(
+            response.message ||
+              this.translationService.translate('courses.makeActiveFailed')
+          );
         }
       },
       error: (error: any) => {
         console.error('Error making course active:', error);
         this.toastr.error(
-          error.error?.message || 'Failed to make course active'
+          error.error?.message ||
+            this.translationService.translate('courses.makeActiveFailed')
         );
       },
     });
@@ -787,7 +823,8 @@ export class CourseDetailsComponent implements OnInit {
       next: (response: any) => {
         if (response.statusCode === 200) {
           this.toastr.success(
-            response.message || 'Course completed successfully!'
+            response.message ||
+              this.translationService.translate('courses.completeSuccess')
           );
           // Update the course status locally
           if (this.course) {
@@ -795,12 +832,18 @@ export class CourseDetailsComponent implements OnInit {
             this.course.statusName = 'Completed';
           }
         } else {
-          this.toastr.error(response.message || 'Failed to complete course');
+          this.toastr.error(
+            response.message ||
+              this.translationService.translate('courses.completeFailed')
+          );
         }
       },
       error: (error: any) => {
         console.error('Error completing course:', error);
-        this.toastr.error(error.error?.message || 'Failed to complete course');
+        this.toastr.error(
+          error.error?.message ||
+            this.translationService.translate('courses.completeFailed')
+        );
       },
     });
   }
@@ -811,19 +854,27 @@ export class CourseDetailsComponent implements OnInit {
     this.courseService.archiveCourse(this.course.id).subscribe({
       next: (response: any) => {
         if (response.success) {
-          this.toastr.success('Course archived successfully!');
+          this.toastr.success(
+            this.translationService.translate('courses.archiveSuccess')
+          );
           // Update the course status locally
           if (this.course) {
             this.course.statusId = 5; // Assuming 'Archived' is statusId 5
             this.course.statusName = 'Archived';
           }
         } else {
-          this.toastr.error(response.message || 'Failed to archive course');
+          this.toastr.error(
+            response.message ||
+              this.translationService.translate('courses.archiveFailed')
+          );
         }
       },
       error: (error: any) => {
         console.error('Error archiving course:', error);
-        this.toastr.error(error.error?.message || 'Failed to archive course');
+        this.toastr.error(
+          error.error?.message ||
+            this.translationService.translate('courses.archiveFailed')
+        );
       },
     });
   }
@@ -879,6 +930,16 @@ export class CourseDetailsComponent implements OnInit {
   // Check if edit button should be shown (not completed)
   shouldShowEditButton(): boolean {
     return !this.isCourseCompleted();
+  }
+
+  // Check if user can edit course (admin or moderator)
+  canEditCourse(): boolean {
+    return this.authService.isAdmin() || this.authService.isModerator();
+  }
+
+  // Check if user can manage courses (admin or moderator)
+  canManageCourses(): boolean {
+    return this.authService.isAdmin() || this.authService.isModerator();
   }
 
   // Check if publish/unpublish buttons should be shown (not completed)

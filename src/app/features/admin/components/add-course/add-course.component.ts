@@ -89,12 +89,22 @@ export class AddCourseComponent implements OnInit {
   locations: Location[] = [];
   loadingLocations = false;
 
+  // Department filter options for target departments (MainType-based)
+  departmentFilters = [
+    { key: 'all', label: 'الكل', mainTypes: [] as string[] },
+    { key: 'upper', label: 'الفئة العليا', mainTypes: ['BM', 'N'] },
+    { key: 'middle', label: 'الفئة الوسطي', mainTypes: ['M', 'D'] },
+    { key: 'supervisory', label: 'الفئة الاشرافية', mainTypes: ['S'] },
+    { key: 'specialized', label: 'الفئة التخصيصة', mainTypes: ['M', 'D', 'S'] },
+  ];
+  selectedDepartmentFilterKey: string = 'all';
+
   // Form options - CourseCategory enum values
   categories = [
-    { id: 1, name: 'OnSite', icon: '🏢' },
-    { id: 2, name: 'OutSite', icon: '🏬' },
-    { id: 3, name: 'Online Video', icon: '🎥' },
-    { id: 4, name: 'Abroad', icon: '✈️' },
+    { id: 0, name: 'OnSite', icon: '🏢' },
+    { id: 1, name: 'OutSite', icon: '🏬' },
+    { id: 2, name: 'Online Video', icon: '🎥' },
+    { id: 3, name: 'Abroad', icon: '✈️' },
   ];
 
   levels = [
@@ -182,6 +192,12 @@ export class AddCourseComponent implements OnInit {
       targetDepartmentIds: this.fb.array([]),
       instructorIds: this.fb.array([]),
     });
+  }
+
+  // Handler to change department filter (to be bound from template select)
+  onDepartmentFilterChange(key: string): void {
+    this.selectedDepartmentFilterKey = key;
+    this.loadDepartments();
   }
 
   get isRtl(): boolean {
@@ -401,20 +417,30 @@ export class AddCourseComponent implements OnInit {
 
   private loadDepartments(): void {
     this.loadingDepartments = true;
-    this.departmentService.getDepartments().subscribe({
-      next: (response) => {
-        if (response.statusCode == 200) {
-          this.departments = response.result;
-        } else {
-          console.error('Failed to load departments:', response.message);
-        }
-        this.loadingDepartments = false;
-      },
-      error: (error) => {
-        console.error('Error loading departments:', error);
-        this.loadingDepartments = false;
-      },
-    });
+    const selected = this.departmentFilters.find(
+      (f) => f.key === this.selectedDepartmentFilterKey
+    );
+    const mainTypes = selected ? selected.mainTypes : [];
+
+    this.departmentService
+      .getDepartments(1, 1000, {
+        order: 'ASC',
+        mainTypes: mainTypes,
+      })
+      .subscribe({
+        next: (response) => {
+          if (response.statusCode == 200) {
+            this.departments = response.result;
+          } else {
+            console.error('Failed to load departments:', response.message);
+          }
+          this.loadingDepartments = false;
+        },
+        error: (error) => {
+          console.error('Error loading departments:', error);
+          this.loadingDepartments = false;
+        },
+      });
   }
 
   get isAdmin(): boolean {

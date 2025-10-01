@@ -1,37 +1,51 @@
 <!-- Navigation Bar -->
-<nav class="bg-white shadow-lg border-b border-gray-200 fixed top-0 left-0 right-0 z-50" [class.rtl]="isRTL">
+<nav
+  class="bg-white shadow-lg border-b border-gray-200 fixed top-0 left-0 right-0 z-50"
+  [class.rtl]="isRTL"
+>
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex justify-between items-center h-16">
       <!-- Logo and Brand -->
       <div class="flex items-center">
         <div class="flex-shrink-0 mr-8">
-          <button (click)="scrollToTop()" class="flex items-center justify-center hover:opacity-80 transition-opacity duration-200">
+          <button
+            (click)="scrollToTop()"
+            class="flex items-center justify-center hover:opacity-80 transition-opacity duration-200"
+          >
             <div class="w-20 h-12">
-              <img src="/assets/images/logos/OTC.png" alt="otc logo" class="w-full h-full object-contain">
+              <img
+                src="/assets/images/logos/OTC.png"
+                alt="otc logo"
+                class="w-full h-full object-contain"
+              />
             </div>
             <div class="ml-3">
-              <h1 class="text-xl font-bold text-[#13546e]">{{ "APP_NAME" | translate }}</h1>
-              <p class="text-xs text-gray-600">{{ "WELCOME_TITLE" | translate }}</p>
+              <h1 class="text-xl font-bold text-[#13546e]">
+                {{ "APP_NAME" | translate }}
+              </h1>
+              <p class="text-xs text-gray-600">
+                {{ "WELCOME_TITLE" | translate }}
+              </p>
             </div>
           </button>
         </div>
 
         <!-- Navigation Links -->
         <nav class="hidden md:ml-6 md:flex md:space-x-8">
-          <button 
-            (click)="scrollToSection('about')" 
+          <button
+            (click)="scrollToSection('about')"
             class="text-gray-600 hover:text-[#13546e] px-3 py-2 text-sm font-medium transition-colors duration-200 hover:bg-gray-50 rounded-md"
           >
             {{ "NAV_ABOUT" | translate }}
           </button>
-          <button 
-            (click)="scrollToSection('features')" 
+          <button
+            (click)="scrollToSection('features')"
             class="text-gray-600 hover:text-[#13546e] px-3 py-2 text-sm font-medium transition-colors duration-200 hover:bg-gray-50 rounded-md"
           >
             {{ "WHY_CHOOSE_US" | translate }}
           </button>
-          <button 
-            (click)="scrollToSection('partners')" 
+          <button
+            (click)="scrollToSection('partners')"
             class="text-gray-600 hover:text-[#13546e] px-3 py-2 text-sm font-medium transition-colors duration-200 hover:bg-gray-50 rounded-md"
           >
             {{ "OUR_PARTNERS_TITLE" | translate }}
@@ -53,8 +67,8 @@
         </select>
 
         <!-- Login Button -->
-        <button 
-          (click)="goToLogin()" 
+        <button
+          (click)="goToLogin()"
           class="bg-gradient-to-r from-[#13546e] to-[#28818f] hover:from-[#0f424f] hover:to-[#1f6b7a] text-white font-medium py-2 px-4 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg"
         >
           {{ "NAV_LOGIN" | translate }}
@@ -66,10 +80,10 @@
 
 <!-- Hero Section with Image Slider -->
 <section
-  class="relative h-[100vh] mt-16 overflow-hidden bg-gradient-to-br from-[#13546e] via-[#28818f] to-[#13546e]"
+  class="relative h-[80vh] mt-16 overflow-hidden bg-gradient-to-br from-[#13546e] via-[#28818f] to-[#13546e]"
   [class.rtl]="isRTL"
 >
-  <div class="relative w-full h-full">
+  <div class="relative w-full h-[80vh]">
     <!-- Slide Images -->
     <div
       *ngFor="let slide of slides; let i = index"
@@ -81,7 +95,7 @@
       <img
         [src]="slide.image"
         [alt]="slide.titleKey | translate"
-        class="w-full h-full"
+        class="w-full h-full object-fill"
       />
       <!-- Animated overlay pattern -->
       <div class="absolute inset-0 opacity-20">
@@ -318,14 +332,21 @@
 </section>
 
 <!-- Footer -->
-<footer class="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white" [class.rtl]="isRTL">
+<footer
+  class="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white"
+  [class.rtl]="isRTL"
+>
   <!-- Bottom Bar -->
   <div class="border-t border-gray-700 bg-gray-900">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       <div class="flex justify-center items-center">
         <!-- Copyright -->
         <div class="text-gray-400 text-sm text-center">
-          © {{ currentYear }} <span class="text-blue-400 font-medium">{{ "FOOTER_ORGANIZATION" | translate }}</span> - {{ "FOOTER_RIGHTS" | translate }}
+          © {{ currentYear }}
+          <span class="text-blue-400 font-medium">{{
+            "FOOTER_ORGANIZATION" | translate
+          }}</span>
+          - {{ "FOOTER_RIGHTS" | translate }}
         </div>
       </div>
     </div>

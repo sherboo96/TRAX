@@ -23,72 +23,55 @@ export class TranslationService {
 
   constructor(private http: HttpClient) {
     console.log('[TranslationService] Constructor called');
-    // Set fallback translations immediately
-    this.setFallbackTranslations();
     // Initialize language
     this.initializeLanguage();
-    // Then load translations from files
+    // Load translations from files
     this.loadTranslations();
-
-    // Force a test translation to ensure service is working
-    setTimeout(() => {
-      const testResult = this.translate('login.title', { appName: 'Test' });
-      console.log(
-        '[TranslationService] Test translation in constructor:',
-        testResult
-      );
-
-      // Test a few more keys
-      const testKeys = [
-        'login.features.title',
-        'login.features.subtitle',
-        'login.features.courseLibrary.title',
-        'login.features.courseLibrary.description',
-      ];
-
-      testKeys.forEach((key) => {
-        const result = this.translate(key, { appName: 'Test' });
-        console.log(
-          `[TranslationService] Test translation for ${key}:`,
-          result
-        );
-      });
-    }, 100);
   }
 
   private loadTranslations(): void {
     console.log('[TranslationService] Loading translations from files');
 
-    // Try to load from files, but don't wait for them
+    let loadedCount = 0;
+    const totalLanguages = this.config.supportedLanguages.length;
+
+    const checkAllLoaded = () => {
+      loadedCount++;
+      if (loadedCount >= totalLanguages) {
+        this.translationsLoaded$.next(true);
+        console.log('[TranslationService] All translations loaded');
+      }
+    };
+
+    // Load English translations
     this.http.get<TranslationKeys>('/assets/i18n/en.json').subscribe({
       next: (translations) => {
         this.translations.set('en', translations);
-        this.translationsLoaded$.next(true);
         console.log('[TranslationService] EN translations loaded from file');
+        checkAllLoaded();
       },
       error: (error) => {
-        console.warn(
+        console.error(
           '[TranslationService] Could not load EN translations from file:',
           error
         );
-        // Keep fallback translations and mark as loaded
-        this.translationsLoaded$.next(true);
+        checkAllLoaded();
       },
     });
 
+    // Load Arabic translations
     this.http.get<TranslationKeys>('/assets/i18n/ar.json').subscribe({
       next: (translations) => {
         this.translations.set('ar', translations);
-        this.translationsLoaded$.next(true);
         console.log('[TranslationService] AR translations loaded from file');
+        checkAllLoaded();
       },
       error: (error) => {
-        console.warn(
+        console.error(
           '[TranslationService] Could not load AR translations from file:',
           error
         );
-        // Keep fallback translations and mark as loaded
-        this.translationsLoaded$.next(true);
+        checkAllLoaded();
       },
     });
   }
@@ -140,6 +123,50 @@ export class TranslationService {
       'adminAddCourse.sections.schedule': 'Schedule & Duration',
       'adminAddCourse.sections.details': 'Course Details',
       'adminAddCourse.sections.content': 'Content & Assignments',
+      'common.edit': 'Edit',
+      'common.cancel': 'Cancel',
+      'common.save': 'Save',
+      'common.delete': 'Delete',
+      'common.confirm': 'Confirm',
+      'common.close': 'Close',
+      'common.loading': 'Loading...',
+      'common.error': 'Error',
+      'common.success': 'Success',
+      'common.updated': 'Updated',
+      'adminCourses.title': 'Courses',
+      'adminCourses.enrolled': 'enrolled',
+      'courses.details.certificate': 'Certificate',
+      'courses.details.template': 'Template',
+      'courses.details.downloadTemplate': 'Download Template',
+      'courses.details.registrationCloses': 'Registration Closes:',
+      'courses.details.enrollmentRejectedTitle': 'Enrollment Rejected',
+      'courses.details.enrollmentRejectedMessage':
+        'Your enrollment request has been rejected.',
+      'courseDetails.tabs.overview': 'Overview',
+      'courseDetails.tabs.curriculum': 'Curriculum',
+      'courseDetails.tabs.instructor': 'Instructor',
+      'courseDetails.overview.whatYoullLearn': "What you'll learn",
+      'courseDetails.overview.requirements': 'Requirements',
+      'courseDetails.overview.description': 'Description',
+      'courseDetails.curriculum.title': 'Curriculum',
+      'courseDetails.curriculum.resources': 'resources',
+      'courseDetails.curriculum.totalLength': 'total length',
+      'courseDetails.curriculum.showLess': 'Show Less',
+      'courseDetails.curriculum.showMore': 'Show More',
+      'courseDetails.instructor.title': 'Instructor',
+      'courseDetails.instructor.students': 'students',
+      'courseDetails.instructor.rating': 'rating',
+      'courseDetails.instructor.courses': 'courses',
+      'courseDetails.card.title': 'Course Information',
+      'courseDetails.card.location': 'Location',
+      'courseDetails.card.start': 'Start Date',
+      'courseDetails.card.end': 'End Date',
+      'courseDetails.card.time': 'Time',
+      'courseDetails.card.seats': 'Seats',
+      'courseDetails.card.category': 'Category',
+      'courseDetails.card.onlineRepeated': 'Online/Repeated',
+      'courseDetails.card.kpiWeight': 'KPI Weight',
+      'courseDetails.card.notSet': 'Not Set',
     } as any;
 
     const fallbackAr: TranslationKeys = {
@@ -191,6 +218,50 @@ export class TranslationService {
       'adminAddCourse.sections.schedule': 'الجدول والمدة',
       'adminAddCourse.sections.details': 'تفاصيل الدورة',
       'adminAddCourse.sections.content': 'المحتوى والتكليفات',
+      'common.edit': 'تعديل',
+      'common.cancel': 'إلغاء',
+      'common.save': 'حفظ',
+      'common.delete': 'حذف',
+      'common.confirm': 'تأكيد',
+      'common.close': 'إغلاق',
+      'common.loading': 'جارٍ التحميل...',
+      'common.error': 'خطأ',
+      'common.success': 'نجح',
+      'common.updated': 'تم التحديث',
+      'adminCourses.title': 'الدورات',
+      'adminCourses.enrolled': 'مسجل',
+      'courses.details.certificate': 'الشهادة',
+      'courses.details.template': 'قالب',
+      'courses.details.downloadTemplate': 'تحميل القالب',
+      'courses.details.registrationCloses': 'ينتهي التسجيل:',
+      'courses.details.enrollmentRejectedTitle': 'تم رفض التسجيل',
+      'courses.details.enrollmentRejectedMessage':
+        'تم رفض طلب التسجيل الخاص بك.',
+      'courseDetails.tabs.overview': 'نظرة عامة',
+      'courseDetails.tabs.curriculum': 'المنهج',
+      'courseDetails.tabs.instructor': 'المدرب',
+      'courseDetails.overview.whatYoullLearn': 'ما ستعلمه',
+      'courseDetails.overview.requirements': 'المتطلبات',
+      'courseDetails.overview.description': 'الوصف',
+      'courseDetails.curriculum.title': 'المنهج',
+      'courseDetails.curriculum.resources': 'مصادر',
+      'courseDetails.curriculum.totalLength': 'الطول الإجمالي',
+      'courseDetails.curriculum.showLess': 'عرض أقل',
+      'courseDetails.curriculum.showMore': 'عرض المزيد',
+      'courseDetails.instructor.title': 'المدرب',
+      'courseDetails.instructor.students': 'طالب',
+      'courseDetails.instructor.rating': 'تقييم',
+      'courseDetails.instructor.courses': 'دورات',
+      'courseDetails.card.title': 'معلومات الدورة',
+      'courseDetails.card.location': 'الموقع',
+      'courseDetails.card.start': 'تاريخ البداية',
+      'courseDetails.card.end': 'تاريخ النهاية',
+      'courseDetails.card.time': 'الوقت',
+      'courseDetails.card.seats': 'المقاعد',
+      'courseDetails.card.category': 'الفئة',
+      'courseDetails.card.onlineRepeated': 'عبر الإنترنت/متكرر',
+      'courseDetails.card.kpiWeight': 'الوزن المؤشري',
+      'courseDetails.card.notSet': 'غير محدد',
     } as any;
 
     this.translations.set('en', fallbackEn);
