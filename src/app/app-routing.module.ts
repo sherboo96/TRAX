@@ -89,6 +89,13 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
   },
 
+  // Course Requests - visible to all authenticated users
+  {
+    path: 'requests',
+    component: AdminRequestsComponent,
+    canActivate: [AuthGuard],
+  },
+
   // Digital Library routes - require authentication
   {
     path: 'admin/digital-library',

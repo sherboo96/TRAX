@@ -1,27 +1,27 @@
+import { CommonModule } from '@angular/common';
 import {
+  AfterViewInit,
   Component,
+  ElementRef,
+  OnDestroy,
   OnInit,
   ViewChild,
-  ElementRef,
-  AfterViewInit,
-  OnDestroy,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';
-import { Chart, ChartConfiguration, ChartType, registerables } from 'chart.js';
+import { Router, RouterModule } from '@angular/router';
+import { Chart, ChartConfiguration, registerables } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
-import { AuthService } from '../../../../core/services/auth.service';
+import { Subscription } from 'rxjs';
+import { environment } from '../../../../../environments/environment';
+import { TranslatePipe } from '../../../../../locale/translation.pipe';
+import { TranslationService } from '../../../../../locale/translation.service';
+import { SupportedLanguage } from '../../../../../locale/translation.types';
 import { User } from '../../../../core/models/user.model';
+import { AuthService } from '../../../../core/services/auth.service';
 import {
-  CourseService,
   Course,
+  CourseService,
   DepartmentCoursesResponse,
 } from '../../../../core/services/course.service';
-import { environment } from '../../../../../environments/environment';
-import { TranslationService } from '../../../../../locale/translation.service';
-import { TranslatePipe } from '../../../../../locale/translation.pipe';
-import { SupportedLanguage } from '../../../../../locale/translation.types';
-import { Subscription } from 'rxjs';
 
 // Register Chart.js components
 Chart.register(...registerables);
@@ -72,7 +72,8 @@ interface UpcomingCourse {
   instructor: string;
   date: string;
   time: string;
-  location: string;
+  description: string;
+  location: Location;
   duration: number;
   priority: 'high' | 'medium' | 'low';
   type: 'in-person' | 'virtual' | 'hybrid';
@@ -81,6 +82,14 @@ interface UpcomingCourse {
   isUserRegistered: boolean;
   userRegistrationStatusName: string;
   image: string;
+  // UI computed metrics
+  completedPercent: number;
+  averagePercent: number;
+}
+
+interface Location {
+  nameEn?: string;
+  nameAr?: string;
 }
 
 @Component({
@@ -108,7 +117,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   isUpcomingCoursesCollapsed = false;
   upcomingCourses: UpcomingCourse[] = [];
   isLoadingUpcomingCourses = false;
-  
+
   // Translation properties
   currentLanguage: SupportedLanguage = 'en';
   isRTL = false;
@@ -619,11 +628,11 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     this.currentUser = this.authService.currentUserValue;
     this.loadUpcomingCourses();
     this.updateLearningStatsForUser();
-    
+
     // Initialize translation properties
     this.currentLanguage = this.translationService.getCurrentLanguage();
     this.isRTL = this.translationService.isRTL();
-    
+
     // Subscribe to language changes
     this.subscription.add(
       this.translationService.getCurrentLanguage$().subscribe((language) => {
@@ -822,13 +831,21 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Determine course type based on location
     let type: 'in-person' | 'virtual' | 'hybrid' = 'in-person';
+    const locObj =
+      typeof course.location === 'string'
+        ? { nameEn: course.location, nameAr: course.location }
+        : course.location || {};
+    const locationName = this.isRTL
+      ? locObj.nameAr || locObj.nameEn || ''
+      : locObj.nameEn || locObj.nameAr || '';
+    const locLower = locationName.toLowerCase();
     if (
-      course.location.toLowerCase().includes('virtual') ||
-      course.location.toLowerCase().includes('zoom') ||
-      course.location.toLowerCase().includes('teams')
+      locLower.includes('virtual') ||
+      locLower.includes('zoom') ||
+      locLower.includes('teams')
     ) {
       type = 'virtual';
-    } else if (course.location.toLowerCase().includes('hybrid')) {
+    } else if (locLower.includes('hybrid')) {
       type = 'hybrid';
     }
 
@@ -844,34 +861,74 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
             year: 'numeric',
           });
 
-    const timeStr = course.timeFrom;
+    const timeStr = (course.timeFrom as unknown as string) || '';
 
     // Get instructor name
     const instructorName =
-      course.instructors.length > 0 ? course.instructors[0].nameEn : 'TBD';
+      course.instructors.length > 0
+        ? this.isRTL
+          ? course.instructors[0].nameEn
+          : course.instructors[0].nameEn
+        : 'TBD';
 
     // Parse duration
     const durationMatch = course.duration.match(/(\d+)/);
     const duration = durationMatch ? parseInt(durationMatch[1]) : 1;
 
+    // Compute completed percent based on start/end dates
+    const start = new Date(course.startDate);
+    const end = new Date(course.endDate);
+    let completedPercent = 0;
+    if (!isNaN(start.getTime()) && !isNaN(end.getTime()) && end > start) {
+      const nowTime = Date.now();
+      const total = end.getTime() - start.getTime();
+      const elapsed = Math.min(Math.max(nowTime - start.getTime(), 0), total);
+      completedPercent = Math.round((elapsed / total) * 100);
+    }
+
+    // Placeholder average percent until backend provides real value
+    const averagePercent = 0;
+
     return {
       id: course.id,
-      title: course.title,
+      title: this.isRTL ? course.titleAr || course.title : course.title,
       instructor: instructorName,
       date: dateStr,
       time: timeStr,
-      location: course.location,
+      location: {
+        nameAr: this.isRTL
+          ? locObj.nameAr || locObj.nameEn || ''
+          : locObj.nameEn || locObj.nameAr || '',
+        nameEn: this.isRTL
+          ? locObj.nameEn || locObj.nameAr || ''
+          : locObj.nameAr || locObj.nameEn || '',
+      },
       duration: duration,
       priority: priority,
+      description: this.isRTL
+        ? course.descriptionAr || course.description
+        : course.description,
       type: type,
       statusName: course.statusName,
       availableSeats: course.availableSeats,
       isUserRegistered: course.isUserRegistered || false,
       userRegistrationStatusName: course.userRegistrationStatusName || '',
-      image:
-        this.imageBaseUrl + course.image ||
-        'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&h=200&fit=crop',
+      image: this.imageBaseUrl + course.image || '/assets/images/otclogo.png',
+      completedPercent,
+      averagePercent,
     };
+  }
+
+  // --- Helpers for Tailwind progress bars ---
+  getBarColor(percent: number): string {
+    if (percent >= 70) return '#00843d'; // green
+    if (percent >= 30) return '#b68a35'; // amber
+    return '#de1a31'; // red
+  }
+
+  getBarWidthStyle(percent: number): { width: string } {
+    const clamped = Math.max(0, Math.min(100, Math.round(percent)));
+    return { width: `${clamped}%` };
   }
 
   ngAfterViewInit(): void {

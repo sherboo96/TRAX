@@ -27,11 +27,19 @@ export interface TargetDepartment {
   nameEn: string;
 }
 
+export interface SimpleLocation {
+  id?: number;
+  nameEn?: string;
+  nameAr?: string;
+}
+
 export interface Course {
   id: number;
   title: string;
+  titleAr?: string;
   description: string;
-  location: string;
+  descriptionAr?: string;
+  location: string | SimpleLocation;
   locationId?: number; // optional for create/update
   startDate: string;
   endDate: string;
@@ -54,6 +62,7 @@ export interface Course {
   lastUpdated: string;
   language: string;
   certificate: boolean;
+  isForAllEmployees: boolean;
   registerationClosedAt: string;
   isUserRegistered?: boolean;
   userRegistrationStatusId?: number;
@@ -106,7 +115,7 @@ export class CourseService {
     // Prefer sending LocationId when provided (numeric foreign key)
     if (course.locationId !== undefined && course.locationId !== null) {
       formData.append('LocationId', course.locationId.toString());
-    } else if (course.location) {
+    } else if (typeof course.location === 'string' && course.location) {
       formData.append('Location', course.location);
     }
     if (course.startDate) formData.append('StartDate', course.startDate);
@@ -131,6 +140,8 @@ export class CourseService {
     if (course.language) formData.append('Language', course.language);
     if (course.certificate !== undefined)
       formData.append('Certificate', course.certificate.toString());
+    if (course.isForAllEmployees !== undefined)
+      formData.append('IsForAllEmployees', course.isForAllEmployees.toString());
     if (course.registerationClosedAt)
       formData.append('RegisterationClosedAt', course.registerationClosedAt);
 
@@ -151,6 +162,9 @@ export class CourseService {
       course.targetDepartmentIds.forEach((id: number, index: number) => {
         formData.append(`TargetDepartmentIds[${index}]`, id.toString());
       });
+    }
+    if (course.isForAllEmployees !== undefined) {
+      formData.append('IsForAllEmployees', course.isForAllEmployees.toString());
     }
 
     if (course.instructorIds && course.instructorIds.length > 0) {
@@ -190,7 +204,7 @@ export class CourseService {
     // Prefer sending LocationId when provided (numeric foreign key)
     if (course.locationId !== undefined && course.locationId !== null) {
       formData.append('LocationId', course.locationId.toString());
-    } else if (course.location) {
+    } else if (typeof course.location === 'string' && course.location) {
       formData.append('Location', course.location);
     }
     if (course.startDate) formData.append('StartDate', course.startDate);
@@ -215,6 +229,8 @@ export class CourseService {
     if (course.language) formData.append('Language', course.language);
     if (course.certificate !== undefined)
       formData.append('Certificate', course.certificate.toString());
+    if (course.isForAllEmployees !== undefined)
+      formData.append('IsForAllEmployees', course.isForAllEmployees.toString());
     if (course.registerationClosedAt)
       formData.append('RegisterationClosedAt', course.registerationClosedAt);
 
@@ -294,6 +310,35 @@ export class CourseService {
     return this.http.patch(
       `${this.apiUrl}/${courseId}/registrations/${registrationId}/approve`,
       {}
+    );
+  }
+
+  // Head training approval endpoint
+  headApproveRegistration(courseId: number, userId: number): Observable<any> {
+    return this.http.patch(
+      `${this.apiUrl}/${courseId}/registrations/${userId}/head-approve`,
+      {}
+    );
+  }
+
+  // Head training rejection endpoint
+  headRejectRegistration(courseId: number, userId: number): Observable<any> {
+    return this.http.patch(
+      `${this.apiUrl}/${courseId}/registrations/${userId}/head-reject`,
+      {}
+    );
+  }
+
+  // Generic registration status update (e.g., main approval without QR)
+  updateRegistrationStatus(
+    courseId: number,
+    userId: number,
+    statusId: number
+  ): Observable<any> {
+    const body = { userId, statusId } as any;
+    return this.http.patch(
+      `${this.apiUrl}/${courseId}/registrations/${userId}`,
+      body
     );
   }
 

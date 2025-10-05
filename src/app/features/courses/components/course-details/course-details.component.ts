@@ -74,6 +74,8 @@ interface Enrollment {
   email: string;
   registerationStatusId: number;
   registerationStatusName: string;
+  headTrainingStatusId?: number | null;
+  headTrainingStatusName?: string | null;
   registeredAt: string;
 }
 
@@ -443,15 +445,20 @@ export class CourseDetailsComponent implements OnInit {
     this.courseService.getCourseEnrollments(this.course.id).subscribe({
       next: (response: any) => {
         if (response.statusCode === 200) {
-          this.enrollments = response.result;
+          this.enrollments = response.result || [];
+          console.log('Enrollments loaded:', this.enrollments);
         } else {
           this.enrollments = [];
+          console.warn('Failed to load enrollments:', response.message);
+          this.toastr.warning(response.message || 'Failed to load enrollments');
         }
         this.enrollmentsLoading = false;
       },
       error: (error: any) => {
         this.enrollmentsLoading = false;
-        this.toastr.error(error.message);
+        this.enrollments = [];
+        console.error('Error loading enrollments:', error);
+        this.toastr.error('Failed to load enrollments. Please try again.');
       },
     });
   }
@@ -509,6 +516,8 @@ export class CourseDetailsComponent implements OnInit {
           this.isUserEnrolled = true;
           // Refresh course data to get updated registration status
           this.refreshCourseData();
+          // Also reload enrollments to reflect the latest user status
+          this.loadEnrollments();
         } else {
           this.toastr.error(
             response.message || 'Failed to register for the course'
@@ -642,7 +651,6 @@ export class CourseDetailsComponent implements OnInit {
   // Enrollment Management Methods
   approveEnrollment(userId: number): void {
     if (!this.course) return;
-
     if (
       confirm(this.translationService.translate('enrollments.confirmApprove'))
     ) {
@@ -700,6 +708,76 @@ export class CourseDetailsComponent implements OnInit {
         },
       });
     }
+  }
+
+  // Head training approve action
+  headApproveEnrollment(userId: number): void {
+    if (!this.course) return;
+    if (
+      confirm(this.translationService.translate('enrollments.confirmApprove'))
+    ) {
+      this.courseService
+        .headApproveRegistration(this.course.id, userId)
+        .subscribe({
+          next: (response: any) => {
+            if (response.statusCode === 200) {
+              this.toastr.success(
+                this.translationService.translate('enrollments.approvedSuccess')
+              );
+              this.loadEnrollments();
+            } else {
+              this.toastr.error(
+                response.message ||
+                  this.translationService.translate('enrollments.approveFailed')
+              );
+            }
+          },
+          error: (error: any) => {
+            console.error('Error head-approving enrollment:', error);
+            this.toastr.error(
+              error.error?.message ||
+                this.translationService.translate('enrollments.approveFailed')
+            );
+          },
+        });
+    }
+  }
+
+  // Head training reject action
+  headRejectEnrollment(userId: number): void {
+    if (!this.course) return;
+    if (
+      confirm('Are you sure you want to reject this head training approval?')
+    ) {
+      this.courseService
+        .headRejectRegistration(this.course.id, userId)
+        .subscribe({
+          next: (response: any) => {
+            if (response.statusCode === 200) {
+              this.toastr.success(
+                'Head training rejection completed successfully!'
+              );
+              this.loadEnrollments();
+            } else {
+              this.toastr.error(
+                response.message || 'Failed to reject head training'
+              );
+            }
+          },
+          error: (error: any) => {
+            console.error('Error head-rejecting enrollment:', error);
+            this.toastr.error(
+              error.error?.message ||
+                'Failed to reject head training. Please try again.'
+            );
+          },
+        });
+    }
+  }
+
+  // Helper to decide if main approve is allowed (requires head approval)
+  canMainApprove(enrollment: Enrollment): boolean {
+    return enrollment.headTrainingStatusId === 2;
   }
 
   viewEnrollmentDetails(enrollmentId: number): void {
@@ -987,6 +1065,23 @@ export class CourseDetailsComponent implements OnInit {
       .join(' ');
   }
 
+  getRegistrationCountText(): string {
+    if (this.enrollmentsLoading) {
+      return 'Loading...';
+    }
+    const total = this.enrollments.length;
+    const headApproved = this.enrollments.filter(
+      (e) => e.headTrainingStatusId === 2
+    ).length;
+    const otcApproved = this.enrollments.filter(
+      (e) => e.registerationStatusId === 2
+    ).length;
+    const pending = this.enrollments.filter(
+      (e) => !e.headTrainingStatusId || e.headTrainingStatusId === 1
+    ).length;
+    return `${total} total (H:${headApproved}, OTC:${otcApproved}, P:${pending})`;
+  }
+
   loadAttendances(): void {
     if (!this.course) return;
 
@@ -1000,18 +1095,29 @@ export class CourseDetailsComponent implements OnInit {
       .subscribe({
         next: (response: any) => {
           if (response.statusCode === 200) {
-            this.attendances = response.result.items;
-            this.attendanceTotalCount = response.result.totalCount;
-            this.attendancePage = response.result.page;
-            this.attendancePageSize = response.result.pageSize;
+            this.attendances = response.result.items || [];
+            this.attendanceTotalCount = response.result.totalCount || 0;
+            this.attendancePage = response.result.page || page;
+            this.attendancePageSize = response.result.pageSize || pageSize;
+            console.log('Attendances loaded:', this.attendances);
           } else {
             this.attendances = [];
+            this.attendanceTotalCount = 0;
+            console.warn('Failed to load attendances:', response.message);
+            this.toastr.warning(
+              response.message || 'Failed to load attendance data'
+            );
           }
           this.attendancesLoading = false;
         },
         error: (error: any) => {
           this.attendancesLoading = false;
-          this.toastr.error('Failed to load attendance data');
+          this.attendances = [];
+          this.attendanceTotalCount = 0;
+          console.error('Error loading attendances:', error);
+          this.toastr.error(
+            'Failed to load attendance data. Please try again.'
+          );
         },
       });
   }
@@ -1061,12 +1167,6 @@ export class CourseDetailsComponent implements OnInit {
   // Get registration count
   getRegistrationCount(): number {
     return this.enrollments.length;
-  }
-
-  // Get registration count text
-  getRegistrationCountText(): string {
-    const count = this.getRegistrationCount();
-    return `${count} student${count !== 1 ? 's' : ''}`;
   }
 
   showAttendanceQR(): void {

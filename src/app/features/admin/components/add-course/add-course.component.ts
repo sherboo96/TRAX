@@ -98,13 +98,18 @@ export class AddCourseComponent implements OnInit {
     { key: 'specialized', label: 'الفئة التخصيصة', mainTypes: ['M', 'D', 'S'] },
   ];
   selectedDepartmentFilterKey: string = 'all';
+  // Search term for target departments
+  departmentSearchTerm: string = '';
+
+  // All Employee option
+  allEmployeeSelected: boolean = false;
 
   // Form options - CourseCategory enum values
   categories = [
-    { id: 0, name: 'OnSite', icon: '🏢' },
-    { id: 1, name: 'OutSite', icon: '🏬' },
-    { id: 2, name: 'Online Video', icon: '🎥' },
-    { id: 3, name: 'Abroad', icon: '✈️' },
+    { id: 1, name: 'OnSite', icon: '🏢' },
+    { id: 2, name: 'OutSite', icon: '🏬' },
+    { id: 3, name: 'Online Video', icon: '🎥' },
+    { id: 4, name: 'Abroad', icon: '✈️' },
   ];
 
   levels = [
@@ -159,6 +164,28 @@ export class AddCourseComponent implements OnInit {
   // Store form data to prevent loss during navigation
   private formDataBackup: any = {};
 
+  // Internal flag to avoid clearing location while populating form in edit mode
+  private isPopulatingForm = false;
+
+  // Normalize date to local YYYY-MM-DD to avoid timezone shifting (-1 day)
+  private formatDateForInput(dateValue: any): string {
+    if (!dateValue) return '';
+    const d = new Date(dateValue);
+    if (isNaN(d.getTime())) return '';
+    const tzOffsetMs = d.getTimezoneOffset() * 60000; // minutes to ms
+    const local = new Date(d.getTime() - tzOffsetMs);
+    return local.toISOString().split('T')[0];
+  }
+
+  // Build local datetime string without timezone ('Z') to avoid backend shifts
+  private toLocalIsoWithoutZ(
+    dateOnly: string,
+    endOfDay: boolean = false
+  ): string {
+    if (!dateOnly) return '';
+    return `${dateOnly}T${endOfDay ? '23:59:59' : '00:00:00'}`;
+  }
+
   constructor(
     private fb: FormBuilder,
     private courseService: CourseService,
@@ -173,7 +200,7 @@ export class AddCourseComponent implements OnInit {
     this.courseForm = this.fb.group({
       title: ['', [Validators.required, Validators.minLength(3)]],
       description: ['', [Validators.required, Validators.minLength(10)]],
-      locationId: ['', Validators.required],
+      locationId: [null, Validators.required],
       startDate: ['', Validators.required],
       endDate: ['', Validators.required],
       timeFrom: ['', Validators.required],
@@ -189,6 +216,7 @@ export class AddCourseComponent implements OnInit {
       learningOutcomes: this.fb.array([]),
       language: ['en', Validators.required],
       certificate: [true],
+      isForAllEmployees: [false],
       targetDepartmentIds: this.fb.array([]),
       instructorIds: this.fb.array([]),
     });
@@ -198,6 +226,43 @@ export class AddCourseComponent implements OnInit {
   onDepartmentFilterChange(key: string): void {
     this.selectedDepartmentFilterKey = key;
     this.loadDepartments();
+  }
+
+  // Handler for All Employee checkbox
+  onAllEmployeeChange(checked: boolean): void {
+    console.log('onAllEmployeeChange called with:', checked);
+    console.log(
+      'Form control value before change:',
+      this.courseForm.get('isForAllEmployees')?.value
+    );
+
+    this.allEmployeeSelected = checked;
+
+    if (checked) {
+      // Clear existing department selections
+      this.targetDepartmentIds.clear();
+      // Add all departments to the form array
+      this.addAllDepartments();
+    } else {
+      // Clear all departments and add one empty field
+      this.targetDepartmentIds.clear();
+      this.addDepartment();
+    }
+
+    console.log(
+      'Form control value after change:',
+      this.courseForm.get('isForAllEmployees')?.value
+    );
+    this.updateSectionCompletion();
+  }
+
+  // Add all departments to the target department form array
+  private addAllDepartments(): void {
+    this.departments.forEach((dept) => {
+      this.targetDepartmentIds.push(
+        this.fb.control(dept.id, nonEmptyValidator)
+      );
+    });
   }
 
   get isRtl(): boolean {
@@ -228,6 +293,21 @@ export class AddCourseComponent implements OnInit {
       // Update section completion on any form change
       this.updateSectionCompletion();
     });
+
+    // Subscribe to isForAllEmployees form control changes
+    this.courseForm
+      .get('isForAllEmployees')
+      ?.valueChanges.subscribe((value) => {
+        console.log('isForAllEmployees form control changed to:', value);
+        this.allEmployeeSelected = value;
+      });
+
+    // Debug: Log initial form state
+    console.log('Initial form value:', this.courseForm.value);
+    console.log(
+      'Initial isForAllEmployees:',
+      this.courseForm.get('isForAllEmployees')?.value
+    );
   }
 
   private setupCategoryLocationCascade(): void {
@@ -238,7 +318,10 @@ export class AddCourseComponent implements OnInit {
         this.loadLocationsByCategory(categoryControl.value as number);
       }
       categoryControl.valueChanges.subscribe((catId: number) => {
-        this.courseForm.patchValue({ locationId: '' }, { emitEvent: false });
+        // If we're populating the form programmatically (edit mode), don't clear the selected location
+        if (!this.isPopulatingForm) {
+          this.courseForm.patchValue({ locationId: '' }, { emitEvent: false });
+        }
         this.loadLocationsByCategory(catId);
       });
     }
@@ -249,6 +332,9 @@ export class AddCourseComponent implements OnInit {
       this.locations = [];
       return;
     }
+
+    catId = catId - 1;
+
     this.loadingLocations = true;
     this.locationService
       .getByCategory(catId as unknown as LocationCategory)
@@ -304,17 +390,15 @@ export class AddCourseComponent implements OnInit {
   }
 
   private populateFormWithCourseData(course: any): void {
+    // Prevent clearing of dependent fields while programmatically populating
+    this.isPopulatingForm = true;
     // Populate basic form fields
     this.courseForm.patchValue({
       title: course.title || '',
       description: course.description || '',
-      locationId: course.locationId || '',
-      startDate: course.startDate
-        ? new Date(course.startDate).toISOString().split('T')[0]
-        : '',
-      endDate: course.endDate
-        ? new Date(course.endDate).toISOString().split('T')[0]
-        : '',
+      locationId: course.locationId ?? null,
+      startDate: this.formatDateForInput(course.startDate),
+      endDate: this.formatDateForInput(course.endDate),
       timeFrom: course.timeFrom || '',
       timeTo: course.timeTo || '',
       availableSeats: course.availableSeats || 1000,
@@ -328,6 +412,7 @@ export class AddCourseComponent implements OnInit {
       status: course.statusId || 1,
       language: course.language || 'en',
       certificate: course.certificate || false,
+      isForAllEmployees: course.isForAllEmployees || false,
     });
 
     // Populate form arrays
@@ -340,6 +425,8 @@ export class AddCourseComponent implements OnInit {
 
     // Update section completion
     this.updateSectionCompletion();
+    // Re-enable reactive behavior after population
+    this.isPopulatingForm = false;
   }
 
   private populateFormArrays(course: any): void {
@@ -378,8 +465,18 @@ export class AddCourseComponent implements OnInit {
       this.addInstructor();
     }
 
+    // Set the allEmployeeSelected property based on course data
+    this.allEmployeeSelected = course.isForAllEmployees || false;
+
     // Populate target department IDs
-    if (course.targetDepartments && course.targetDepartments.length > 0) {
+    if (course.isForAllEmployees) {
+      // Course is for all employees
+      this.addAllDepartments();
+    } else if (
+      course.targetDepartments &&
+      course.targetDepartments.length > 0
+    ) {
+      // Regular department selection
       course.targetDepartments.forEach((dept: any) => {
         this.targetDepartmentIds.push(
           this.fb.control(dept.id, nonEmptyValidator)
@@ -441,6 +538,24 @@ export class AddCourseComponent implements OnInit {
           this.loadingDepartments = false;
         },
       });
+  }
+
+  // Filtered departments for search
+  get filteredDepartments(): Department[] {
+    const term = (this.departmentSearchTerm || '').toLowerCase().trim();
+    if (!term) return this.departments;
+    return this.departments.filter((d) => {
+      const nameEn = (d.nameEn || '').toLowerCase();
+      const nameAr = (d.nameAr || '').toLowerCase();
+      const orgEn = (d.organization?.nameEn || '').toLowerCase();
+      const orgAr = (d.organization?.nameAr || '').toLowerCase();
+      return (
+        nameEn.includes(term) ||
+        nameAr.includes(term) ||
+        orgEn.includes(term) ||
+        orgAr.includes(term)
+      );
+    });
   }
 
   get isAdmin(): boolean {
@@ -670,6 +785,15 @@ export class AddCourseComponent implements OnInit {
     );
   }
 
+  // Check if target departments are valid (considering All Employee option)
+  private isTargetDepartmentsValid(): boolean {
+    const isForAllEmployees = this.courseForm.get('isForAllEmployees')?.value;
+    if (isForAllEmployees) {
+      return this.departments.length > 0; // Valid if we have departments loaded
+    }
+    return this.isFormArrayValid(this.targetDepartmentIds);
+  }
+
   private isFormValid(): boolean {
     // Check basic form validity
     if (!this.courseForm.valid) return false;
@@ -679,7 +803,7 @@ export class AddCourseComponent implements OnInit {
       this.isFormArrayValid(this.requirements) &&
       this.isFormArrayValid(this.learningOutcomes) &&
       this.isFormArrayValid(this.instructorIds) &&
-      this.isFormArrayValid(this.targetDepartmentIds)
+      this.isTargetDepartmentsValid()
     );
   }
 
@@ -716,7 +840,7 @@ export class AddCourseComponent implements OnInit {
           this.isFormArrayValid(this.requirements) &&
           this.isFormArrayValid(this.learningOutcomes) &&
           this.isFormArrayValid(this.instructorIds) &&
-          this.isFormArrayValid(this.targetDepartmentIds)
+          this.isTargetDepartmentsValid()
         );
       default:
         return false;
@@ -738,9 +862,9 @@ export class AddCourseComponent implements OnInit {
       const coursePayload = {
         title: formValue.title,
         description: formValue.description,
-        locationId: parseInt(formValue.locationId),
-        startDate: new Date(formValue.startDate).toISOString(),
-        endDate: new Date(formValue.endDate).toISOString(),
+        locationId: Number(formValue.locationId),
+        startDate: this.toLocalIsoWithoutZ(formValue.startDate, false),
+        endDate: this.toLocalIsoWithoutZ(formValue.endDate, true),
         timeFrom: formValue.timeFrom,
         timeTo: formValue.timeTo,
         availableSeats: formValue.availableSeats,
@@ -759,17 +883,22 @@ export class AddCourseComponent implements OnInit {
         ),
         language: formValue.language,
         certificate: formValue.certificate,
-        targetDepartmentIds: formValue.targetDepartmentIds
-          .filter((id: any) => id !== null && id !== undefined && id !== '')
-          .map((id: any) => parseInt(id)), // Convert to numbers
+        isForAllEmployees: formValue.isForAllEmployees, // Use form value instead of component property
+        targetDepartmentIds: formValue.isForAllEmployees
+          ? [] // Empty array when "All Employee" is selected
+          : formValue.targetDepartmentIds
+              .filter((id: any) => id !== null && id !== undefined && id !== '')
+              .map((id: any) => parseInt(id)), // Convert to numbers
         instructorIds: formValue.instructorIds
           .filter((id: any) => id !== null && id !== undefined && id !== '')
           .map((id: any) => parseInt(id)), // Convert to numbers
         imageFile: this.selectedImage || undefined, // Add the selected image file
       };
 
-      // Debug: Log the payload to verify image file is included
+      // Debug: Log the payload to verify image file and isForAllEmployees
       console.log('Course payload:', coursePayload);
+      console.log('isForAllEmployees from form:', formValue.isForAllEmployees);
+      console.log('allEmployeeSelected property:', this.allEmployeeSelected);
       console.log('Image file:', this.selectedImage);
       console.log(
         'FormData will be created with image file:',
@@ -846,7 +975,8 @@ export class AddCourseComponent implements OnInit {
         requirements: this.isFormArrayValid(this.requirements),
         learningOutcomes: this.isFormArrayValid(this.learningOutcomes),
         instructorIds: this.isFormArrayValid(this.instructorIds),
-        targetDepartmentIds: this.isFormArrayValid(this.targetDepartmentIds),
+        targetDepartmentIds: this.isTargetDepartmentsValid(),
+        allEmployeeSelected: this.allEmployeeSelected,
       });
     }
   }
@@ -888,7 +1018,7 @@ export class AddCourseComponent implements OnInit {
         instructorIds: !this.isFormArrayValid(this.instructorIds)
           ? 'At least one instructor is required'
           : null,
-        targetDepartmentIds: !this.isFormArrayValid(this.targetDepartmentIds)
+        targetDepartmentIds: !this.isTargetDepartmentsValid()
           ? 'At least one department is required'
           : null,
       };
@@ -988,6 +1118,14 @@ export class AddCourseComponent implements OnInit {
       this.departments.find((dept) => dept.id === id)?.nameAr ||
       ''
     );
+  }
+
+  // Get display text for All Employee option
+  getAllEmployeeDisplayText(): string {
+    if (this.allEmployeeSelected) {
+      return `All Employees (${this.departments.length} departments)`;
+    }
+    return 'All Employees';
   }
 
   getCurrentStepIndex(): number {

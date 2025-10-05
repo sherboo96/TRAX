@@ -275,7 +275,7 @@
                 [disabled]="loadingLocations || locations.length === 0"
                 [class.border-red-300]="isFieldInvalid('locationId')"
               >
-                <option value="" disabled selected>
+                <option [ngValue]="null" disabled>
                   {{
                     loadingLocations
                       ? ("adminAddCourse.form.location.loading" | translate)
@@ -284,7 +284,7 @@
                       : ("adminAddCourse.form.location.empty" | translate)
                   }}
                 </option>
-                <option *ngFor="let loc of locations" [value]="loc.id">
+                <option *ngFor="let loc of locations" [ngValue]="loc.id">
                   {{
                     isRtl ? loc.nameAr || loc.nameEn : loc.nameEn || loc.nameAr
                   }}
@@ -1007,6 +1007,7 @@
                 {{ "adminAddCourse.content.departments.title" | translate }}
               </h3>
               <button
+                *ngIf="!allEmployeeSelected"
                 type="button"
                 (click)="addDepartment()"
                 class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
@@ -1029,8 +1030,49 @@
               </button>
             </div>
 
-            <!-- Department Category Filter (الفئة) -->
-            <div class="mb-4">
+            <!-- All Employees Option -->
+            <div class="mb-6">
+              <label class="flex items-center space-x-3 cursor-pointer group">
+                <div class="relative">
+                  <input
+                    type="checkbox"
+                    formControlName="isForAllEmployees"
+                    (change)="onAllEmployeeChange($event.target.checked)"
+                    class="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                  />
+                  <div
+                    class="absolute inset-0 rounded border-2 border-transparent group-hover:border-blue-300 transition-colors duration-200"
+                  ></div>
+                </div>
+                <div class="flex-1">
+                  <span class="text-lg font-semibold text-gray-800">
+                    {{ getAllEmployeeDisplayText() }}
+                  </span>
+                  <p class="text-sm text-gray-500 mt-1">
+                    {{
+                      allEmployeeSelected
+                        ? "جميع الموظفين في جميع الأقسام"
+                        : "تحديد جميع الأقسام تلقائياً"
+                    }}
+                  </p>
+                </div>
+                <div
+                  *ngIf="allEmployeeSelected"
+                  class="flex items-center text-green-600"
+                >
+                  <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fill-rule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clip-rule="evenodd"
+                    ></path>
+                  </svg>
+                </div>
+              </label>
+            </div>
+
+            <!-- Department Category Filter (الفئة) - Only show when All Employee is not selected -->
+            <div *ngIf="!allEmployeeSelected" class="mb-4">
               <label class="block text-sm font-semibold text-gray-700 mb-2"
                 >الفئة</label
               >
@@ -1065,7 +1107,52 @@
               }}</span>
             </div>
 
-            <div *ngIf="!loadingDepartments" class="space-y-4">
+            <!-- All Employee Status Display -->
+            <div
+              *ngIf="allEmployeeSelected && !loadingDepartments"
+              class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4"
+            >
+              <div class="flex items-center space-x-3">
+                <div class="flex-shrink-0">
+                  <svg
+                    class="w-6 h-6 text-green-600"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clip-rule="evenodd"
+                    ></path>
+                  </svg>
+                </div>
+                <div class="flex-1">
+                  <h4 class="text-sm font-semibold text-green-800">
+                    {{
+                      "adminAddCourse.content.departments.allEmployeesSelected"
+                        | translate
+                    }}
+                  </h4>
+                  <p class="text-sm text-green-700 mt-1">
+                    {{
+                      "adminAddCourse.content.departments.allEmployeesDescription"
+                        | translate
+                    }}
+                    ({{ departments.length }}
+                    {{
+                      "adminAddCourse.content.departments.departments"
+                        | translate
+                    }})
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Manual Department Selection - Only show when All Employee is not selected -->
+            <div
+              *ngIf="!allEmployeeSelected && !loadingDepartments"
+              class="space-y-4"
+            >
               <div
                 *ngFor="
                   let department of targetDepartmentIds.controls;
@@ -1087,7 +1174,10 @@
                           | translate
                       }}
                     </option>
-                    <option *ngFor="let dept of departments" [value]="dept.id">
+                    <option
+                      *ngFor="let dept of filteredDepartments"
+                      [value]="dept.id"
+                    >
                       {{ dept.nameEn || dept.nameAr }} ({{
                         (dept.organization && dept.organization.nameEn) ||
                           dept.organization?.nameAr ||

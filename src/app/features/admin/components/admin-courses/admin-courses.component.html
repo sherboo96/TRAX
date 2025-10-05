@@ -194,6 +194,18 @@
             class="w-full h-full opacity-90 group-hover:opacity-100 transition-all duration-300 transform group-hover:scale-110 relative z-0"
           />
           <div class="absolute top-3 right-3 flex items-center gap-2">
+            <!-- All Employee Badge -->
+            <span
+              *ngIf="course.isForAllEmployees"
+              class="px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 flex items-center gap-1 shadow-sm"
+              title="Available for all employees"
+            >
+              <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              {{ "adminCourses.allEmployees" | translate }}
+            </span>
+
             <span
               [class]="getStatusColor(course.statusId)"
               class="px-3 py-1.5 rounded-full text-xs font-semibold shadow-sm"
@@ -326,6 +338,19 @@
             <p class="text-sm text-gray-600 line-clamp-3 leading-relaxed">
               {{ course.description }}
             </p>
+
+            <!-- All Employee Indicator -->
+            <div
+              *ngIf="course.isForAllEmployees"
+              class="mt-2 flex items-center gap-1 text-xs text-purple-600 font-medium"
+            >
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <span>{{
+                "adminCourses.availableForAllEmployees" | translate
+              }}</span>
+            </div>
           </div>
 
           <!-- Action Buttons -->

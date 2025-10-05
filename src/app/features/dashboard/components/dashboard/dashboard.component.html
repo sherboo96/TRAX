@@ -1,4 +1,8 @@
-<div class="min-h-screen bg-gray-50" [class.rtl]="isRTL" [attr.dir]="isRTL ? 'rtl' : 'ltr'">
+<div
+  class="min-h-screen bg-gray-50"
+  [class.rtl]="isRTL"
+  [attr.dir]="isRTL ? 'rtl' : 'ltr'"
+>
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Upcoming Courses Badge -->
     <div class="mb-8">
@@ -8,7 +12,7 @@
         <!-- Header with Collapse Toggle -->
         <div
           (click)="toggleUpcomingCourses()"
-          class="bg-gradient-to-r from-primary-500 to-secondary-500 p-6 text-white cursor-pointer hover:from-primary-600 hover:to-secondary-600 transition-all duration-200"
+          class="bg-[#0c5669] p-6 text-white cursor-pointer hover:bg-[#0c5669] transition-all duration-200"
         >
           <div class="flex items-center justify-between">
             <div class="flex items-center">
@@ -28,7 +32,9 @@
                 </svg>
               </div>
               <div>
-                <h2 class="text-xl font-bold">{{ "dashboard.upcomingCourses.title" | translate }}</h2>
+                <h2 class="text-xl font-bold">
+                  {{ "dashboard.upcomingCourses.title" | translate }}
+                </h2>
                 <p class="text-primary-100 text-sm">
                   {{ "dashboard.upcomingCourses.subtitle" | translate }}
                 </p>
@@ -39,7 +45,9 @@
                 <div class="text-2xl font-bold">
                   {{ upcomingCourses.length }}
                 </div>
-                <div class="text-primary-100 text-sm">{{ "dashboard.upcomingCourses.sessions" | translate }}</div>
+                <div class="text-primary-100 text-sm">
+                  {{ "dashboard.upcomingCourses.sessions" | translate }}
+                </div>
               </div>
               <button
                 (click)="loadUpcomingCourses()"
@@ -91,7 +99,9 @@
               <div
                 class="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-500"
               ></div>
-              <span class="text-neutral-600">{{ "dashboard.upcomingCourses.loading" | translate }}</span>
+              <span class="text-neutral-600">{{
+                "dashboard.upcomingCourses.loading" | translate
+              }}</span>
             </div>
           </div>
 
@@ -126,201 +136,110 @@
           <!-- Upcoming Courses List -->
           <div
             *ngIf="!isLoadingUpcomingCourses && upcomingCourses.length > 0"
-            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-stretch"
           >
             <div
               *ngFor="let course of upcomingCourses"
-              class="bg-white rounded-lg p-4 border border-neutral-200 hover:border-primary-300 hover:shadow-md transition-all duration-200 cursor-pointer group"
+              (click)="joinSession(course)"
+              class="w-full p-6 bg-white rounded-2xl outline outline-1 outline-offset-[-1px] outline-[#e9dcc2] hover:shadow-md transition-all duration-200 cursor-pointer group flex flex-col min-h-[200px] h-full relative"
             >
-              <!-- Course Image -->
-              <div class="mb-3">
-                <img
-                  [src]="course.image"
-                  [alt]="course.title"
-                  class="w-full h-32 object-cover rounded-lg"
-                  (error)="onImageError($event)"
-                />
-              </div>
-
-              <div class="flex items-start justify-between mb-3">
-                <div class="flex-1">
-                  <h3
-                    class="font-semibold text-neutral-900 text-sm mb-1 group-hover:text-primary-600 transition-colors line-clamp-2"
-                  >
-                    {{ course.title }}
-                  </h3>
-                  <p class="text-neutral-600 text-xs">
-                    {{ course.instructor }}
-                  </p>
-                </div>
-                <div class="flex flex-col items-end space-y-1">
-                  <span
-                    class="px-2 py-1 text-xs font-medium rounded-full"
-                    [ngClass]="{
-                      'bg-error/10 text-error': course.priority === 'high',
-                      'bg-warning/10 text-warning':
-                        course.priority === 'medium',
-                      'bg-success/10 text-success': course.priority === 'low'
-                    }"
-                  >
-                    {{ course.priority }}
-                  </span>
-                  <span
-                    class="px-2 py-1 text-xs font-medium rounded-full"
-                    [ngClass]="{
-                      'bg-green-100 text-green-800':
-                        course.statusName === 'Active',
-                      'bg-blue-100 text-blue-800':
-                        course.statusName === 'Published',
-                      'bg-yellow-100 text-yellow-800':
-                        course.statusName === 'Draft',
-                      'bg-gray-100 text-gray-800':
-                        course.statusName === 'Archived'
-                    }"
-                  >
-                    {{ course.statusName }}
-                  </span>
-                </div>
-              </div>
-
-              <div class="space-y-2">
-                <!-- Date and Time -->
-                <div class="flex items-center text-neutral-600 text-xs">
-                  <svg
-                    class="w-3 h-3 mr-2 text-info"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                      clip-rule="evenodd"
-                    ></path>
-                  </svg>
-                  {{ course.date }} at {{ course.time }}
-                </div>
-
-                <!-- Location -->
-                <div class="flex items-center text-neutral-600 text-xs">
-                  <svg
-                    class="w-3 h-3 mr-2 text-success"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
-                      clip-rule="evenodd"
-                    ></path>
-                  </svg>
-                  {{ course.location }}
-                </div>
-
-                <!-- Duration -->
-                <div class="flex items-center text-neutral-600 text-xs">
-                  <svg
-                    class="w-3 h-3 mr-2 text-secondary-500"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.414L11 9.586V6z"
-                      clip-rule="evenodd"
-                    ></path>
-                  </svg>
-                  {{ course.duration }} {{ "dashboard.upcomingCourses.hours" | translate }}
-                </div>
-
-                <!-- Available Seats -->
-                <div class="flex items-center text-neutral-600 text-xs">
-                  <svg
-                    class="w-3 h-3 mr-2 text-warning"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"
-                      clip-rule="evenodd"
-                    ></path>
-                  </svg>
-                  {{ course.availableSeats }} {{ "dashboard.upcomingCourses.seatsAvailable" | translate }}
-                </div>
-
-                <!-- Registration Status -->
-                <div
-                  *ngIf="course.isUserRegistered"
-                  class="flex items-center text-xs"
-                >
-                  <svg
-                    class="w-3 h-3 mr-2 text-green-600"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                      clip-rule="evenodd"
-                    ></path>
-                  </svg>
-                  <span class="text-green-600 font-medium">
-                    {{ course.userRegistrationStatusName }}
-                  </span>
-                </div>
-              </div>
-
-              <!-- Action Button -->
-              <div class="mt-3 pt-3 border-t border-neutral-100">
-                <button
-                  (click)="joinSession(course)"
-                  class="w-full text-xs font-medium py-2 px-3 rounded-md transition-all duration-200 flex items-center justify-center group-hover:shadow-md"
-                  [ngClass]="{
-                    'bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-600 hover:to-secondary-600 text-white':
-                      course.isUserRegistered &&
-                      course.userRegistrationStatusName === 'Approved',
-                    'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white':
-                      !course.isUserRegistered ||
-                      course.userRegistrationStatusName !== 'Approved'
-                  }"
-                >
-                  <svg
-                    class="w-3 h-3 mr-1"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      *ngIf="
-                        course.isUserRegistered &&
-                        course.userRegistrationStatusName === 'Approved'
-                      "
-                      fill-rule="evenodd"
-                      d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z"
-                      clip-rule="evenodd"
-                    ></path>
-                    <path
-                      *ngIf="
-                        !course.isUserRegistered ||
-                        course.userRegistrationStatusName !== 'Approved'
-                      "
-                      fill-rule="evenodd"
-                      d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-                      clip-rule="evenodd"
-                    ></path>
-                  </svg>
-                  {{
+              <!-- Registered badge -->
+              <span
+                *ngIf="course.isUserRegistered"
+                class="absolute top-3 px-2 py-1 text-[10px] font-semibold rounded-full"
+                [class.right-3]="!isRTL"
+                [class.left-3]="isRTL"
+                [ngClass]="{
+                  'bg-green-100 text-green-700':
                     course.isUserRegistered &&
-                    course.userRegistrationStatusName === "Approved"
-                      ? ("dashboard.upcomingCourses.viewDetails" | translate)
-                      : ("dashboard.upcomingCourses.registerCourse" | translate)
-                  }}
-                </button>
+                    course.userRegistrationStatusName === 'Approved',
+                  'bg-yellow-100 text-yellow-700':
+                    course.userRegistrationStatusName !== 'Approved'
+                }"
+              >
+                {{
+                  course.userRegistrationStatusName ||
+                    ("dashboard.upcomingCourses.registered" | translate)
+                }}
+              </span>
+              <div class="flex-1 flex flex-col">
+                <div
+                  class="self-stretch inline-flex justify-end items-center gap-4 mb-4"
+                >
+                  <div class="w-16 h-16 relative shrink-0">
+                    <img
+                      class="w-16 h-16 left-0 top-0 absolute rounded-lg object-cover"
+                      [src]="course.image"
+                      [alt]="course.title"
+                      (error)="onImageError($event)"
+                    />
+                  </div>
+                  <div
+                    class="flex-1 flex flex-col justify-start items-start gap-2 min-w-0"
+                  >
+                    <div
+                      class="text-[#0c5669] text-base md:text-lg font-bold leading-snug"
+                      [title]="course.title"
+                    >
+                      {{ course.title }}
+                    </div>
+                    <div class="text-[#414042] text-sm leading-snug">
+                      {{ course.date }} {{ " " }} {{ course.time }}
+                    </div>
+                    <div class="mt-1">
+                      <span
+                        class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#e6f4ea] text-[#0c6b3f] border border-[#b7e0c3]"
+                      >
+                        <svg
+                          class="w-3 h-3"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fill-rule="evenodd"
+                            d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
+                            clip-rule="evenodd"
+                          ></path>
+                        </svg>
+                        {{
+                          isRTL
+                            ? course.location.nameAr || course.location.nameEn
+                            : course.location.nameEn || course.location.nameAr
+                        }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="space-y-2">
+                  <div class="flex items-center text-neutral-600 text-sm">
+                    {{ course.description }}
+                  </div>
+                  <div
+                    *ngIf="course.isUserRegistered"
+                    class="flex items-center text-xs"
+                  >
+                    <svg
+                      class="w-3 h-3 mr-2 text-green-600"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clip-rule="evenodd"
+                      ></path>
+                    </svg>
+                    <span class="text-green-600 font-medium">
+                      {{ course.userRegistrationStatusName }}
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-
   </div>
 </div>
