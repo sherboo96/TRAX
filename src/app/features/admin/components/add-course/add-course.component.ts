@@ -75,8 +75,6 @@ export class AddCourseComponent implements OnInit {
   submitting = false;
   loadingInstructors = false;
   loadingDepartments = false;
-  selectedImage: File | null = null;
-  imagePreview: string | null = null;
 
   // Edit mode properties
   isEditMode = false;
@@ -136,24 +134,28 @@ export class AddCourseComponent implements OnInit {
     {
       id: 'basic',
       title: 'adminAddCourse.sections.basic',
+      subtitle: 'adminAddCourse.sections.basicSubtitle',
       icon: '📋',
       completed: false,
     },
     {
       id: 'schedule',
       title: 'adminAddCourse.sections.schedule',
+      subtitle: 'adminAddCourse.sections.scheduleSubtitle',
       icon: '📅',
       completed: false,
     },
     {
       id: 'details',
       title: 'adminAddCourse.sections.details',
+      subtitle: 'adminAddCourse.sections.detailsSubtitle',
       icon: '⚙️',
       completed: false,
     },
     {
       id: 'content',
       title: 'adminAddCourse.sections.content',
+      subtitle: 'adminAddCourse.sections.contentSubtitle',
       icon: '📚',
       completed: false,
     },
@@ -392,11 +394,14 @@ export class AddCourseComponent implements OnInit {
   private populateFormWithCourseData(course: any): void {
     // Prevent clearing of dependent fields while programmatically populating
     this.isPopulatingForm = true;
+    
+    // Store the locationId to set after locations are loaded
+    const courseLocationId = course.location.id;
+    
     // Populate basic form fields
     this.courseForm.patchValue({
       title: course.title || '',
       description: course.description || '',
-      locationId: course.locationId ?? null,
       startDate: this.formatDateForInput(course.startDate),
       endDate: this.formatDateForInput(course.endDate),
       timeFrom: course.timeFrom || '',
@@ -407,9 +412,10 @@ export class AddCourseComponent implements OnInit {
       level: course.level || 1,
       duration: course.duration || '',
       price: course.price || 0,
-      kpiWeight: course.kpiWeight || 0,
-      // status always defaults to Draft on create
-      status: course.statusId || 1,
+        kpiWeight: course.kpiWeight || 0,
+        locationId: course.location.id || null,
+        // Keep original status in edit mode, default to Draft in create mode
+        status: this.isEditMode ? (course.statusId || course.status?.id || 1) : 1,
       language: course.language || 'en',
       certificate: course.certificate || false,
       isForAllEmployees: course.isForAllEmployees || false,
@@ -418,15 +424,19 @@ export class AddCourseComponent implements OnInit {
     // Populate form arrays
     this.populateFormArrays(course);
 
-    // Set image preview if course has an image
-    if (course.image) {
-      this.imagePreview = `${environment.imageBaseUrl}${course.image}`;
-    }
+    // Note: Image handling removed as per requirements
 
     // Update section completion
     this.updateSectionCompletion();
     // Re-enable reactive behavior after population
     this.isPopulatingForm = false;
+    
+    // Set location after a brief delay to ensure locations are loaded
+    if (courseLocationId) {
+      setTimeout(() => {
+        this.courseForm.patchValue({ locationId: courseLocationId });
+      }, 200);
+    }
   }
 
   private populateFormArrays(course: any): void {
@@ -874,7 +884,7 @@ export class AddCourseComponent implements OnInit {
         duration: formValue.duration,
         price: formValue.price,
         kpiWeight: formValue.kpiWeight,
-        statusId: 1, // default to Draft
+        statusId: this.isEditMode ? (this.originalCourse?.statusId || this.originalCourse?.status?.id || 1) : 1, // Keep original status in edit mode, default to Draft in create mode
         requirements: formValue.requirements.filter(
           (req: string) => req.trim() !== ''
         ),
@@ -891,19 +901,13 @@ export class AddCourseComponent implements OnInit {
               .map((id: any) => parseInt(id)), // Convert to numbers
         instructorIds: formValue.instructorIds
           .filter((id: any) => id !== null && id !== undefined && id !== '')
-          .map((id: any) => parseInt(id)), // Convert to numbers
-        imageFile: this.selectedImage || undefined, // Add the selected image file
+          .map((id: any) => parseInt(id)) // Convert to numbers
       };
 
-      // Debug: Log the payload to verify image file and isForAllEmployees
+      // Debug: Log the payload to verify isForAllEmployees
       console.log('Course payload:', coursePayload);
       console.log('isForAllEmployees from form:', formValue.isForAllEmployees);
       console.log('allEmployeeSelected property:', this.allEmployeeSelected);
-      console.log('Image file:', this.selectedImage);
-      console.log(
-        'FormData will be created with image file:',
-        !!this.selectedImage
-      );
 
       // Choose between create and update based on mode
       const courseOperation = this.isEditMode
@@ -1046,52 +1050,7 @@ export class AddCourseComponent implements OnInit {
     this.router.navigate([coursesRoute]);
   }
 
-  // Image upload methods
-  onImageSelected(event: any): void {
-    const file = event.target.files[0];
-    if (file) {
-      // Validate file type
-      const allowedTypes = [
-        'image/jpeg',
-        'image/jpg',
-        'image/png',
-        'image/gif',
-        'image/webp',
-      ];
-      if (!allowedTypes.includes(file.type)) {
-        alert('Please select a valid image file (JPEG, PNG, GIF, or WebP)');
-        return;
-      }
-
-      // Validate file size (max 5MB)
-      const maxSize = 5 * 1024 * 1024; // 5MB
-      if (file.size > maxSize) {
-        alert('Image size should not exceed 5MB');
-        return;
-      }
-
-      this.selectedImage = file;
-
-      // Create preview
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
-        this.imagePreview = e.target.result;
-      };
-      reader.readAsDataURL(file);
-    }
-  }
-
-  removeImage(): void {
-    this.selectedImage = null;
-    this.imagePreview = null;
-    // Reset the file input
-    const fileInput = document.getElementById(
-      'courseImage'
-    ) as HTMLInputElement;
-    if (fileInput) {
-      fileInput.value = '';
-    }
-  }
+  // Image upload methods removed as per requirements
 
   // Helper methods
   getCategoryName(id: number): string {
@@ -1104,6 +1063,44 @@ export class AddCourseComponent implements OnInit {
 
   getStatusName(id: number): string {
     return this.statuses.find((status) => status.id === id)?.name || '';
+  }
+
+  // Get status badge class for styling
+  getStatusBadgeClass(status: any): string {
+    const statusId = typeof status === 'object' ? status.id : status;
+    switch (statusId) {
+      case 1: // Draft
+        return 'bg-gray-100 text-gray-800 border border-gray-200';
+      case 2: // Published
+        return 'bg-green-100 text-green-800 border border-green-200';
+      case 3: // In Progress
+        return 'bg-blue-100 text-blue-800 border border-blue-200';
+      case 4: // Completed
+        return 'bg-purple-100 text-purple-800 border border-purple-200';
+      case 5: // Archived
+        return 'bg-red-100 text-red-800 border border-red-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border border-gray-200';
+    }
+  }
+
+  // Get status dot class for the colored indicator
+  getStatusDotClass(status: any): string {
+    const statusId = typeof status === 'object' ? status.id : status;
+    switch (statusId) {
+      case 1: // Draft
+        return 'bg-gray-400';
+      case 2: // Published
+        return 'bg-green-500';
+      case 3: // In Progress
+        return 'bg-blue-500';
+      case 4: // Completed
+        return 'bg-purple-500';
+      case 5: // Archived
+        return 'bg-red-500';
+      default:
+        return 'bg-gray-400';
+    }
   }
 
   getInstructorName(id: number): string {

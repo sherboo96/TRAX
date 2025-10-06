@@ -8,8 +8,8 @@ import { PaginatedResponse } from '../models/pagination.model';
 export interface CourseFilterRequest {
   title?: string;
   description?: string;
-  category?: number;
-  level?: number;
+  category?: string;
+  level?: string;
   status?: number;
   page?: number;
   pageSize?: number;
@@ -73,7 +73,18 @@ export interface Course {
   imageFile?: File;
 }
 
-export interface CourseFilterResponse extends PaginatedResponse<Course> {}
+export interface CourseFilterResponse {
+  statusCode: number;
+  success: boolean;
+  result: {
+    items: Course[];
+    totalCount: number;
+    page: number;
+    pageSize: number;
+    totalPages: number;
+  };
+  message: string;
+}
 
 export interface CourseResponse {
   statusCode: number;
@@ -99,7 +110,20 @@ export class CourseService {
   filterCourses(
     filterRequest: CourseFilterRequest
   ): Observable<CourseFilterResponse> {
-    return this.http.get<CourseFilterResponse>(`${this.apiUrl}`);
+    let params = new HttpParams();
+    
+    if (filterRequest.title) params = params.set('title', filterRequest.title);
+    if (filterRequest.description) params = params.set('description', filterRequest.description);
+    if (filterRequest.category) params = params.set('category', filterRequest.category);
+    if (filterRequest.level) params = params.set('level', filterRequest.level);
+    if (filterRequest.status) params = params.set('status', filterRequest.status.toString());
+    if (filterRequest.page !== undefined) params = params.set('page', filterRequest.page.toString());
+    if (filterRequest.pageSize) params = params.set('pageSize', filterRequest.pageSize.toString());
+    if (filterRequest.sortBy) params = params.set('sortBy', filterRequest.sortBy);
+    if (filterRequest.sortOrder) params = params.set('sortOrder', filterRequest.sortOrder);
+    
+    
+    return this.http.get<CourseFilterResponse>(`${this.apiUrl}/filter`, { params });
   }
 
   getCourseById(id: number): Observable<CourseResponse> {

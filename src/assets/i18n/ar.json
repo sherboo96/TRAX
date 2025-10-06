@@ -329,9 +329,11 @@
   "adminCourses.level.advanced": "متقدم",
   "adminCourses.status.draft": "مسودة",
   "adminCourses.status.published": "منشور",
-  "adminCourses.status.inProgress": "قيد التقدم",
-  "adminCourses.status.completed": "مكتمل",
   "adminCourses.status.archived": "مؤرشف",
+  "adminCourses.status.closed": "مغلق",
+  "adminCourses.status.registrationClosed": "تم إغلاق التسجيل",
+  "adminCourses.status.active": "نشط",
+  "adminCourses.status.completed": "مكتمل",
   "adminCourses.status.archive": "مؤرشف",
   "adminCourses.publishCourse": "نشر الدورة",
   "adminCourses.unpublishCourse": "إلغاء نشر الدورة",
@@ -492,8 +494,10 @@
   "adminAddCourse.sections.basicSubtitle": "ابدأ بتقديم التفاصيل الأساسية عن دورتك",
   "adminAddCourse.sections.schedule": "الجدول والمدة",
   "adminAddCourse.sections.details": "تفاصيل الدورة",
+  "adminAddCourse.sections.detailsSubtitle": "حدد المستوى والحالة والسعر والوزن المؤشري واللغة",
   "adminAddCourse.sections.scheduleSubtitle": "حدد توقيت ومدّة الدورة",
   "adminAddCourse.sections.content": "المحتوى والتكليفات",
+  "adminAddCourse.sections.contentSubtitle": "تعريف المحتوى، المتطلبات، وتعيين المدربين والأقسام",
 
   "adminAddCourse.form.title.label": "عنوان الدورة *",
   "adminAddCourse.form.title.placeholder": "أدخل عنواناً جذاباً للدورة",
@@ -623,5 +627,12 @@
   "attendance.notCheckedOut": "لم يسجل خروج",
   "common.on": "تشغيل",
   "common.off": "إيقاف",
-  "common.reloading": "جارٍ إعادة التحميل..."
+  "common.reloading": "جارٍ إعادة التحميل...",
+  "adminCourses.previousMonth": "الشهر السابق",
+  "adminCourses.nextMonth": "الشهر التالي",
+  "adminCourses.availableForAllEmployees": "متاح لجميع الموظفين",
+  "common.yes": "نعم",
+  "common.no": "لا",
+  "courseDetails.card.notSet": "غير معين",
+  "courseDetails.card.kpiWeight": "الوزن المؤشري"
 }

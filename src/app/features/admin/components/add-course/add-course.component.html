@@ -1,579 +1,313 @@
 <div class="min-h-screen bg-gray-50">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Header Section -->
     <div class="mb-8">
       <div class="flex items-center justify-between">
         <div class="flex items-center space-x-4">
-          <div
-            class="p-3 bg-white rounded-2xl shadow-sm border border-gray-100"
-          >
-            <div
-              class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center"
-            >
-              <svg
-                class="w-5 h-5 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-                ></path>
+          <div class="p-3 bg-white rounded-lg shadow-sm border border-gray-200">
+            <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+              <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
               </svg>
             </div>
           </div>
           <div>
-            <h1 class="text-3xl font-bold text-gray-900">
-              {{
-                isEditMode
-                  ? ("adminAddCourse.header.editTitle" | translate)
-                  : ("adminAddCourse.header.createTitle" | translate)
-              }}
+            <h1 class="text-2xl font-bold text-gray-900">
+              {{ isEditMode ? ("adminAddCourse.header.editTitle" | translate) : ("adminAddCourse.header.createTitle" | translate) }}
             </h1>
-            <p class="text-gray-500 mt-1">
-              {{
-                isEditMode
-                  ? ("adminAddCourse.header.editSubtitle" | translate)
-                  : ("adminAddCourse.header.createSubtitle" | translate)
-              }}
+            <p class="text-gray-600 mt-1">
+              {{ isEditMode ? ("adminAddCourse.header.editSubtitle" | translate) : ("adminAddCourse.header.createSubtitle" | translate) }}
             </p>
           </div>
         </div>
-        <button
-          (click)="onCancel()"
-          class="inline-flex items-center px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 shadow-sm"
-        >
-          <svg
-            class="w-4 h-4"
-            [ngClass]="isRtl ? 'ml-2' : 'mr-2'"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              [attr.d]="
-                isRtl
-                  ? 'M14 5l7 7m0 0l-7 7m7-7H3'
-                  : 'M10 19l-7-7m0 0l7-7m-7 7h18'
-              "
-            ></path>
+        <button (click)="onCancel()" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200">
+          <svg class="w-4 h-4" [ngClass]="isRtl ? 'ml-2' : 'mr-2'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="isRtl ? 'M14 5l7 7m0 0l-7 7m7-7H3' : 'M10 19l-7-7m0 0l7-7m-7 7h18'"></path>
           </svg>
           {{ "adminAddCourse.header.back" | translate }}
         </button>
       </div>
     </div>
 
-    <!-- Progress Indicator -->
+    <!-- Classic Stepper -->
     <div class="mb-8">
-      <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-        <div class="flex items-center justify-between mb-4">
+      <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+        <div class="flex items-center justify-between mb-6">
           <h3 class="text-lg font-semibold text-gray-900">
             {{ "adminAddCourse.progress.title" | translate }}
           </h3>
           <div class="text-sm text-gray-500">
-            {{ "adminAddCourse.progress.step" | translate }}
-            {{ getCurrentStepIndex() + 1 }}
-            {{ "adminAddCourse.progress.of" | translate }}
-            {{ formSections.length }}
+            {{ "adminAddCourse.progress.step" | translate }} {{ getCurrentStepIndex() + 1 }} {{ "adminAddCourse.progress.of" | translate }} {{ formSections.length }}
           </div>
         </div>
-        <div class="flex items-center space-x-2">
-          <div
-            *ngFor="let section of formSections; let i = index"
-            class="flex items-center"
-          >
-            <div class="flex items-center">
-              <button
-                (click)="goToSection(section.id)"
-                [class]="
-                  currentSection === section.id
-                    ? 'bg-blue-600 text-white border-blue-600 shadow-lg'
-                    : section.completed
-                    ? 'bg-green-500 text-white border-green-500'
-                    : 'bg-gray-100 text-gray-400 border-gray-200 hover:border-gray-300'
-                "
-                class="flex items-center justify-center w-8 h-8 rounded-full border-2 transition-all duration-200 hover:scale-105"
-              >
-                <span *ngIf="section.completed" class="text-xs font-bold"
-                  >✓</span
-                >
-                <span *ngIf="!section.completed" class="text-xs">{{
-                  section.icon
-                }}</span>
+        
+        <!-- Classic Stepper Design -->
+        <div class="relative">
+          <!-- Progress Line -->
+          <div class="absolute top-6 left-0 right-0 h-0.5 bg-gray-200">
+            <div class="h-full bg-blue-600 transition-all duration-300" 
+                 [style.width.%]="(getCurrentStepIndex() / (formSections.length - 1)) * 100">
+            </div>
+          </div>
+          
+          <!-- Steps -->
+          <div class="relative flex justify-between">
+            <div *ngFor="let section of formSections; let i = index" 
+                 class="flex flex-col items-center">
+              <!-- Step Circle -->
+              <button (click)="goToSection(section.id)"
+                      [class]="currentSection === section.id 
+                        ? 'bg-blue-600 text-white border-blue-600 shadow-lg' 
+                        : section.completed 
+                          ? 'bg-green-500 text-white border-green-500' 
+                          : 'bg-white text-gray-400 border-gray-300 hover:border-gray-400'"
+                      class="relative z-10 flex items-center justify-center w-12 h-12 rounded-full border-2 transition-all duration-200 hover:scale-105">
+                <span *ngIf="section.completed" class="text-sm font-bold">✓</span>
+                <span *ngIf="!section.completed" class="text-lg">{{ section.icon }}</span>
               </button>
-              <div class="ml-2">
-                <p
-                  [class]="
-                    currentSection === section.id
-                      ? 'text-blue-600 font-semibold'
-                      : 'text-gray-500'
-                  "
-                  class="text-xs font-medium"
-                >
+              
+              <!-- Step Label -->
+              <div class="mt-3 text-center max-w-24">
+                <p [class]="currentSection === section.id ? 'text-blue-600 font-semibold' : 'text-gray-500'" 
+                   class="text-xs font-medium leading-tight">
                   {{ section.title | translate }}
                 </p>
               </div>
             </div>
-            <div
-              *ngIf="i < formSections.length - 1"
-              class="ml-3 w-4 h-0.5 bg-gray-200"
-            ></div>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Form Container -->
-    <form
-      [formGroup]="courseForm"
-      (ngSubmit)="onSubmit()"
-      class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden"
-    >
+    <form [formGroup]="courseForm" (ngSubmit)="onSubmit()" class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      
       <!-- Basic Information Section -->
       <div *ngIf="currentSection === 'basic'" class="p-8">
+        <!-- Section Header -->
         <div class="mb-8">
           <div class="flex items-center space-x-4 mb-6">
-            <div
-              class="p-3 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl"
-            >
+            <div class="p-3 bg-blue-50 rounded-lg">
               <span class="text-2xl">📋</span>
             </div>
             <div>
-              <h2 class="text-2xl font-bold text-gray-900">
+              <h2 class="text-xl font-bold text-gray-900">
                 {{ "adminAddCourse.sections.basic" | translate }}
               </h2>
-              <p class="text-gray-500 mt-1">
+              <p class="text-gray-600 mt-1">
                 {{ "adminAddCourse.sections.basicSubtitle" | translate }}
               </p>
             </div>
           </div>
         </div>
 
-        <div class="space-y-8">
+        <div class="space-y-6">
           <!-- Title -->
-          <div class="bg-gray-50 rounded-xl p-6">
-            <label
-              for="title"
-              class="block text-sm font-semibold text-gray-700 mb-3"
-              >{{ "adminAddCourse.form.title.label" | translate }}</label
-            >
-            <input
-              type="text"
-              id="title"
-              formControlName="title"
-              placeholder="{{
-                'adminAddCourse.form.title.placeholder' | translate
-              }}"
-              class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-              [class.border-red-300]="isFieldInvalid('title')"
-            />
-            <div
-              *ngIf="isFieldInvalid('title')"
-              class="mt-2 text-sm text-red-600"
-            >
+          <div class="space-y-2">
+            <label for="title" class="block text-sm font-medium text-gray-700">
+              {{ "adminAddCourse.form.title.label" | translate }}
+            </label>
+            <input type="text" id="title" formControlName="title" 
+                   placeholder="{{ 'adminAddCourse.form.title.placeholder' | translate }}"
+                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                   [class.border-red-500]="isFieldInvalid('title')" />
+            <div *ngIf="isFieldInvalid('title')" class="text-sm text-red-600">
               {{ getFieldError("title") }}
             </div>
           </div>
 
+          <!-- Description -->
+          <div class="space-y-2">
+            <label for="description" class="block text-sm font-medium text-gray-700">
+              {{ "adminAddCourse.form.description.label" | translate }}
+            </label>
+            <textarea id="description" formControlName="description" rows="4"
+                      placeholder="{{ 'adminAddCourse.form.description.placeholder' | translate }}"
+                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 resize-none"
+                      [class.border-red-500]="isFieldInvalid('description')"></textarea>
+            <div *ngIf="isFieldInvalid('description')" class="text-sm text-red-600">
+              {{ getFieldError("description") }}
+            </div>
+          </div>
+
           <!-- Category and Language Row -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <!-- Category -->
-            <div class="bg-gray-50 rounded-xl p-6">
-              <label class="block text-sm font-semibold text-gray-700 mb-4">{{
-                "adminAddCourse.form.category.label" | translate
-              }}</label>
-              <div class="grid grid-cols-2 gap-3">
-                <button
-                  *ngFor="let category of categories"
-                  type="button"
-                  (click)="courseForm.patchValue({ category: category.id })"
-                  [class]="
-                    courseForm.get('category')?.value === category.id
-                      ? 'bg-blue-500 text-white border-blue-500 shadow-lg'
-                      : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300'
-                  "
-                  class="flex items-center p-4 border-2 rounded-xl transition-all duration-200"
-                >
-                  <span class="text-xl mr-3">{{ category.icon }}</span>
-                  <span class="font-medium text-sm">{{
-                    "locations.categories." + getCategoryI18nKey(category.name)
-                      | translate
-                  }}</span>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Category Badges -->
+            <div class="space-y-3">
+              <label class="block text-sm font-medium text-gray-700">
+                {{ "adminAddCourse.form.category.label" | translate }}
+              </label>
+              <div class="flex flex-wrap gap-2">
+                <button *ngFor="let category of categories" type="button"
+                        (click)="courseForm.patchValue({ category: category.id })"
+                        [class]="courseForm.get('category')?.value === category.id 
+                          ? 'bg-blue-600 text-white border-blue-600' 
+                          : 'bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200'"
+                        class="px-4 py-2 border rounded-full text-sm font-medium transition-all duration-200">
+                  {{ "locations.categories." + getCategoryI18nKey(category.name) | translate }}
                 </button>
               </div>
             </div>
 
             <!-- Language -->
-            <div class="bg-gray-50 rounded-xl p-6">
-              <label class="block text-sm font-semibold text-gray-700 mb-4">{{
-                "adminAddCourse.form.language.label" | translate
-              }}</label>
+            <div class="space-y-3">
+              <label class="block text-sm font-medium text-gray-700">
+                {{ "adminAddCourse.form.language.label" | translate }}
+              </label>
               <div class="grid grid-cols-2 gap-3">
-                <button
-                  *ngFor="let lang of languages"
-                  type="button"
-                  (click)="courseForm.patchValue({ language: lang.code })"
-                  [class]="
-                    courseForm.get('language')?.value === lang.code
-                      ? 'bg-blue-500 text-white border-blue-500 shadow-lg'
-                      : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300'
-                  "
-                  class="flex items-center p-4 border-2 rounded-xl transition-all duration-200"
-                >
-                  <span class="text-lg mr-3">{{ lang.flag }}</span>
-                  <span class="font-medium text-sm">{{
-                    "locale." + lang.code | translate
-                  }}</span>
+                <button *ngFor="let lang of languages" type="button"
+                        (click)="courseForm.patchValue({ language: lang.code })"
+                        [class]="courseForm.get('language')?.value === lang.code 
+                          ? 'bg-blue-600 text-white border-blue-600' 
+                          : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'"
+                        class="flex items-center p-3 border rounded-lg transition-all duration-200">
+                  <span class="text-lg mr-2">{{ lang.flag }}</span>
+                  <span class="font-medium text-sm">{{ "locale." + lang.code | translate }}</span>
                 </button>
               </div>
-            </div>
-          </div>
-
-          <!-- Description -->
-          <div class="bg-gray-50 rounded-xl p-6">
-            <label
-              for="description"
-              class="block text-sm font-semibold text-gray-700 mb-3"
-              >{{ "adminAddCourse.form.description.label" | translate }}</label
-            >
-            <textarea
-              id="description"
-              formControlName="description"
-              rows="4"
-              placeholder="{{
-                'adminAddCourse.form.description.placeholder' | translate
-              }}"
-              class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 resize-none"
-              [class.border-red-300]="isFieldInvalid('description')"
-            ></textarea>
-            <div
-              *ngIf="isFieldInvalid('description')"
-              class="mt-2 text-sm text-red-600"
-            >
-              {{ getFieldError("description") }}
             </div>
           </div>
 
           <!-- Location (dependent on Category) -->
-          <div class="bg-gray-50 rounded-xl p-6">
-            <label
-              for="locationId"
-              class="block text-sm font-semibold text-gray-700 mb-3"
-              >{{ "adminAddCourse.form.location.label" | translate }}</label
-            >
-            <div class="relative">
-              <select
-                id="locationId"
-                formControlName="locationId"
-                class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 appearance-none"
-                [disabled]="loadingLocations || locations.length === 0"
-                [class.border-red-300]="isFieldInvalid('locationId')"
-              >
-                <option [ngValue]="null" disabled>
-                  {{
-                    loadingLocations
-                      ? ("adminAddCourse.form.location.loading" | translate)
-                      : locations.length
-                      ? ("adminAddCourse.form.location.placeholder" | translate)
-                      : ("adminAddCourse.form.location.empty" | translate)
-                  }}
-                </option>
-                <option *ngFor="let loc of locations" [ngValue]="loc.id">
-                  {{
-                    isRtl ? loc.nameAr || loc.nameEn : loc.nameEn || loc.nameAr
-                  }}
-                </option>
-              </select>
-              <div
-                class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400"
-              >
-                <i class="fas fa-chevron-down"></i>
+          <div class="space-y-2">
+            <label for="locationId" class="block text-sm font-medium text-gray-700">
+              {{ "adminAddCourse.form.location.label" | translate }}
+            </label>
+            
+            <!-- Course Status Display (Edit Mode Only) -->
+            <div *ngIf="isEditMode && originalCourse?.status" class="mb-3">
+              <div class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium"
+                   [class]="getStatusBadgeClass(originalCourse.status)">
+                <span class="w-2 h-2 rounded-full mr-2"
+                      [class]="getStatusDotClass(originalCourse.status)"></span>
+                {{ getStatusName(originalCourse.status) }}
               </div>
             </div>
-            <div
-              *ngIf="isFieldInvalid('locationId')"
-              class="mt-2 text-sm text-red-600"
-            >
+            
+            <div class="relative">
+              <select id="locationId" formControlName="locationId"
+                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 appearance-none"
+                      [disabled]="loadingLocations || locations.length === 0"
+                      [class.border-red-500]="isFieldInvalid('locationId')">
+                <option [ngValue]="null" disabled>
+                  {{ loadingLocations ? ("adminAddCourse.form.location.loading" | translate) 
+                     : locations.length ? ("adminAddCourse.form.location.placeholder" | translate) 
+                     : ("adminAddCourse.form.location.empty" | translate) }}
+                </option>
+                <option *ngFor="let loc of locations" [ngValue]="loc.id">
+                  {{ isRtl ? loc.nameAr || loc.nameEn : loc.nameEn || loc.nameAr }}
+                </option>
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </div>
+            </div>
+            <div *ngIf="isFieldInvalid('locationId')" class="text-sm text-red-600">
               {{ getFieldError("locationId") }}
             </div>
           </div>
 
-          <!-- Course Image -->
-          <div class="bg-gray-50 rounded-xl p-6">
-            <label
-              for="courseImage"
-              class="block text-sm font-semibold text-gray-700 mb-3"
-              >{{ "adminAddCourse.form.image.label" | translate }}</label
-            >
-            <div class="space-y-4">
-              <!-- Image Preview -->
-              <div *ngIf="imagePreview" class="relative">
-                <img
-                  [src]="imagePreview"
-                  alt="Course preview"
-                  class="w-full h-48 object-cover rounded-lg border border-gray-200"
-                />
-                <button
-                  type="button"
-                  (click)="removeImage()"
-                  class="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors duration-200"
-                >
-                  <svg
-                    class="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M6 18L18 6M6 6l12 12"
-                    ></path>
-                  </svg>
-                </button>
-              </div>
-
-              <!-- Upload Area -->
-              <div
-                *ngIf="!imagePreview"
-                class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors duration-200"
-              >
-                <div class="space-y-2">
-                  <svg
-                    class="mx-auto h-12 w-12 text-gray-400"
-                    stroke="currentColor"
-                    fill="none"
-                    viewBox="0 0 48 48"
-                  >
-                    <path
-                      d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
-                  <div class="text-sm text-gray-600">
-                    <label
-                      for="courseImage"
-                      class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500"
-                    >
-                      <span>{{
-                        "adminAddCourse.form.image.upload" | translate
-                      }}</span>
-                      <input
-                        id="courseImage"
-                        name="courseImage"
-                        type="file"
-                        accept="image/*"
-                        (change)="onImageSelected($event)"
-                        class="sr-only"
-                      />
-                    </label>
-                    <span class="pl-1">{{
-                      "adminAddCourse.form.image.orDrag" | translate
-                    }}</span>
-                  </div>
-                  <p class="text-xs text-gray-500">
-                    {{ "adminAddCourse.form.image.hint" | translate }}
-                  </p>
-                </div>
-              </div>
-
-              <!-- Change Image Button (when image is selected) -->
-              <div *ngIf="imagePreview" class="text-center">
-                <label
-                  for="courseImageChange"
-                  class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200 cursor-pointer"
-                >
-                  <svg
-                    class="w-4 h-4 mr-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                    ></path>
-                  </svg>
-                  {{ "adminAddCourse.form.image.change" | translate }}
-                  <input
-                    id="courseImageChange"
-                    name="courseImageChange"
-                    type="file"
-                    accept="image/*"
-                    (change)="onImageSelected($event)"
-                    class="sr-only"
-                  />
-                </label>
-              </div>
-            </div>
-          </div>
+          <!-- Image uploader removed as per requirements -->
         </div>
       </div>
 
       <!-- Schedule Section -->
       <div *ngIf="currentSection === 'schedule'" class="p-8">
+        <!-- Section Header -->
         <div class="mb-8">
           <div class="flex items-center space-x-4 mb-6">
-            <div
-              class="p-3 bg-gradient-to-br from-green-50 to-green-100 rounded-xl"
-            >
+            <div class="p-3 bg-green-50 rounded-lg">
               <span class="text-2xl">📅</span>
             </div>
             <div>
-              <h2 class="text-2xl font-bold text-gray-900">
+              <h2 class="text-xl font-bold text-gray-900">
                 {{ "adminAddCourse.sections.schedule" | translate }}
               </h2>
-              <p class="text-gray-500 mt-1">
+              <p class="text-gray-600 mt-1">
                 {{ "adminAddCourse.sections.scheduleSubtitle" | translate }}
               </p>
             </div>
           </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <!-- Start Date -->
-          <div class="bg-gray-50 rounded-xl p-6">
-            <label
-              for="startDate"
-              class="block text-sm font-semibold text-gray-700 mb-3"
-              >{{ "adminAddCourse.form.startDate.label" | translate }}</label
-            >
-            <input
-              type="date"
-              id="startDate"
-              formControlName="startDate"
-              class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-              [class.border-red-300]="isFieldInvalid('startDate')"
-            />
-            <div
-              *ngIf="isFieldInvalid('startDate')"
-              class="mt-2 text-sm text-red-600"
-            >
+          <div class="space-y-2">
+            <label for="startDate" class="block text-sm font-medium text-gray-700">
+              {{ "adminAddCourse.form.startDate.label" | translate }}
+            </label>
+            <input type="date" id="startDate" formControlName="startDate"
+                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                   [class.border-red-500]="isFieldInvalid('startDate')" />
+            <div *ngIf="isFieldInvalid('startDate')" class="text-sm text-red-600">
               {{ getFieldError("startDate") }}
             </div>
           </div>
 
           <!-- End Date -->
-          <div class="bg-gray-50 rounded-xl p-6">
-            <label
-              for="endDate"
-              class="block text-sm font-semibold text-gray-700 mb-3"
-              >{{ "adminAddCourse.form.endDate.label" | translate }}</label
-            >
-            <input
-              type="date"
-              id="endDate"
-              formControlName="endDate"
-              class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-              [class.border-red-300]="isFieldInvalid('endDate')"
-            />
-            <div
-              *ngIf="isFieldInvalid('endDate')"
-              class="mt-2 text-sm text-red-600"
-            >
+          <div class="space-y-2">
+            <label for="endDate" class="block text-sm font-medium text-gray-700">
+              {{ "adminAddCourse.form.endDate.label" | translate }}
+            </label>
+            <input type="date" id="endDate" formControlName="endDate"
+                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                   [class.border-red-500]="isFieldInvalid('endDate')" />
+            <div *ngIf="isFieldInvalid('endDate')" class="text-sm text-red-600">
               {{ getFieldError("endDate") }}
             </div>
           </div>
 
           <!-- Time From -->
-          <div class="bg-gray-50 rounded-xl p-6">
-            <label
-              for="timeFrom"
-              class="block text-sm font-semibold text-gray-700 mb-3"
-              >{{ "adminAddCourse.form.timeFrom.label" | translate }}</label
-            >
-            <input
-              type="time"
-              id="timeFrom"
-              formControlName="timeFrom"
-              class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-              [class.border-red-300]="isFieldInvalid('timeFrom')"
-            />
-            <div
-              *ngIf="isFieldInvalid('timeFrom')"
-              class="mt-2 text-sm text-red-600"
-            >
+          <div class="space-y-2">
+            <label for="timeFrom" class="block text-sm font-medium text-gray-700">
+              {{ "adminAddCourse.form.timeFrom.label" | translate }}
+            </label>
+            <input type="time" id="timeFrom" formControlName="timeFrom"
+                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                   [class.border-red-500]="isFieldInvalid('timeFrom')" />
+            <div *ngIf="isFieldInvalid('timeFrom')" class="text-sm text-red-600">
               {{ getFieldError("timeFrom") }}
             </div>
           </div>
 
           <!-- Time To -->
-          <div class="bg-gray-50 rounded-xl p-6">
-            <label
-              for="timeTo"
-              class="block text-sm font-semibold text-gray-700 mb-3"
-              >{{ "adminAddCourse.form.timeTo.label" | translate }}</label
-            >
-            <input
-              type="time"
-              id="timeTo"
-              formControlName="timeTo"
-              class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-              [class.border-red-300]="isFieldInvalid('timeTo')"
-            />
-            <div
-              *ngIf="isFieldInvalid('timeTo')"
-              class="mt-2 text-sm text-red-600"
-            >
+          <div class="space-y-2">
+            <label for="timeTo" class="block text-sm font-medium text-gray-700">
+              {{ "adminAddCourse.form.timeTo.label" | translate }}
+            </label>
+            <input type="time" id="timeTo" formControlName="timeTo"
+                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                   [class.border-red-500]="isFieldInvalid('timeTo')" />
+            <div *ngIf="isFieldInvalid('timeTo')" class="text-sm text-red-600">
               {{ getFieldError("timeTo") }}
             </div>
           </div>
 
           <!-- Duration -->
-          <div class="bg-gray-50 rounded-xl p-6">
-            <label
-              for="duration"
-              class="block text-sm font-semibold text-gray-700 mb-3"
-              >{{ "adminAddCourse.form.duration.label" | translate }}</label
-            >
-            <input
-              type="text"
-              id="duration"
-              formControlName="duration"
-              placeholder="{{
-                'adminAddCourse.form.duration.placeholder' | translate
-              }}"
-              class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-              [class.border-red-300]="isFieldInvalid('duration')"
-            />
-            <div
-              *ngIf="isFieldInvalid('duration')"
-              class="mt-2 text-sm text-red-600"
-            >
+          <div class="space-y-2">
+            <label for="duration" class="block text-sm font-medium text-gray-700">
+              {{ "adminAddCourse.form.duration.label" | translate }}
+            </label>
+            <input type="text" id="duration" formControlName="duration"
+                   placeholder="{{ 'adminAddCourse.form.duration.placeholder' | translate }}"
+                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                   [class.border-red-500]="isFieldInvalid('duration')" />
+            <div *ngIf="isFieldInvalid('duration')" class="text-sm text-red-600">
               {{ getFieldError("duration") }}
             </div>
           </div>
 
           <!-- Available Seats -->
-          <div class="bg-gray-50 rounded-xl p-6">
-            <label
-              for="availableSeats"
-              class="block text-sm font-semibold text-gray-700 mb-3"
-              >{{ "adminAddCourse.form.seats.label" | translate }}</label
-            >
-            <input
-              type="number"
-              id="availableSeats"
-              formControlName="availableSeats"
-              min="1"
-              class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-              [class.border-red-300]="isFieldInvalid('availableSeats')"
-            />
-            <div
-              *ngIf="isFieldInvalid('availableSeats')"
-              class="mt-2 text-sm text-red-600"
-            >
+          <div class="space-y-2">
+            <label for="availableSeats" class="block text-sm font-medium text-gray-700">
+              {{ "adminAddCourse.form.seats.label" | translate }}
+            </label>
+            <input type="number" id="availableSeats" formControlName="availableSeats" min="1"
+                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                   [class.border-red-500]="isFieldInvalid('availableSeats')" />
+            <div *ngIf="isFieldInvalid('availableSeats')" class="text-sm text-red-600">
               {{ getFieldError("availableSeats") }}
             </div>
           </div>
@@ -582,148 +316,96 @@
 
       <!-- Course Details Section -->
       <div *ngIf="currentSection === 'details'" class="p-8">
+        <!-- Section Header -->
         <div class="mb-8">
           <div class="flex items-center space-x-4 mb-6">
-            <div
-              class="p-3 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl"
-            >
+            <div class="p-3 bg-purple-50 rounded-lg">
               <span class="text-2xl">⚙️</span>
             </div>
             <div>
-              <h2 class="text-2xl font-bold text-gray-900">
+              <h2 class="text-xl font-bold text-gray-900">
                 {{ "adminAddCourse.sections.details" | translate }}
               </h2>
-              <p class="text-gray-500 mt-1">
+              <p class="text-gray-600 mt-1">
                 {{ "adminAddCourse.sections.detailsSubtitle" | translate }}
               </p>
             </div>
           </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <!-- Level -->
-          <div class="bg-gray-50 rounded-xl p-6">
-            <label class="block text-sm font-semibold text-gray-700 mb-4">{{
-              "adminAddCourse.form.level.label" | translate
-            }}</label>
-            <div class="space-y-3">
-              <button
-                *ngFor="let level of levels"
-                type="button"
-                (click)="courseForm.patchValue({ level: level.id })"
-                [class]="
-                  courseForm.get('level')?.value === level.id
-                    ? 'bg-blue-500 text-white border-blue-500 shadow-lg'
-                    : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300'
-                "
-                class="flex items-center w-full p-4 border-2 rounded-xl transition-all duration-200"
-              >
-                <span class="text-xl mr-3">{{ level.icon }}</span>
+          <div class="space-y-3">
+            <label class="block text-sm font-medium text-gray-700">
+              {{ "adminAddCourse.form.level.label" | translate }}
+            </label>
+            <div class="space-y-2">
+              <button *ngFor="let level of levels" type="button"
+                      (click)="courseForm.patchValue({ level: level.id })"
+                      [class]="courseForm.get('level')?.value === level.id 
+                        ? 'bg-blue-600 text-white border-blue-600' 
+                        : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'"
+                      class="flex items-center w-full p-3 border rounded-lg transition-all duration-200">
+                <span class="text-lg mr-3">{{ level.icon }}</span>
                 <span class="font-medium">{{ level.name }}</span>
               </button>
             </div>
           </div>
 
           <!-- Price -->
-          <div class="bg-gray-50 rounded-xl p-6">
-            <label
-              for="price"
-              class="block text-sm font-semibold text-gray-700 mb-3"
-              >{{ "adminAddCourse.form.price.label" | translate }}</label
-            >
+          <div class="space-y-2">
+            <label for="price" class="block text-sm font-medium text-gray-700">
+              {{ "adminAddCourse.form.price.label" | translate }}
+            </label>
             <div class="relative">
-              <div
-                class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"
-              >
-                <span class="text-gray-500 text-lg">$</span>
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <span class="text-gray-500">$</span>
               </div>
-              <input
-                type="number"
-                id="price"
-                formControlName="price"
-                min="0"
-                step="0.01"
-                placeholder="0.00"
-                class="w-full pl-8 pr-4 py-3 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-                [class.border-red-300]="isFieldInvalid('price')"
-              />
+              <input type="number" id="price" formControlName="price" min="0" step="0.01" placeholder="0.00"
+                     class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                     [class.border-red-500]="isFieldInvalid('price')" />
             </div>
-            <div
-              *ngIf="isFieldInvalid('price')"
-              class="mt-2 text-sm text-red-600"
-            >
+            <div *ngIf="isFieldInvalid('price')" class="text-sm text-red-600">
               {{ getFieldError("price") }}
             </div>
           </div>
 
           <!-- KPI Weight -->
-          <div class="bg-gray-50 rounded-xl p-6">
-            <label
-              for="kpiWeight"
-              class="block text-sm font-semibold text-gray-700 mb-3"
-              >{{ "adminAddCourse.form.kpi.label" | translate }}</label
-            >
+          <div class="space-y-2">
+            <label for="kpiWeight" class="block text-sm font-medium text-gray-700">
+              {{ "adminAddCourse.form.kpi.label" | translate }}
+            </label>
             <div class="relative">
-              <div
-                class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"
-              >
-                <span class="text-gray-500 text-lg">📊</span>
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <span class="text-gray-500">📊</span>
               </div>
-              <input
-                type="number"
-                id="kpiWeight"
-                formControlName="kpiWeight"
-                min="0"
-                step="0.1"
-                placeholder="0.0"
-                class="w-full pl-8 pr-4 py-3 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-                [class.border-red-300]="isFieldInvalid('kpiWeight')"
-              />
+              <input type="number" id="kpiWeight" formControlName="kpiWeight" min="0" step="0.1" placeholder="0.0"
+                     class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                     [class.border-red-500]="isFieldInvalid('kpiWeight')" />
             </div>
-            <div
-              *ngIf="isFieldInvalid('kpiWeight')"
-              class="mt-2 text-sm text-red-600"
-            >
+            <div *ngIf="isFieldInvalid('kpiWeight')" class="text-sm text-red-600">
               {{ getFieldError("kpiWeight") }}
             </div>
           </div>
 
           <!-- Options -->
           <div class="md:col-span-2">
-            <div class="bg-gray-50 p-6 rounded-xl">
-              <h3 class="text-lg font-semibold text-gray-800 mb-4">
+            <div class="space-y-4">
+              <h3 class="text-lg font-semibold text-gray-800">
                 {{ "adminAddCourse.options.title" | translate }}
               </h3>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div
-                  class="flex items-center p-4 bg-white rounded-lg border border-gray-200"
-                >
-                  <input
-                    type="checkbox"
-                    id="onlineRepeated"
-                    formControlName="onlineRepeated"
-                    class="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                  />
-                  <label
-                    for="onlineRepeated"
-                    class="ml-3 text-sm font-medium text-gray-700"
-                  >
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="flex items-center p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <input type="checkbox" id="onlineRepeated" formControlName="onlineRepeated"
+                         class="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
+                  <label for="onlineRepeated" class="ml-3 text-sm font-medium text-gray-700">
                     {{ "adminAddCourse.options.onlineRepeated" | translate }}
                   </label>
                 </div>
-                <div
-                  class="flex items-center p-4 bg-white rounded-lg border border-gray-200"
-                >
-                  <input
-                    type="checkbox"
-                    id="certificate"
-                    formControlName="certificate"
-                    class="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                  />
-                  <label
-                    for="certificate"
-                    class="ml-3 text-sm font-medium text-gray-700"
-                  >
+                <div class="flex items-center p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <input type="checkbox" id="certificate" formControlName="certificate"
+                         class="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
+                  <label for="certificate" class="ml-3 text-sm font-medium text-gray-700">
                     {{ "adminAddCourse.options.certificate" | translate }}
                   </label>
                 </div>
@@ -735,18 +417,17 @@
 
       <!-- Content & Assignments Section -->
       <div *ngIf="currentSection === 'content'" class="p-8">
+        <!-- Section Header -->
         <div class="mb-8">
           <div class="flex items-center space-x-4 mb-6">
-            <div
-              class="p-3 bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl"
-            >
+            <div class="p-3 bg-orange-50 rounded-lg">
               <span class="text-2xl">📚</span>
             </div>
             <div>
-              <h2 class="text-2xl font-bold text-gray-900">
+              <h2 class="text-xl font-bold text-gray-900">
                 {{ "adminAddCourse.sections.content" | translate }}
               </h2>
-              <p class="text-gray-500 mt-1">
+              <p class="text-gray-600 mt-1">
                 {{ "adminAddCourse.sections.contentSubtitle" | translate }}
               </p>
             </div>
@@ -1221,87 +902,31 @@
       <!-- Navigation -->
       <div class="bg-gray-50 px-8 py-6 border-t border-gray-200">
         <div class="flex items-center justify-between">
-          <button
-            type="button"
-            (click)="previousSection()"
-            *ngIf="currentSection !== 'basic'"
-            class="inline-flex items-center px-6 py-3 border border-gray-200 rounded-xl text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 shadow-sm"
-          >
-            <svg
-              class="w-5 h-5"
-              [ngClass]="isRtl ? 'ml-2' : 'mr-2'"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                [attr.d]="isRtl ? 'M9 5l7 7-7 7' : 'M15 19l-7-7 7-7'"
-              ></path>
+          <button type="button" (click)="previousSection()" *ngIf="currentSection !== 'basic'"
+                  class="inline-flex items-center px-6 py-3 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200">
+            <svg class="w-5 h-5" [ngClass]="isRtl ? 'ml-2' : 'mr-2'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="isRtl ? 'M9 5l7 7-7 7' : 'M15 19l-7-7 7-7'"></path>
             </svg>
             {{ "adminAddCourse.nav.prev" | translate }}
           </button>
+          
           <div class="flex items-center space-x-4">
-            <button
-              type="button"
-              (click)="nextSection()"
-              *ngIf="currentSection !== 'content'"
-              class="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 shadow-sm"
-            >
+            <button type="button" (click)="nextSection()" *ngIf="currentSection !== 'content'"
+                    class="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200">
               {{ "adminAddCourse.nav.next" | translate }}
-              <svg
-                class="w-5 h-5"
-                [ngClass]="isRtl ? 'mr-2' : 'ml-2'"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  [attr.d]="isRtl ? 'M15 19l-7-7 7-7' : 'M9 5l7 7-7 7'"
-                ></path>
+              <svg class="w-5 h-5" [ngClass]="isRtl ? 'mr-2' : 'ml-2'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="isRtl ? 'M15 19l-7-7 7-7' : 'M9 5l7 7-7 7'"></path>
               </svg>
             </button>
-            <button
-              type="submit"
-              *ngIf="currentSection === 'content'"
-              [disabled]="submitting"
-              class="inline-flex items-center px-8 py-3 bg-green-600 text-white rounded-xl text-sm font-medium hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm"
-            >
-              <svg
-                *ngIf="submitting"
-                class="animate-spin h-4 w-4 text-white"
-                [ngClass]="isRtl ? '-mr-1 ml-2' : '-ml-1 mr-2'"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  class="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  stroke-width="4"
-                ></circle>
-                <path
-                  class="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                ></path>
+            
+            <button type="submit" *ngIf="currentSection === 'content'" [disabled]="submitting"
+                    class="inline-flex items-center px-8 py-3 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200">
+              <svg *ngIf="submitting" class="animate-spin h-4 w-4 text-white" [ngClass]="isRtl ? '-mr-1 ml-2' : '-ml-1 mr-2'" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              {{
-                submitting
-                  ? isEditMode
-                    ? ("adminAddCourse.submit.updating" | translate)
-                    : ("adminAddCourse.submit.creating" | translate)
-                  : isEditMode
-                  ? ("adminAddCourse.submit.update" | translate)
-                  : ("adminAddCourse.submit.create" | translate)
-              }}
+              {{ submitting ? (isEditMode ? ("adminAddCourse.submit.updating" | translate) : ("adminAddCourse.submit.creating" | translate)) 
+                 : (isEditMode ? ("adminAddCourse.submit.update" | translate) : ("adminAddCourse.submit.create" | translate)) }}
             </button>
           </div>
         </div>

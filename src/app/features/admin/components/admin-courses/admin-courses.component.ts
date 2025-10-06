@@ -13,6 +13,7 @@ import {
   Course,
   CourseFilterRequest,
   CourseService,
+  SimpleLocation,
 } from '../../../../core/services/course.service';
 import { AiHelperComponent } from '../../../../shared/components/ai-helper/ai-helper.component';
 import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
@@ -57,6 +58,11 @@ export class AdminCoursesComponent implements OnInit {
     total: 0,
   };
 
+  // View mode properties
+  viewMode: 'list' | 'calendar' = 'list';
+  currentMonth: Date = new Date();
+  calendarCourses: { [key: string]: Course[] } = {};
+
   // QR Popup properties
   showAttendanceQRPopup = false;
   attendanceQRData: any = null;
@@ -85,25 +91,32 @@ export class AdminCoursesComponent implements OnInit {
   ngOnInit(): void {
     this.currentUser = this.authService.currentUserValue;
     this.setupRTLSupport();
-    this.initializeFilterOptions();
-    this.loadCourses();
   }
 
   private setupRTLSupport(): void {
+    // Wait for translations to be loaded before initializing
+    this.translationService.getTranslationsLoaded$().subscribe((loaded) => {
+      if (loaded) {
+        this.isRTL = this.translationService.isRTL();
+        this.initializeFilterOptions(); // Initialize filter options when translations are loaded
+        this.loadCourses(); // Load courses after translations are ready
+      }
+    });
+
+    // Also listen for language changes to reinitialize
     this.translationService.getCurrentLanguage$().subscribe(() => {
       this.isRTL = this.translationService.isRTL();
-      this.initializeFilterOptions(); // Reinitialize filter options when language changes
+      this.initializeFilterOptions(); // Reinitialize when language changes
     });
   }
 
   private initializeFilterOptions(): void {
     this.categories = [
       this.translationService.translate('adminCourses.filters.categoryAll'),
-      'Technology',
-      'Business',
-      'Design',
-      'Marketing',
-      'Development',
+      'OnSite',
+      'OutSite',
+      'OnlineVideo',
+      'Abroad',
     ];
 
     this.levels = [
@@ -117,45 +130,17 @@ export class AdminCoursesComponent implements OnInit {
       this.translationService.translate('adminCourses.filters.statusAll'),
       this.translationService.translate('adminCourses.status.draft'),
       this.translationService.translate('adminCourses.status.published'),
-      this.translationService.translate('adminCourses.status.inProgress'),
-      this.translationService.translate('adminCourses.status.completed'),
       this.translationService.translate('adminCourses.status.archived'),
+      this.translationService.translate('adminCourses.status.closed'),
+      this.translationService.translate('adminCourses.status.registrationClosed'),
+      this.translationService.translate('adminCourses.status.active'),
+      this.translationService.translate('adminCourses.status.completed'),
     ];
   }
 
   private loadCourses(): void {
-    this.loading = true;
-
-    const filterRequest: CourseFilterRequest = {
-      page: this.currentPage, // API uses 0-based pagination
-      pageSize: this.itemsPerPage,
-      sortBy: 'id',
-      sortOrder: 'desc',
-    };
-
-    this.courseService.filterCourses(filterRequest).subscribe({
-      next: (response) => {
-        if (response.statusCode === 200) {
-          this.courses = response.result;
-          this.filteredCourses = [...this.courses];
-          // this.totalItems = response.pagination.total;
-          // this.currentPage = response.pagination.currentPage;
-          // this.paginationInfo = {
-          //   currentPage: response.pagination.currentPage,
-          //   pageSize: response.pagination.pageSize,
-          //   total: response.pagination.total,
-          // };
-          this.updatePagination();
-        } else {
-          console.error('Failed to load courses:', response.message);
-        }
-        this.loading = false;
-      },
-      error: (error) => {
-        console.error('Error loading courses:', error);
-        this.loading = false;
-      },
-    });
+    // Use filterCourses to load courses with current filter state
+    this.filterCourses();
   }
 
   get isAdmin(): boolean {
@@ -212,12 +197,16 @@ export class AdminCoursesComponent implements OnInit {
         return 'bg-gray-100 text-gray-800';
       case 2: // Published
         return 'bg-green-100 text-green-800';
-      case 3: // In Progress
-        return 'bg-blue-100 text-blue-800';
-      case 4: // Completed
-        return 'bg-purple-100 text-purple-800';
-      case 5: // Archived
+      case 3: // Archived
         return 'bg-red-100 text-red-800';
+      case 4: // Closed
+        return 'bg-gray-100 text-gray-800';
+      case 5: // Registration Closed
+        return 'bg-yellow-100 text-yellow-800';
+      case 6: // Active
+        return 'bg-blue-100 text-blue-800';
+      case 7: // Completed
+        return 'bg-purple-100 text-purple-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
@@ -234,15 +223,23 @@ export class AdminCoursesComponent implements OnInit {
         );
       case 3:
         return this.translationService.translate(
-          'adminCourses.status.inProgress'
+          'adminCourses.status.archived'
         );
       case 4:
         return this.translationService.translate(
-          'adminCourses.status.completed'
+          'adminCourses.status.closed'
         );
       case 5:
         return this.translationService.translate(
-          'adminCourses.status.archived'
+          'adminCourses.status.registrationClosed'
+        );
+      case 6:
+        return this.translationService.translate(
+          'adminCourses.status.active'
+        );
+      case 7:
+        return this.translationService.translate(
+          'adminCourses.status.completed'
         );
       default:
         return 'Unknown';
@@ -303,16 +300,15 @@ export class AdminCoursesComponent implements OnInit {
     this.loading = true;
 
     const filterRequest: CourseFilterRequest = {
-      page: this.currentPage - 1, // API uses 0-based pagination
+      page: this.currentPage,
       pageSize: this.itemsPerPage,
-      sortBy: 'title',
-      sortOrder: 'asc',
+      sortBy: 'id',
+      sortOrder: 'desc',
     };
 
     // Add search filters
     if (this.searchTerm) {
       filterRequest.title = this.searchTerm;
-      filterRequest.description = this.searchTerm;
     }
 
     // Add category filter
@@ -321,14 +317,14 @@ export class AdminCoursesComponent implements OnInit {
       this.selectedCategory !==
         this.translationService.translate('adminCourses.filters.categoryAll')
     ) {
-      const categoryMap: { [key: string]: number } = {
-        Technology: 1,
-        Business: 2,
-        Design: 3,
-        Marketing: 4,
-        Development: 5,
+      // Map frontend category names to backend enum values
+      const categoryMap: { [key: string]: string } = {
+        'OnSite': 'OnSite',
+        'OutSite': 'OutSite', 
+        'OnlineVideo': 'OnlineVideo',
+        'Abroad': 'Abroad'
       };
-      filterRequest.category = categoryMap[this.selectedCategory];
+      filterRequest.category = categoryMap[this.selectedCategory] || this.selectedCategory;
     }
 
     // Add level filter
@@ -337,14 +333,15 @@ export class AdminCoursesComponent implements OnInit {
       this.selectedLevel !==
         this.translationService.translate('adminCourses.filters.levelAll')
     ) {
-      const levelMap: { [key: string]: number } = {
-        [this.translationService.translate('adminCourses.level.beginner')]: 1,
+      // Map frontend level names to backend enum values
+      const levelMap: { [key: string]: string } = {
+        [this.translationService.translate('adminCourses.level.beginner')]: 'Beginner',
         [this.translationService.translate(
           'adminCourses.level.intermediate'
-        )]: 2,
-        [this.translationService.translate('adminCourses.level.advanced')]: 3,
+        )]: 'Intermediate',
+        [this.translationService.translate('adminCourses.level.advanced')]: 'Advanced',
       };
-      filterRequest.level = levelMap[this.selectedLevel];
+      filterRequest.level = levelMap[this.selectedLevel] || this.selectedLevel;
     }
 
     // Add status filter
@@ -353,31 +350,28 @@ export class AdminCoursesComponent implements OnInit {
       this.selectedStatus !==
         this.translationService.translate('adminCourses.filters.statusAll')
     ) {
-      const statusMap: { [key: string]: number } = {
-        [this.translationService.translate('adminCourses.status.draft')]: 1,
-        [this.translationService.translate('adminCourses.status.published')]: 2,
-        [this.translationService.translate(
-          'adminCourses.status.inProgress'
-        )]: 3,
-        [this.translationService.translate('adminCourses.status.completed')]: 4,
-        [this.translationService.translate('adminCourses.status.archived')]: 5,
-      };
-      filterRequest.status = statusMap[this.selectedStatus];
+      // Map frontend status names to backend status IDs
+      const statusIndex = this.statuses.indexOf(this.selectedStatus);
+      if (statusIndex > 0) { // Skip index 0 which is "All"
+        // Map array index to actual status ID
+        const statusIdMap = [0, 1, 2, 3, 4, 5, 6, 7]; // 0=All, 1=Draft, 2=Published, 3=Archived, 4=Closed, 5=RegistrationClosed, 6=Active, 7=Completed
+        filterRequest.status = statusIdMap[statusIndex];
+      }
     }
 
     this.courseService.filterCourses(filterRequest).subscribe({
       next: (response) => {
         if (response.statusCode === 200) {
-          this.courses = response.result;
+          this.courses = response.result.items || [];
           this.filteredCourses = [...this.courses];
-          this.totalItems = response.pagination.total;
-          this.currentPage = response.pagination.currentPage;
+          this.totalItems = response.result.totalCount || 0;
           this.paginationInfo = {
-            currentPage: response.pagination.currentPage,
-            pageSize: response.pagination.pageSize,
-            total: response.pagination.total,
+            currentPage: response.result.page || 1,
+            pageSize: response.result.pageSize || 10,
+            total: response.result.totalCount || 0,
           };
           this.updatePagination();
+          this.updateCalendarCourses();
         } else {
           console.error('Failed to filter courses:', response.message);
         }
@@ -451,18 +445,18 @@ export class AdminCoursesComponent implements OnInit {
   }
 
   canTogglePublishStatus(course: Course): boolean {
-    // Hide publish/unpublish button when course is active (3) or completed (4)
-    return course.statusId !== 3 && course.statusId !== 4;
+    // Hide publish/unpublish button when course is active (6) or completed (7)
+    return course.statusId !== 6 && course.statusId !== 7;
   }
 
   canCompleteCourse(course: Course): boolean {
-    // Show complete button only when course is active (3)
-    return course.statusId === 3;
+    // Show complete button only when course is active (6)
+    return course.statusId === 6;
   }
 
   // Check if course is completed
   isCourseCompleted(course: Course): boolean {
-    return course.statusId === 4 || course.statusName === 'Completed';
+    return course.statusId === 7 || course.statusName === 'Completed';
   }
 
   // Check if edit button should be shown (not completed)
@@ -487,7 +481,7 @@ export class AdminCoursesComponent implements OnInit {
 
   // Check if QR buttons should be shown (active status only)
   shouldShowQRButtons(course: Course): boolean {
-    return course.statusId === 3 || course.statusName === 'In Progress';
+    return course.statusId === 6 || course.statusName === 'Active';
   }
 
   toggleCourseStatus(course: Course): void {
@@ -531,8 +525,8 @@ export class AdminCoursesComponent implements OnInit {
       next: (response: any) => {
         if (response.statusCode === 200) {
           // Update the course status locally
-          course.statusId = 3;
-          course.statusName = 'In Progress';
+          course.statusId = 6;
+          course.statusName = 'Active';
           this.toastr.success(
             response.message || 'Course made active successfully!'
           );
@@ -553,7 +547,7 @@ export class AdminCoursesComponent implements OnInit {
       next: (response: any) => {
         if (response.statusCode === 200) {
           // Update the course status locally
-          course.statusId = 4;
+          course.statusId = 7;
           course.statusName = 'Completed';
           this.toastr.success(
             response.message || 'Course completed successfully!'
@@ -738,5 +732,136 @@ export class AdminCoursesComponent implements OnInit {
   onQRImageError(event: any): void {
     console.error('QR image failed to load:', event);
     this.toastr.error('Failed to load QR code image');
+  }
+
+  // View mode methods
+  toggleViewMode(): void {
+    this.viewMode = this.viewMode === 'list' ? 'calendar' : 'list';
+    if (this.viewMode === 'calendar') {
+      this.updateCalendarCourses();
+    }
+  }
+
+  updateCalendarCourses(): void {
+    this.calendarCourses = {};
+    this.courses.forEach(course => {
+      const startDate = new Date(course.startDate);
+      const endDate = new Date(course.endDate);
+      
+      // Add course to all dates between start and end
+      const currentDate = new Date(startDate);
+      while (currentDate <= endDate) {
+        const dateKey = this.formatDateKey(currentDate);
+        if (!this.calendarCourses[dateKey]) {
+          this.calendarCourses[dateKey] = [];
+        }
+        this.calendarCourses[dateKey].push(course);
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+    });
+  }
+
+  formatDateKey(date: Date): string {
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+  }
+
+  getCoursesForDate(date: Date): Course[] {
+    const dateKey = this.formatDateKey(date);
+    return this.calendarCourses[dateKey] || [];
+  }
+
+  getCalendarDays(): Date[] {
+    const year = this.currentMonth.getFullYear();
+    const month = this.currentMonth.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const startingDayOfWeek = firstDay.getDay();
+
+    const days: Date[] = [];
+
+    // Add empty cells for days before the first day of the month
+    for (let i = 0; i < startingDayOfWeek; i++) {
+      days.push(new Date(year, month, -startingDayOfWeek + i + 1));
+    }
+
+    // Add days of the month
+    for (let day = 1; day <= daysInMonth; day++) {
+      days.push(new Date(year, month, day));
+    }
+
+    return days;
+  }
+
+  previousMonth(): void {
+    this.currentMonth = new Date(this.currentMonth.getFullYear(), this.currentMonth.getMonth() - 1, 1);
+    this.updateCalendarCourses();
+  }
+
+  nextMonth(): void {
+    this.currentMonth = new Date(this.currentMonth.getFullYear(), this.currentMonth.getMonth() + 1, 1);
+    this.updateCalendarCourses();
+  }
+
+  getMonthName(): string {
+    return this.currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  }
+
+  isToday(date: Date): boolean {
+    const today = new Date();
+    return date.toDateString() === today.toDateString();
+  }
+
+  isCurrentMonth(date: Date): boolean {
+    return date.getMonth() === this.currentMonth.getMonth() && 
+           date.getFullYear() === this.currentMonth.getFullYear();
+  }
+
+  // Helper method to format date for display
+  formatDate(dateString: string): string {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  }
+
+  // Helper method to get location name
+  getLocationName(course: Course): string {
+    if (!course.location) return 'No Location';
+    
+    // If location is a string, return it directly
+    if (typeof course.location === 'string') {
+      return course.location;
+    }
+    
+    // If location is a SimpleLocation object
+    const location = course.location as SimpleLocation;
+    
+    // Check if location has both English and Arabic names
+    if (location.nameEn && location.nameAr) {
+      return this.isRTL ? location.nameAr : location.nameEn;
+    }
+    
+    // Fallback to available name
+    return location.nameEn || location.nameAr || 'Unknown Location';
+  }
+
+  // Get course image source with fallback
+  getCourseImageSrc(course: Course): string {
+    if (!course.image || course.image.trim() === '') {
+      return 'assets/images/placeholder.jpg';
+    }
+    return this.imageBaseUrl + course.image;
+  }
+
+  // Handle image loading errors
+  onImageError(event: any): void {
+    const img = event.target as HTMLImageElement;
+    if (img.src !== 'assets/images/placeholder.jpg') {
+      img.src = 'assets/images/placeholder.jpg';
+    }
   }
 }
